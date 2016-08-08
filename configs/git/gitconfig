@@ -1,0 +1,31 @@
+[user]
+	email = ggazzi@inf.ufrgs.br
+	name = Guilherme G. Azzi
+
+[push]
+	default = simple
+
+[alias]
+	co = checkout
+	st = status -s -- .
+
+	unstage = reset HEAD
+
+	ls = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate
+	ll = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --numstat
+	lg = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --graph
+	linfo = log -p --decorate
+
+	diff-tree = diff
+	dt = diff
+	diff-index = diff --cached HEAD
+	di = diff --cached HEAD
+
+	filelog = log -u
+	fl = log -u
+
+	assume-unchanged = update-index --assume-unchanged
+	unassume-unchanged = update-index --no-assume-unchanged
+
+[core]
+	editor = vim

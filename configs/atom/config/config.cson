@@ -4,6 +4,8 @@
       "atom-material-ui"
       "atom-dark-syntax"
     ]
+  editor:
+    fontFamily: "Fira Code"
   "exception-reporting":
     userId: "f96e777f-ace7-9fe4-3f87-ac9f33d8e474"
   "package-sync":

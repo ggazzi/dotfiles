@@ -1,5 +1,5 @@
 # Maintainer: Guilherme Azzi <ggazzi@inf.ufrgs.br>
-pkgname=agg
+pkgname=agg-graphs
 pkgver=2.1
 pkgrel=1
 pkgdesc="A Development Environment for Attributed Graph Transformation Systems"

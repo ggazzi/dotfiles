@@ -33,6 +33,7 @@ fi
 # Link to the config files
 create_config_link "config.cson"
 create_config_link "packages.cson"
+create_config_link "styles.less"
 
 # Install minimal necessary packages
 echo "Installing package-sync"

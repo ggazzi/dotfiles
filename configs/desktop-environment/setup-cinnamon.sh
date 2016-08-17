@@ -7,7 +7,7 @@ sudo pacman -S cinnamon
 
 echo
 echo "Installing themes"
-sudo pacman -S faenza-icon-theme faience-icon-theme
+sudo pacman -S faenza-icon-theme faience-icon-theme otf-fira-mono otf-fira-sans
 aurget -S gtk-theme-arc ttf-roboto ttf-roboto-mono otf-fira-code otf-hasklig --noedit
 
 

@@ -13,7 +13,7 @@ aurget -S gtk-theme-arc ttf-roboto ttf-roboto-mono otf-fira-code otf-hasklig --n
 
 echo
 echo "Installing utilities"
-sudo pacman -S file-roller gnome-terminal gedit firefox
+sudo pacman -S file-roller gnome-terminal gedit firefox system-config-printer
 
 
 echo

@@ -12,3 +12,6 @@ fi
 
 echo "linking bashrc"
 ln -s "$BASHRC_PATH" ~/.bashrc
+
+echo "creating bashrc.d"
+mkdir -p ~/.bashrc.d

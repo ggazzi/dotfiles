@@ -16,6 +16,9 @@ source /usr/share/bash-cuteprompt/cuteprompt-set.sh
 # Sets up the path
 PATH=$HOME/.local/bin:$PATH
 
+# Useful aliases
+alias open=xdg-open
+
 
 # Sources everything from ~/.bashrc.d
 if [ -d ~/.bashrc.d ]

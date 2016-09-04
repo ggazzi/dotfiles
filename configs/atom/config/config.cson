@@ -8,6 +8,7 @@
     fontFamily: "Fira Code"
   "exception-reporting":
     userId: "f96e777f-ace7-9fe4-3f87-ac9f33d8e474"
+  "ide-haskell": {}
   "package-sync":
     createOnChange: true
   welcome:

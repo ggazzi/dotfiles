@@ -18,7 +18,6 @@ make_link()
   echo
 }
 
-set -x
 
 CONFIG_ROOT="$(realpath "$1")"
 

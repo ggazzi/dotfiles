@@ -1,3 +1,3 @@
 #!/bin/bash
 
-dconf dump /org/cinnamon/ > cinnamon.conf.new
+dconf dump /org/cinnamon/ > config/cinnamon.conf.new

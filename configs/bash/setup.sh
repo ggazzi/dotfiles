@@ -1,7 +1,10 @@
 #!/bin/bash
 
-set +x
+echo
+echo "Installing bash completion"
+sudo pacman -S bash-completion
 
+echo
 BASHRC_PATH="$(realpath "$1/bashrc")"
 
 if [ -f ~/.bashrc ] || [ -L ~/.bashrc ]

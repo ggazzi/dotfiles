@@ -34,7 +34,7 @@ fi
 aurget -S atom-editor-bin --deps
 
 # Link to the config files
-pacman -S "$HOME/.atom"
+mkdir "$HOME/.atom"
 create_config_link "config.cson"
 create_config_link "packages.cson"
 create_config_link "styles.less"

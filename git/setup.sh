@@ -21,7 +21,7 @@ make_link()
 CONFIG_ROOT="$1"
 
 # Ensure git is installed
-sudo pacman -S git gitg
+sudo pacman -S git gitg diff-so-fancy kdiff3
 echo
 
 # Setup the configuration

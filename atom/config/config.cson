@@ -1,4 +1,9 @@
 "*":
+  "atom-beautify":
+    elm:
+      beautify_on_save: true
+    general:
+      _analyticsUserId: "c5bea873-1386-4b4f-9a31-85b7f0573f4b"
   core:
     telemetryConsent: "limited"
     themes: [
@@ -6,15 +11,29 @@
       "atom-dark-syntax"
     ]
   editor:
+    atomicSoftTabs: false
     fontFamily: "Fira Code"
     preferredLineLength: 100
     softWrap: true
     softWrapAtPreferredLineLength: true
     softWrapHangingIndent: 2
+    tabType: "soft"
   "exception-reporting":
     userId: "f96e777f-ace7-9fe4-3f87-ac9f33d8e474"
   "ide-haskell": {}
   "package-sync":
     createOnChange: true
+  "spell-check":
+    grammars: [
+      "source.asciidoc"
+      "source.gfm"
+      "text.git-commit"
+      "text.plain"
+      "text.plain.null-grammar"
+      "text.tex.latex"
+    ]
+  tabs:
+    addNewTabsAtEnd: true
+    enableVcsColoring: true
   welcome:
     showOnStartup: false

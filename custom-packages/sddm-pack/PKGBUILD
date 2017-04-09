@@ -1,0 +1,19 @@
+# Author: Guilherme Azzi <ggazzi@inf.ufrgs.br>
+
+pkgname=sddm-pack
+pkgver=0.1
+pkgrel=1
+pkgdesc="Utility package for installing and configuring SDDM."
+arch=('any')
+license=(MIT)
+depends=('xorg-server' 'xorg-server-utils' 'sddm' 'archlinux-themes-sddm')
+source=('sddm.conf')
+md5sums=('f4cb4dc6fcc2d7fdd8dd9ecef52c9d8f')
+sha246sums=('0dd07c914cbe7427e941da7a6011bbd0b3d68345433ea75607a6bb57811663c6')
+
+package() {
+  mkdir -p "$pkgdir/etc"
+  install -Dm755 "$srcdir/sddm.conf" "$pkgdir/etc/sddm.conf"
+}
+
+# vim:set ts=2 sw=2 et:

@@ -51,6 +51,7 @@
     showPanel: true
   "package-sync":
     createOnChange: true
+    forceOverwrite: true
   "spell-check":
     grammars: [
       "source.asciidoc"

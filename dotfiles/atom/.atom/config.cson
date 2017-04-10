@@ -4,7 +4,25 @@
       beautify_on_save: true
     general:
       _analyticsUserId: "c5bea873-1386-4b4f-9a31-85b7f0573f4b"
+    haskell:
+      beautify_on_save: true
+  "atom-material-ui":
+    colors:
+      abaseColor: "#325f75"
+      accentColor: "#9a4c26"
+      genAccent: true
+      predefinedColor: "Blue Grey"
+    tabs:
+      tintedTabBar: true
+    treeView:
+      blendTabs: true
+      compactList: true
+    ui:
+      panelContrast: true
   core:
+    autoHideMenuBar: true
+    closeDeletedFileTabs: true
+    destroyEmptyPanes: false
     telemetryConsent: "limited"
     themes: [
       "atom-material-ui"
@@ -13,6 +31,7 @@
   editor:
     atomicSoftTabs: false
     fontFamily: "Fira Code"
+    fontSize: 13
     preferredLineLength: 100
     softWrap: true
     softWrapAtPreferredLineLength: true
@@ -20,9 +39,16 @@
     tabType: "soft"
   "exception-reporting":
     userId: "f96e777f-ace7-9fe4-3f87-ac9f33d8e474"
+  "haskell-ghc-mod":
+    useLinter: true
   "ide-haskell":
     onSavePrettify: true
-  linter: {}
+  latex:
+    enableShellEscape: true
+    loggingLevel: "error"
+    opener: "pdf-view"
+  "linter-ui-default":
+    showPanel: true
   "package-sync":
     createOnChange: true
   "spell-check":
@@ -39,3 +65,15 @@
     enableVcsColoring: true
   welcome:
     showOnStartup: false
+".bibtex.text":
+  editor:
+    softWrapAtPreferredLineLength: false
+".latex.log.text":
+  editor:
+    softWrapAtPreferredLineLength: false
+".latex.tex.text":
+  editor:
+    softWrapAtPreferredLineLength: false
+".tex.text":
+  editor:
+    softWrapAtPreferredLineLength: false

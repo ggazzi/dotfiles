@@ -17,7 +17,7 @@ source /usr/share/bash-cuteprompt/cuteprompt-set.sh
 PATH=$HOME/.local/bin:$PATH
 
 # Useful aliases
-alias open=xdg-open
+alias open="gio open"
 
 
 # Sources everything from ~/.bashrc.d

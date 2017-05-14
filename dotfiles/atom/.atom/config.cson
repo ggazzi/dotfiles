@@ -23,6 +23,9 @@
     autoHideMenuBar: true
     closeDeletedFileTabs: true
     destroyEmptyPanes: false
+    disabledPackages: [
+      "language-gfm"
+    ]
     telemetryConsent: "limited"
     themes: [
       "atom-material-ui"
@@ -68,17 +71,18 @@
 ".bibtex.text":
   editor:
     softWrapAtPreferredLineLength: false
+".gfm.source":
+  editor:
+    preferredLineLength: 80
 ".latex.log.text":
   editor:
     softWrapAtPreferredLineLength: false
 ".latex.tex.text":
   editor:
     softWrapAtPreferredLineLength: false
-".makefile.source":
+".md.text":
   editor:
-    softTabs: false
-    softWrapHangingIndent: 4
-    tabLength: 4
+    preferredLineLength: 80
 ".tex.text":
   editor:
     softWrapAtPreferredLineLength: false

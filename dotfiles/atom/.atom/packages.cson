@@ -17,6 +17,7 @@ packages: [
   "language-haskell"
   "language-ini"
   "language-latex"
+  "language-markdown"
   "latex"
   "linter"
   "linter-elm-make"

@@ -1,0 +1,2 @@
+complete -F _command run
+

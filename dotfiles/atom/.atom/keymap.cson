@@ -4,6 +4,7 @@
   'ctrl-shift-tab': 'pane:show-previous-item'
   'ctrl-shift-tab ^ctrl': 'unset!'
 'atom-text-editor':
+  'alt-q': 'magic-reflow:reflow'
   'ctrl-i ctrl-down': 'linter-ui-default:next'
   'ctrl-i ctrl-up': 'linter-ui-default:previous'
   'ctrl-e ctrl-down': 'linter-ui-default:next-error'

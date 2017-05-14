@@ -23,6 +23,7 @@ packages: [
   "linter-elm-make"
   "linter-shellcheck"
   "linter-ui-default"
+  "magic-reflow"
   "minimap"
   "package-sync"
   "pdf-view"

@@ -7,11 +7,11 @@ sudo pacman -S wget
 echo ""
 echo "Installing aurget..."
 
-cd /tmp
+cd /tmp || exit
 wget https://aur.archlinux.org/cgit/aur.git/snapshot/aurget.tar.gz
 tar xf aurget.tar.gz
 
-cd aurget
+cd aurget || exit
 makepkg -di
 
 # Install aura

@@ -1,20 +1,3 @@
 #!/bin/bash
 
-echo
-echo "Installing bash completion"
 sudo pacman -S bash-completion
-
-echo
-BASHRC_PATH="$(realpath "$1/bashrc")"
-
-if [ -f ~/.bashrc ] || [ -L ~/.bashrc ]
-then
-    echo "backing up previous bashrc"
-    mv ~/.bashrc ~/bashrc.prev
-fi
-
-echo "linking bashrc"
-ln -s "$BASHRC_PATH" ~/.bashrc
-
-echo "creating bashrc.d"
-mkdir -p ~/.bashrc.d

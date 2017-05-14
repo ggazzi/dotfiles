@@ -18,4 +18,4 @@ sudo pacman -S file-roller gnome-terminal gedit firefox system-config-printer
 
 
 echo
-echo "After starting cinnamon, run 'load-cinnamon-conf.sh'"
+echo "After starting cinnamon, run 'desktop-environment/load-cinnamon-conf.sh'"

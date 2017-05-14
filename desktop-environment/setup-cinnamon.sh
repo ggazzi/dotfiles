@@ -1,3 +1,4 @@
+#!/bin/bash
 # Installs and configures the desktop environment
 
 echo

@@ -36,7 +36,6 @@
     softWrap: true
     softWrapAtPreferredLineLength: true
     softWrapHangingIndent: 2
-    tabType: "soft"
   "exception-reporting":
     userId: "f96e777f-ace7-9fe4-3f87-ac9f33d8e474"
   "haskell-ghc-mod":
@@ -75,6 +74,11 @@
 ".latex.tex.text":
   editor:
     softWrapAtPreferredLineLength: false
+".makefile.source":
+  editor:
+    softTabs: false
+    softWrapHangingIndent: 4
+    tabLength: 4
 ".tex.text":
   editor:
     softWrapAtPreferredLineLength: false

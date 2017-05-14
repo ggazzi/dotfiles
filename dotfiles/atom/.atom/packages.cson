@@ -21,6 +21,7 @@ packages: [
   "latex"
   "linter"
   "linter-elm-make"
+  "linter-shellcheck"
   "linter-ui-default"
   "minimap"
   "package-sync"

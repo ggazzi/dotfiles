@@ -1,3 +1,3 @@
 #!/bin/bash
 
-sudo pacman -S bash-completion
+sudo pacman -S bash-completion shellcheck

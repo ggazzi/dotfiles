@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Use IBus as input method, ensuring that the custom keyboard layout is used
 export GTK_IM_MODULE=ibus
 export XMODIFIERS=@im=ibus

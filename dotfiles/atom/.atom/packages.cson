@@ -6,7 +6,6 @@ packages: [
   "autocomplete-haskell"
   "color-picker"
   "editorconfig"
-  "elm"
   "haskell-ghc-mod"
   "ide-haskell"
   "ide-haskell-cabal"

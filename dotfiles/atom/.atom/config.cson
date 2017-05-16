@@ -49,6 +49,9 @@
     enableShellEscape: true
     loggingLevel: "error"
     opener: "pdf-view"
+  "linter-elm-make":
+    autoscrollIssueIntoView: true
+    showInferredTypeAnnotations: true
   "linter-ui-default":
     showPanel: true
   "package-sync":

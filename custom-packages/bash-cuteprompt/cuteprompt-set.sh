@@ -6,9 +6,12 @@ has_colors()
   local num_colors
   # shellcheck disable=SC2016
   num_colors=$(infocmp \
-    | grep 'colors#[0-9]\+' \
-    | sed 's_^.*colors#\([0-9]\+\).*$_\1_' \
+    | grep     'colors#\(0x[0-9a-f]\+\|[0-9]\+\)' \
+    | sed 's_^.*colors#\(0x[0-9a-f]\+\|[0-9]\+\).*$_\1_' \
     )
+
+  # convert if its in hex
+  num_colors=$((num_colors))
 
   [[ "$num_colors" -ge 8 ]] && return 0 || return 1
 }

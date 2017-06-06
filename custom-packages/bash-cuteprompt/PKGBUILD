@@ -1,19 +1,17 @@
 # Author: Guilherme Azzi <ggazzi@inf.ufrgs.br>
 
 pkgname=bash-cuteprompt
-pkgver=0.2
+pkgver=0.3
 pkgrel=1
 pkgdesc="A custom, colorized prompt for bash."
 arch=('any')
 license=(MIT)
 depends=('bash')
 source=('cuteprompt-install.sh' 'cuteprompt-set.sh')
-md5sums=('3a72495042fa1ba64c88ba7bb2a9eed0' '1a4851e4a4a515fa925a0c4c58854f0f')
+md5sums=('b84d8f14e9aae2c880efa00dce650fb5' '35bae0522f543c68fce92f5278e8b954')
 
 package() {
   mkdir -p "$pkgdir/usr/share/bash-cuteprompt"
   install -Dm644 "$srcdir/cuteprompt-set.sh" "$pkgdir/usr/share/bash-cuteprompt/cuteprompt-set.sh"
   install -Dm755 "$srcdir/cuteprompt-install.sh" "$pkgdir/usr/bin/cuteprompt-install"
 }
-
-

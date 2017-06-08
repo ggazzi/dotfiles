@@ -74,18 +74,24 @@
 ".bibtex.text":
   editor:
     softWrapAtPreferredLineLength: false
-".gfm.source":
-  editor:
-    preferredLineLength: 80
+  whitespace:
+    removeTrailingWhitespace: false
 ".latex.log.text":
   editor:
     softWrapAtPreferredLineLength: false
 ".latex.tex.text":
   editor:
     softWrapAtPreferredLineLength: false
-".md.text":
-  editor:
-    preferredLineLength: 80
+  whitespace:
+    removeTrailingWhitespace: false
 ".tex.text":
   editor:
     softWrapAtPreferredLineLength: false
+  whitespace:
+    removeTrailingWhitespace: false
+".gfm.source":
+  editor:
+    preferredLineLength: 80
+".md.text":
+  editor:
+    preferredLineLength: 80

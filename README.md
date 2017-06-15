@@ -15,6 +15,16 @@ It is composed of the following subdirectories:
   - `setup-scripts` makes it faster to configure a fresh installation of arch
     linux
 
+## Desktop Environment
+
+Contains tools for backing up and restoring dconf settings. They require the
+following dependencies:
+
+ - [inisort](github.com/ggazzi/inisort)
+ - pyyaml, which can be installed with `pip install --user pyyaml`
+
+Its subdirectory `config` contains the backed-up ini files.
+
 ## Dotfiles
 
 The user configuration files contained under `dotfiles/` should be managed by

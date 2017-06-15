@@ -1,0 +1,4 @@
+config-root: ./config/
+dconf-dirs:
+  - [gnome-terminal, /org/gnome/terminal/]
+  - [gedit, /org/gnome/gedit/]

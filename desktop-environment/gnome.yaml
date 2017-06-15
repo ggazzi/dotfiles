@@ -1,0 +1,7 @@
+config-root: ./config/
+dconf-dirs:
+  - [gnome-shell, /org/gnome/shell/]
+  - [gnome-desktop, /org/gnome/desktop/]
+  - [gnome-keyboard, /org/gnome/keyboard/]
+  - [gnome-settings, /org/gnome/settings/]
+  - [nautilus, /org/gnome/nautilus/]

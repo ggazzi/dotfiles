@@ -1,0 +1,3 @@
+config-root: ./config/
+dconf-dirs:
+  - [cinnamon, /org/cinnamon/]

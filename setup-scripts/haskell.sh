@@ -2,4 +2,4 @@
 
 echo
 echo "Installing ghc, cabal-install and stack"
-sudo pacman -S ghc haskell-ghc-mod cabal-install haskell-stack
+sudo pacman -S ghc ghc-mod cabal-install stack

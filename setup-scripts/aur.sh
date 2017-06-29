@@ -13,6 +13,3 @@ tar xf aurget.tar.gz
 
 cd aurget || exit
 makepkg -di
-
-# Install aura
-aurget -S aura

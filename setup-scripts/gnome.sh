@@ -8,10 +8,10 @@ sudo pacman -S adwaita-icon-theme baobab eog evince gnome-backgrounds gnome-calc
 echo
 echo "Installing themes"
 sudo pacman -S faenza-icon-theme faience-icon-theme otf-fira-mono otf-fira-sans
-sudo aura -A gtk-theme-arc-git ttf-roboto ttf-roboto-mono otf-fira-code otf-hasklig qt5-styleplugins
+aurget -S --noedit gtk-theme-arc-git ttf-roboto ttf-roboto-mono otf-fira-code otf-hasklig qt5-styleplugins
 
 
 echo
 echo "Installing utilities"
 sudo pacman -S file-roller gnome-terminal gedit firefox system-config-printer konsole okular
-sudo aura -A nautilus-dropbox
+aurget -S --noedit nautilus-dropbox

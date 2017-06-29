@@ -1,6 +1,8 @@
 #!/bin/bash
 # shellcheck source=/dev/null
 
+LANG=de_DE.UTF-8
+
 # If not running interactively, don't do anything
 [[ $- != *i* ]] && return
 

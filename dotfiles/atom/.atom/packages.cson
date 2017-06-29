@@ -1,5 +1,6 @@
 packages: [
   "atom-beautify"
+  "atom-latex"
   "atom-material-syntax"
   "atom-material-ui"
   "autocomplete-awk"
@@ -17,7 +18,6 @@ packages: [
   "language-ini"
   "language-latex"
   "language-markdown"
-  "latex"
   "linter"
   "linter-elm-make"
   "linter-shellcheck"

@@ -6,6 +6,12 @@
       _analyticsUserId: "c5bea873-1386-4b4f-9a31-85b7f0573f4b"
     haskell:
       beautify_on_save: true
+  "atom-latex":
+    build_after_save: false
+    focus_viewer: true
+    hide_log_if_success: true
+    preview_after_build: "View in PDF viewer tab"
+    save_on_build: true
   "atom-material-ui":
     colors:
       abaseColor: "#325f75"

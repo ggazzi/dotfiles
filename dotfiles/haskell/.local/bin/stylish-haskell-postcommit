@@ -1,0 +1,5 @@
+#!/bin/bash
+
+git diff --name-only HEAD~1 HEAD \
+    | grep '\.hs$' \
+    | while read -r f; do stylish-haskell -i "$f"; done

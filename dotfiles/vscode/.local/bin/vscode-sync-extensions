@@ -1,0 +1,25 @@
+#!/bin/bash
+
+EXTENSION_LIST=~/.config/Code/User/extensions.list
+
+
+if [ -e "$EXTENSION_LIST" ]
+then
+    echo "Installing extensions..."   
+    for ext in $(cat "$EXTENSION_LIST")
+    do
+        if ! (code --install-extension "$ext")
+        then
+            echo
+            echo "FAILED SYNC!"
+            echo "Couldn't install $ext"
+            exit 1
+        fi
+    done
+fi
+
+echo
+echo "Saving installed extensions..."
+code --list-extensions > "$EXTENSION_LIST" || exit 1
+
+echo "Done!"

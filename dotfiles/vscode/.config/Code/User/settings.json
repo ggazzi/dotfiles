@@ -1,0 +1,65 @@
+// Place your settings in this file to overwrite the default settings
+{
+    "editor.fontFamily": "Fira Code",
+    "editor.fontSize": 12,
+    "editor.wordWrap": "on",
+    "editor.wrappingIndent": "indent",
+    "window.zoomLevel": 0,
+    "latex-workshop.chktex.args.active": [
+        "-wall",
+        "-n21",
+        "-n22",
+        "-n30",
+        "-n46",
+        "-e16",
+        "-q"
+    ],
+    "latex-workshop.chktex.args.root": [
+        "-wall",
+        "-n21",
+        "-n22",
+        "-n30",
+        "-n46",
+        "-e16",
+        "-q"
+    ],
+    "editor.fontLigatures": true,
+    "haskero.intero.ghciOptions": [
+        "-Wall",
+        "-fno-warn-name-shadowing",
+        "-fno-warn-unused-do-bind",
+        "-fno-warn-orphans"
+    ],
+    "todohighlight.isEnable": true,
+    "stylishHaskell.runOnSave": false,
+    "latex-workshop.chktex.enabled": true,
+    "cSpell.language": "en-GB",
+    "cSpell.userWords": [
+        "categorial",
+        "coequalizer",
+        "coequalizers",
+        "colimit",
+        "cospan",
+        "disablings",
+        "epimorphism",
+        "epimorphisms",
+        "epis",
+        "hyperedge",
+        "hypergraph",
+        "hypergraphs",
+        "monic",
+        "monomorphism",
+        "monomorphisms",
+        "overlappings",
+        "preimage",
+        "pullback",
+        "pullbacks",
+        "pushout",
+        "pushouts",
+        "refactorings",
+        "subobjects",
+        "surjective",
+        "topos",
+        "versioning"
+    ]
+}

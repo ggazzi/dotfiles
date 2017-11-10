@@ -35,31 +35,37 @@
     "latex-workshop.chktex.enabled": true,
     "cSpell.language": "en-GB",
     "cSpell.userWords": [
-        "categorial",
-        "coequalizer",
-        "coequalizers",
-        "colimit",
-        "cospan",
-        "disablings",
-        "epimorphism",
-        "epimorphisms",
-        "epis",
-        "hyperedge",
-        "hypergraph",
-        "hypergraphs",
-        "monic",
-        "monomorphism",
-        "monomorphisms",
-        "overlappings",
-        "preimage",
-        "pullback",
-        "pullbacks",
-        "pushout",
-        "pushouts",
         "refactorings",
-        "subobjects",
-        "surjective",
-        "topos",
         "versioning"
+    ],
+    "cSpell.dictionaryDefinitions": [
+        { 
+            "name": "mathTerms",
+            "path": "/home/ggazzi/.config/Code/User/cSpell-dictionaries/mathTerms.json",
+            "description": "Mathematical and category-theoretical terms."
+        }
+    ],
+    "cSpell.dictionaries": [
+        "mathTerms"
+    ],
+    "cSpell.enabledLanguageIds": [
+        "c",
+        "cpp",
+        "csharp",
+        "go",
+        "handlebars",
+        "javascript",
+        "javascriptreact",
+        "json",
+        "latex",
+        "markdown",
+        "php",
+        "plaintext",
+        "python",
+        "restructuredtext",
+        "text",
+        "typescript",
+        "typescriptreact",
+        "yml"
     ]
 }

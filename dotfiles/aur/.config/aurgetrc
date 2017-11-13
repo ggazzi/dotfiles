@@ -1,0 +1,3 @@
+build_directory=/tmp/aurget-$(whoami)
+discard_sources=false
+edit_pkgbuilds='never'

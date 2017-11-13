@@ -35,13 +35,18 @@
     "latex-workshop.chktex.enabled": true,
     "cSpell.language": "en-GB",
     "cSpell.userWords": [
+        "coproduct",
+        "coproducts",
+        "hyperlinks",
+        "preimages",
         "refactorings",
+        "subfigures",
         "versioning"
     ],
     "cSpell.dictionaryDefinitions": [
         { 
             "name": "mathTerms",
-            "path": "/home/ggazzi/.config/Code/User/cSpell-dictionaries/mathTerms.json",
+            "path": "/home/ggazzi/.config/Code/User/cSpell-dictionaries/mathTerms-en.txt",
             "description": "Mathematical and category-theoretical terms."
         }
     ],

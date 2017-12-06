@@ -1,0 +1,7 @@
+concat
+elem
+elems
+eval
+fmap
+newtype
+newtypes

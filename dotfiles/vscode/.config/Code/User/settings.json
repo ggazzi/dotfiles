@@ -35,42 +35,56 @@
     "latex-workshop.chktex.enabled": true,
     "cSpell.language": "en-GB",
     "cSpell.userWords": [
-        "coproduct",
-        "coproducts",
-        "hyperlinks",
-        "preimages",
-        "refactorings",
-        "subfigures",
-        "versioning"
+        "subfigures"
     ],
     "cSpell.dictionaryDefinitions": [
         { 
             "name": "mathTerms",
             "path": "/home/ggazzi/.config/Code/User/cSpell-dictionaries/mathTerms-en.txt",
             "description": "Mathematical and category-theoretical terms."
+        },
+        { 
+            "name": "haskell",
+            "path": "/home/ggazzi/.config/Code/User/cSpell-dictionaries/haskell-en.txt",
+            "description": "Useful words for haskell programming."
+        },
+        { 
+            "name": "programmingTerms",
+            "path": "/home/ggazzi/.config/Code/User/cSpell-dictionaries/programming-en.txt",
+            "description": "Programming and related computer-science terms."
         }
     ],
     "cSpell.dictionaries": [
-        "mathTerms"
+        "mathTerms",
+        "programmingTerms"
     ],
     "cSpell.enabledLanguageIds": [
-        "c",
-        "cpp",
-        "csharp",
-        "go",
-        "handlebars",
-        "javascript",
-        "javascriptreact",
-        "json",
-        "latex",
-        "markdown",
-        "php",
-        "plaintext",
-        "python",
-        "restructuredtext",
-        "text",
-        "typescript",
-        "typescriptreact",
-        "yml"
-    ]
-}
+      "c",
+      "cpp",
+      "csharp",
+      "go",
+      "handlebars",
+      "haskell",
+      "javascript",
+      "javascriptreact",
+      "json",
+      "latex",
+      "markdown",
+      "php",
+      "plaintext",
+      "python",
+      "restructuredtext",
+      "text",
+      "typescript",
+      "typescriptreact",
+      "yml"
+    ],
+    "files.exclude": {
+      "**/.git": true,
+      "**/.svn": true,
+      "**/.hg": true,
+      "**/CVS": true,
+      "**/.DS_Store": true,
+      "**/.stack-work": true
+    }
+  }

@@ -7,13 +7,13 @@ sudo pacman -S adwaita-icon-theme baobab eog evince gnome-backgrounds gnome-calc
 
 echo
 echo "Installing themes"
-sudo pacman -S faenza-icon-theme faience-icon-theme otf-fira-mono otf-fira-sans arc-gtk-theme arc-icon-theme gtk-engine-murrine arc-kde qt5-styleplugins
+sudo pacman -S otf-fira-mono otf-fira-sans arc-gtk-theme arc-icon-theme gtk-engine-murrine arc-kde qt5-styleplugins
 aurget -S --noedit otf-fira-code otf-hasklig
 
 echo
 echo "Installing utilities"
-sudo pacman -S file-roller gnome-terminal gedit firefox system-config-printer konsole okular
-aurget -S --noedit nautilus-dropbox
+sudo pacman -S file-roller gnome-terminal gedit firefox system-config-printer
+#aurget -S --noedit nautilus-dropbox
 
 echo
 echo "Installing vs code"
@@ -22,7 +22,7 @@ aurget -S --noedit visual-studio-code
 
 echo
 echo "Installing gnome shell extensions"
-aurget -S --noedit chrome-gnome-shell-gitz
+aurget -S --noedit chrome-gnome-shell-git
 
 
 echo

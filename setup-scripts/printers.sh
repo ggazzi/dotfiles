@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sudo pacman -S cups ghostscript gsfonts
+sudo pacman -S cups ghostscript gsfonts gutenprint
 
 sudo systemctl enable org.cups.cupsd.service
 sudo systemctl start org.cups.cupsd.service

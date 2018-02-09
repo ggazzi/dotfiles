@@ -1,7 +1,15 @@
 concat
+curr
+eithers
 elem
 elems
 eval
 fmap
+mconcat
 newtype
 newtypes
+overlappable
+spec
+specs
+trans
+

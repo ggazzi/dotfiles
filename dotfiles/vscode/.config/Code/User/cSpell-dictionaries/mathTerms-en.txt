@@ -1,4 +1,6 @@
 categorial
+codomain
+codomains
 coequalizer
 coequalizers
 colimit
@@ -10,6 +12,8 @@ cospan
 cospans
 disabling
 disablings
+domain
+domains
 epi
 epimorphism
 epimorphisms
@@ -30,6 +34,8 @@ overlappings
 postcomposing
 preimage
 preimages
+presheaf
+presheaves
 pullback
 pullbacks
 pushout

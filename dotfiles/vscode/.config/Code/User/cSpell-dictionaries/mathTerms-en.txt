@@ -1,3 +1,4 @@
+adhesivity
 categorial
 codomain
 codomains
@@ -23,6 +24,7 @@ hyperedge
 hyperedges
 hypergraph
 hypergraphs
+initiality
 monic
 mono
 monoid
@@ -30,7 +32,9 @@ monoids
 monomorphism
 monomorphisms
 monos
+naturality
 overlappings
+pointwise
 postcomposing
 preimage
 preimages
@@ -47,3 +51,5 @@ subobjects
 surjective
 topos
 toposes
+unary
+van Kampen

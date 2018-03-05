@@ -29,8 +29,8 @@
     "latex-workshop.chktex.enabled": true,
     "cSpell.language": "en-GB",
     "cSpell.userWords": [
-        "presheaves",
-        "subfigures"
+      "subfigure",
+      "subfigures"
     ],
     "cSpell.dictionaryDefinitions": [
         {
@@ -47,6 +47,11 @@
             "name": "programmingTerms",
             "path": "/home/ggazzi/.config/Code/User/cSpell-dictionaries/programming-en.txt",
             "description": "Programming and related computer-science terms."
+        },
+        {
+          "name": "gratra",
+          "path": "/home/ggazzi/.config/Code/User/cSpell-dictionaries/gratra-en.txt",
+          "description": "Terms related to graph transformation."
         }
     ],
     "cSpell.dictionaries": [

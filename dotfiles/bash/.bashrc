@@ -18,7 +18,7 @@ source /usr/share/bash-cuteprompt/cuteprompt-set.sh
 PATH=$HOME/.local/bin:$PATH
 
 # Allow '**' to recursively search for files when globbing
-shopt -q globstar
+shopt -s globstar
 
 # Useful aliases
 alias open="gio open"

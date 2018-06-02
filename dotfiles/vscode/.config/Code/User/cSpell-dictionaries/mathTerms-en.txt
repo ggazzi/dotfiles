@@ -1,5 +1,6 @@
 adhesivity
 categorial
+cocomplete
 codomain
 codomains
 coequalizer
@@ -25,6 +26,9 @@ hyperedges
 hypergraph
 hypergraphs
 initiality
+initiality
+irreducible
+irreducibles
 monic
 mono
 monoid
@@ -35,15 +39,20 @@ monos
 naturality
 overlappings
 pointwise
+poset
+posets
 postcomposing
 preimage
 preimages
 presheaf
 presheaves
+proto
 pullback
 pullbacks
 pushout
 pushouts
+subelement
+subelements
 subgraph
 subgraphs
 subobject
@@ -52,4 +61,5 @@ surjective
 topos
 toposes
 unary
-van Kampen
+unary
+Van Kampen

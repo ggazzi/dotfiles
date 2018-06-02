@@ -1,0 +1,7 @@
+chktex
+minipage
+minipagepar
+subfigure
+subfigures
+tikz
+tikzcd

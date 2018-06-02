@@ -1,8 +1,11 @@
 dpo
 fpbc
+Henshin
 ipo
 NAC
 NACs
 sesqui-pushout
 spo
 sqpo
+Van Kampen
+verigraph

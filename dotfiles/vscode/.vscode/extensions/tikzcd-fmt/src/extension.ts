@@ -4,15 +4,10 @@
 import * as vscode from 'vscode';
 
 import Window = vscode.window;
-import QuickPickItem = vscode.QuickPickItem;
-import QuickPickOptions = vscode.QuickPickOptions;
-import Document = vscode.TextDocument;
 import Position = vscode.Position;
 import Range = vscode.Range;
 import Selection = vscode.Selection;
-import TextDocument = vscode.TextDocument;
 import TextEditor = vscode.TextEditor;
-//import InputBoxOptions = InputBoxOptions;
 
 function formatTikzcd(text:string): string[] {
     const rows = text.replace(/\\arrow/g, '\\ar').split('\\\\')
@@ -77,9 +72,6 @@ function processSelection(e: TextEditor) {
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 
-    // The command has been defined in the package.json file
-    // Now provide the implementation of the command with  registerCommand
-    // The commandId parameter must match the command field in package.json
     let disposable = vscode.commands.registerCommand('tikzcd-fmt.format', () => {
         const e = Window.activeTextEditor
 
@@ -88,7 +80,7 @@ export function activate(context: vscode.ExtensionContext) {
             return;
         } 
 
-        processSelection(e, formatTikzcd);
+        processSelection(e);
     });
 
     context.subscriptions.push(disposable);

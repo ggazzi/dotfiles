@@ -1,6 +1,8 @@
 adhesivity
 categorial
 cocomplete
+cocone
+cocones
 codomain
 codomains
 coequalizer
@@ -25,6 +27,8 @@ hyperedge
 hyperedges
 hypergraph
 hypergraphs
+infima
+infimum
 initiality
 initiality
 irreducible
@@ -57,6 +61,8 @@ subgraph
 subgraphs
 subobject
 subobjects
+suprema
+supremum
 surjective
 topos
 toposes

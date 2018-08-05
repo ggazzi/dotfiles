@@ -30,7 +30,6 @@ hypergraphs
 infima
 infimum
 initiality
-initiality
 irreducible
 irreducibles
 monic
@@ -63,9 +62,10 @@ subobject
 subobjects
 suprema
 supremum
+surjection
+surjections
 surjective
 topos
 toposes
-unary
 unary
 Van Kampen

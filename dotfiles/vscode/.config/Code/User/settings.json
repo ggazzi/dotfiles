@@ -1,10 +1,109 @@
 // Place your settings in this file to overwrite the default settings
 {
+    "cSpell.dictionaries": [
+        "mathTerms",
+        "programmingTerms"
+    ],
+    "cSpell.dictionaryDefinitions": [
+        {
+            "description": "Mathematical and category-theoretical terms.",
+            "name": "mathTerms",
+            "path": "/home/ggazzi/.config/Code/User/cSpell-dictionaries/mathTerms-en.txt"
+        },
+        {
+            "description": "Useful words for haskell programming.",
+            "name": "haskell",
+            "path": "/home/ggazzi/.config/Code/User/cSpell-dictionaries/haskell-en.txt"
+        },
+        {
+            "description": "Programming and related computer-science terms.",
+            "name": "programmingTerms",
+            "path": "/home/ggazzi/.config/Code/User/cSpell-dictionaries/programming-en.txt"
+        },
+        {
+            "description": "Terms related to graph transformation.",
+            "name": "gratra",
+            "path": "/home/ggazzi/.config/Code/User/cSpell-dictionaries/gratra-en.txt"
+        },
+        {
+            "description": "Terms related to LaTeX.",
+            "name": "latex",
+            "path": "/home/ggazzi/.config/Code/User/cSpell-dictionaries/latex.txt"
+        }
+    ],
+    "cSpell.enabled": false,
+    "cSpell.enabledLanguageIds": [
+        "c",
+        "cpp",
+        "csharp",
+        "go",
+        "handlebars",
+        "haskell",
+        "javascript",
+        "javascriptreact",
+        "json",
+        "latex",
+        "markdown",
+        "php",
+        "plaintext",
+        "python",
+        "restructuredtext",
+        "text",
+        "typescript",
+        "typescriptreact",
+        "yml"
+    ],
+    "cSpell.language": "en-GB",
+    "cSpell.userWords": [
+        "subfigure",
+        "subfigures"
+    ],
     "editor.fontFamily": "Fira Code",
+    "editor.fontLigatures": true,
     "editor.fontSize": 12,
+    "editor.tabSize": 2,
     "editor.wordWrap": "on",
     "editor.wrappingIndent": "indent",
-    "window.zoomLevel": 0,
+    "files.exclude": {
+        "**/.DS_Store": true,
+        "**/.git": true,
+        "**/.hg": true,
+        "**/.stack-work": true,
+        "**/.svn": true,
+        "**/CVS": true
+    },
+    "gitlens.advanced.messages": {
+        "suppressShowKeyBindingsNotice": true
+    },
+    "gitlens.codeLens.scopesByLanguage": [
+        {
+            "language": "css",
+            "scopes": [
+                "document"
+            ]
+        },
+        {
+            "language": "html",
+            "scopes": [
+                "document"
+            ]
+        },
+        {
+            "language": "json",
+            "scopes": [
+                "document"
+            ]
+        },
+        {
+            "language": "haskell",
+            "scopes": [
+                "document"
+            ]
+        }
+    ],
+    "gitlens.historyExplorer.enabled": true,
+    "julia.executablePath": "/usr/bin/julia",
+    "languageServerHaskell.useHieWrapper": true,
     "latex-workshop.chktex.args.active": [
         "-wall",
         "-n21",
@@ -23,144 +122,47 @@
         "-e16",
         "-q"
     ],
-    "editor.fontLigatures": true,
-    "todohighlight.isEnable": true,
-    "stylishHaskell.runOnSave": false,
     "latex-workshop.chktex.enabled": true,
-    "cSpell.language": "en-GB",
-    "cSpell.userWords": [
-      "subfigure",
-      "subfigures",
-      "naturality",
-      "surjections"
-    ],
-    "cSpell.dictionaryDefinitions": [
+    "latex-workshop.latex.tools": [
         {
-            "name": "mathTerms",
-            "path": "/home/ggazzi/.config/Code/User/cSpell-dictionaries/mathTerms-en.txt",
-            "description": "Mathematical and category-theoretical terms."
+            "args": [
+                "-synctex=1",
+                "-interaction=nonstopmode",
+                "-file-line-error",
+                "-pdf",
+                "%DOC%"
+            ],
+            "command": "latexmk",
+            "name": "latexmk"
         },
         {
-            "name": "haskell",
-            "path": "/home/ggazzi/.config/Code/User/cSpell-dictionaries/haskell-en.txt",
-            "description": "Useful words for haskell programming."
+            "args": [
+                "-synctex=1",
+                "-interaction=nonstopmode",
+                "-file-line-error",
+                "%DOC%"
+            ],
+            "command": "pdflatex",
+            "name": "pdflatex"
         },
         {
-            "name": "programmingTerms",
-            "path": "/home/ggazzi/.config/Code/User/cSpell-dictionaries/programming-en.txt",
-            "description": "Programming and related computer-science terms."
+            "args": [
+                "%DOCFILE%"
+            ],
+            "command": "bibtex",
+            "name": "bibtex"
         },
         {
-          "name": "gratra",
-          "path": "/home/ggazzi/.config/Code/User/cSpell-dictionaries/gratra-en.txt",
-          "description": "Terms related to graph transformation."
-        },
-        {
-          "name": "latex",
-          "path": "/home/ggazzi/.config/Code/User/cSpell-dictionaries/latex.txt",
-          "description": "Terms related to LaTeX."
+            "args": [            ],
+            "command": "make",
+            "name": "make"
         }
     ],
-    "cSpell.dictionaries": [
-        "mathTerms",
-        "programmingTerms"
-    ],
-    "cSpell.enabledLanguageIds": [
-      "c",
-      "cpp",
-      "csharp",
-      "go",
-      "handlebars",
-      "haskell",
-      "javascript",
-      "javascriptreact",
-      "json",
-      "latex",
-      "markdown",
-      "php",
-      "plaintext",
-      "python",
-      "restructuredtext",
-      "text",
-      "typescript",
-      "typescriptreact",
-      "yml"
-    ],
-    "files.exclude": {
-      "**/.git": true,
-      "**/.svn": true,
-      "**/.hg": true,
-      "**/CVS": true,
-      "**/.DS_Store": true,
-      "**/.stack-work": true
-    },
-    "gitlens.codeLens.scopesByLanguage": [
-      {
-        "language": "css",
-        "scopes": [
-          "document"
-        ]
-      },
-      {
-        "language": "html",
-        "scopes": [
-          "document"
-        ]
-      },
-      {
-        "language": "json",
-        "scopes": [
-          "document"
-        ]
-      },
-      {
-        "language": "haskell",
-        "scopes": [
-          "document"
-        ]
-      }
-    ],
-    "editor.tabSize": 2,
+    "latex-workshop.view.pdf.viewer": "tab",
+    "stylishHaskell.runOnSave": false,
+    "todohighlight.isEnable": true,
+    "window.zoomLevel": 0,
+    "workbench.colorTheme": "Darcula",
     "workbench.editor.tabSizing": "shrink",
-    "latex-workshop.latex.tools": [
-      {
-        "name": "latexmk",
-        "command": "latexmk",
-        "args": [
-          "-synctex=1",
-          "-interaction=nonstopmode",
-          "-file-line-error",
-          "-pdf",
-          "%DOC%"
-        ]
-      },
-      {
-        "name": "pdflatex",
-        "command": "pdflatex",
-        "args": [
-          "-synctex=1",
-          "-interaction=nonstopmode",
-          "-file-line-error",
-          "%DOC%"
-        ]
-      },
-      {
-        "name": "bibtex",
-        "command": "bibtex",
-        "args": [
-          "%DOCFILE%"
-        ]
-      },
-      {
-        "name": "make",
-        "command": "make",
-        "args": []
-      }
-    ],
-    "latex-workshop.view.pdf.viewer": "tab",
-    "julia.executablePath": "/usr/bin/julia",
-    "gitlens.historyExplorer.enabled": true,
-    "latex-workshop.view.pdf.viewer": "tab",
-    "workbench.iconTheme": "material-icon-theme",
-    "workbench.colorTheme": "Darcula"
-  }
+    "workbench.iconTheme": "material-icon-theme"
+}

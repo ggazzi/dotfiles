@@ -1,9 +1,13 @@
 EditorConfig.EditorConfig
+Equinusocio.vsc-material-theme
 James-Yu.latex-workshop
 MS-CEINTL.vscode-language-pack-de
 TroelsDamgaard.reflow-paragraph
+PKief.material-icon-theme
 Vans.haskero
+akamud.vscode-theme-onedark
 alanz.vscode-hie-server
+azemoh.one-monokai
 eamodio.gitlens
 hoovercj.haskell-linter
 jcanero.hoogle-vscode
@@ -15,6 +19,7 @@ marvhen.reflow-markdown
 mechatroner.rainbow-csv
 minhthai.vscode-todo-parser
 ms-python.python
+rokoroku.vscode-theme-darcula
 sbrink.elm
 stkb.rewrap
 streetsidesoftware.code-spell-checker

@@ -28,6 +28,12 @@
     "stylishHaskell.runOnSave": false,
     "latex-workshop.chktex.enabled": true,
     "cSpell.language": "en-GB",
+    "cSpell.userWords": [
+      "subfigure",
+      "subfigures",
+      "naturality",
+      "surjections"
+    ],
     "cSpell.dictionaryDefinitions": [
         {
             "name": "mathTerms",
@@ -153,5 +159,8 @@
     ],
     "latex-workshop.view.pdf.viewer": "tab",
     "julia.executablePath": "/usr/bin/julia",
-    "gitlens.historyExplorer.enabled": true
+    "gitlens.historyExplorer.enabled": true,
+    "latex-workshop.view.pdf.viewer": "tab",
+    "workbench.iconTheme": "material-icon-theme",
+    "workbench.colorTheme": "Darcula"
   }

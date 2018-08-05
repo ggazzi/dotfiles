@@ -1,0 +1,16 @@
+pkgname=texlive-fira
+pkgver=4.2
+pkgrel=1
+license=('SIL Open Font License')
+depends=('texlive-core' 'texlive-latexextra')
+pkgdesc='A LaTeX package for using typefaces from the Fira family'
+url='https://www.ctan.org/tex-archive/fonts/fira'
+arch=('any')
+source=('http://mirrors.ctan.org/fonts/fira.zip')
+sha256sums=('e67f6156a2de0755bc481753e6bf64a168775ad09e1a01853b25a819d62e6d9b')
+
+package() {
+  mkdir -p $pkgdir/usr/share/texmf/tex/latex/
+  cp -r $srcdir/fira $pkgdir/usr/share/texmf/tex/latex/fira
+}
+

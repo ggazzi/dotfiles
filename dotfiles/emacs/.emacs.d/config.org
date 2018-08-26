@@ -13,6 +13,7 @@
   - [[#load-customel][Load =.custom.el=]]
   - [[#load-secretel][Load =.secret.el=]]
 - [[#user-interface][User Interface]]
+  - [[#mode-line][Mode Line]]
   - [[#colours-and-fonts][Colours and Fonts]]
   - [[#better-defaults][Better Defaults]]
   - [[#editing-keybindings][Editing Keybindings]]
@@ -129,6 +130,26 @@ and =user-mail-address=.  This is also where you want your API tokens to live.
 
 
 * User Interface
+** Mode Line
+
+The mode line can be made prettier (and easier to understand).
+
+#+BEGIN_SRC emacs-lisp
+  (use-package powerline :ensure t
+    :config
+    (powerline-center-theme)
+    (custom-set-faces
+    '(powerline-active1 ((t (:background "#6b2382" :foreground "#f8f8f2"))))
+    '(powerline-active2 ((t (:background "#6b2382" :foreground "#f8f8f2"))))
+    '(powerline-inactive1 ((t (:inherit mode-line-inactive :background "grey15"))))))
+#+END_SRC
+
+We can also improve how modes are displayed.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package delight :ensure t)
+#+END_SRC
+
 ** Colours and Fonts
 
 The face for italic text is underlined when the font does not support
@@ -267,6 +288,7 @@ handling of the undo history.
   (use-package undo-tree
     :demand t
     :ensure t
+    :delight undo-tree-mode nil
     :bind
     (:map undo-tree-map
           ("C-_" . nil)
@@ -300,6 +322,7 @@ smaller, simpler, and smoother to use yet highly customizable.
 
   (use-package ivy
     :ensure t
+    :delight ivy-mode nil
     :config
     (ivy-mode 1)
     (setq ivy-use-virtual-buffers t)
@@ -367,6 +390,7 @@ completion candidates.
   (use-package company
     :ensure t
     :defer 1
+    :delight company-mode nil
     :config
     (global-company-mode 1)
     (setq-default
@@ -381,6 +405,7 @@ completion candidates.
     :ensure t
     :defer 1
     :after company flx
+    :delight company-flx-mode nil
     :config
     (company-flx-mode 1))
 #+END_SRC
@@ -458,11 +483,11 @@ We can make =org-mode= prettier by showing actual bullets.
   (use-package org-bullets
     :ensure t
     :after org
+    :delight org-bullets-mode nil
     :config
     (add-hook 'org-mode-hook
               (lambda () (org-bullets-mode 1))))
 #+END_SRC
-
 
 
 ** Gettings Things Done

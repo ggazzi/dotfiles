@@ -19,9 +19,11 @@
 - [[#org-mode-and-getting-things-done][Org Mode and Getting Things Done]]
   - [[#org-mode][Org Mode]]
   - [[#gettings-things-done][Gettings Things Done]]
+- [[#features][Features]]
+  - [[#version-control][Version Control]]
 
 * Credits
-  
+
 This configuration is heavily based on the work of others, in particular the following.
 
   - [[https://github.com/larstvei/dot-emacs]]
@@ -524,3 +526,35 @@ among the many agenda views.
 
 Do stuff!  Complete the next actions!
 
+
+* Features
+** Version Control
+
+[[https://magit.vc/][Magit]] provides git facilities directily withing Emacs.  It is honestly the best
+git frontend I have ever use.
+
+#+BEGIN_QUOTE
+[[https://github.com/magit/magit][Jonas Bernoulli]]
+
+Magit is an interface to the version control system [[https://git-scm.com/][Git]], implemented as an [[https://www.gnu.org/software/emacs][Emacs]]
+package. Magit aspires to be a complete Git porcelain. While we cannot (yet)
+claim that Magit wraps and improves upon each and every Git command, it is
+complete enough to allow even experienced Git users to perform almost all of
+their daily version control tasks directly from within Emacs. While many fine
+Git clients exist, only Magit and Git itself deserve to be called porcelains.
+[[https://magit.vc/about.html][(more)]]
+#+END_QUOTE
+
+The magit status buffer can be opened with =C-x g=.  Most of the functionality
+of magit is available from there, as documented in the [[https://magit.vc/manual/magit.html#Getting-Started][magit manual]].  You can
+also use =C-x C-g= to open the magit help popup, from which a lot of
+functionality can be accessed too.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package magit
+    :ensure t
+    :bind
+    (:map global-map
+          ("C-x g" . 'magit-status)
+          ("C-x C-g" . 'magit-dispatch-popup)))
+#+END_SRC

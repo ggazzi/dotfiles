@@ -361,7 +361,7 @@ authoring documents with a fast and effective plain-text system.
 
 #+BEGIN_SRC emacs-lisp
   (use-package org
-    :ensure nil
+    :ensure t
     :delight org-mode "Org"
     :preface
     (defun me/org-src-buffer-name (org-buffer-name language)
@@ -383,16 +383,24 @@ authoring documents with a fast and effective plain-text system.
     (:map org-mode-map
           ("C-k" . 'org-kill-region-or-line))
     :config
-    (setq-default
-     org-support-shift-select 'always
-     org-startup-truncated nil)
+    (setq
+     org-support-shift-select nil
+     org-startup-truncated nil
+     org-log-done 'time
+     org-hide-leading-stars t
+     org-return-follows-link t
+     org-enforce-todo-dependencies t
+     org-ellipsis "⤵")
     (advice-add 'org-src--construct-edit-buffer-name :override #'me/org-src-buffer-name))
 #+END_SRC
 
-Display the current Org header and breadcrumbs in the header-line.
+Display in the header-line the heading of the node at the top of the window.
+This avoids confusion when there is some text at the top of the window, and its
+heading wouldn't be visible.
 
 #+BEGIN_SRC emacs-lisp
   (use-package org-sticky-header
+    :ensure t
     :config
     (setq-default
      org-sticky-header-full-path 'full
@@ -404,8 +412,21 @@ package will maintain a TOC at the first heading that has a =:TOC:=
 tag.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package toc-org :after org)
+  (use-package toc-org :ensure t :after org)
 #+END_SRC
+
+We can make =org-mode= prettier by showing actual bullets.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package org-bullets
+    :ensure t
+    :after org
+    :config
+    (add-hook 'org-mode-hook
+              (lambda () (org-bullets-mode 1))))
+#+END_SRC
+
+
 
 ** Gettings Things Done
 
@@ -517,13 +538,13 @@ Tasks may be in one of the following states.
 
 #+BEGIN_SRC emacs-lisp
   (setq org-todo-keywords
-	'((sequence "NEXT(n)"
-		    "TODO(t)"
-		    "WAITING(w)"
-		    "|"
-		    "DONE(d)"
-		    "CANCELLED(c)")))
-
+        '((sequence
+           "NEXT(n)"
+           "TODO(t)"
+           "WAITING(w)"
+           "|"
+           "DONE(d)"
+           "CANCELLED(c)")))
 #+END_SRC
 
 When filing tasks and other notes, they can be annotated with tags,
@@ -619,17 +640,14 @@ Git clients exist, only Magit and Git itself deserve to be called porcelains.
 #+END_QUOTE
 
 The magit status buffer can be opened with =C-x g=.  Most of the functionality
-of magit is available from there, as documented in the [[https://magit.vc/manual/magit.html#Getting-Started][magit manual]].  You can
-also use =C-x C-g= to open the magit help popup, from which a lot of
-functionality can be accessed too.
+of magit is available from there, as documented in the [[https://magit.vc/manual/magit.html#Getting-Started][magit manual]].
 
 #+BEGIN_SRC emacs-lisp
   (use-package magit
     :ensure t
     :bind
     (:map global-map
-          ("C-x g" . 'magit-status)
-          ("C-x C-g" . 'magit-dispatch-popup))
+          ("C-x g" . 'magit-status))
     :config
     (setq magit-completing-read-function 'ivy-completing-read))
 #+END_SRC

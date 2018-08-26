@@ -357,16 +357,16 @@ which includes the following.
   (defvar me/gtd-directory "~/gtd"
     "Root directory where the GTD files are located")
 
-  (defvar me/gtd-inbox-file (concat me/gtd-directory "/inbox.org")
+  (defvar me/gtd-inbox-file (expand-file-name "inbox.org" me/gtd-directory)
     "Org file where new tasks and ideas are collected")
 
-  (defvar me/gtd-projects-file (concat me/gtd-directory "/projects.org")
+  (defvar me/gtd-projects-file (expand-file-name "projects.org" me/gtd-directory)
     "Org file where projects are listed and planned")
 
-  (defvar me/gtd-someday-file (concat me/gtd-directory "/someday.org")
+  (defvar me/gtd-someday-file (expand-file-name "someday.org" me/gtd-directory)
     "Org file for suspended ideas and tasks")
 
-  (defvar me/gtd-tickler-file (concat me/gtd-directory "/tickler.org")
+  (defvar me/gtd-tickler-file (expand-file-name "tickler.org" me/gtd-directory)
     "Org file where reminders are set for particular points in the future")
 #+END_SRC
 
@@ -388,6 +388,15 @@ inbox...
 #+BEGIN_SRC emacs-lisp
   (setq org-default-notes-file (concat me/gtd-directory "/inbox.org"))
   (define-key global-map "\C-cc" 'org-capture)
+#+END_SRC
+
+You can add links to the captured entries with =C-c C-l=, which make it easier
+to access related material.  If you are linking to something that was accessed
+inside Emacs, you can use =C-c l= to copy a link to its location, then =C-c C-l=
+to paste it.
+
+#+BEGIN_SRC emacs-lisp
+  (global-set-key (kbd "C-c C-l") 'org-store-link)
 #+END_SRC
 
 In particular we set up some templates for easily adding a new task or
@@ -439,7 +448,7 @@ Tasks may be in one of the following states.
 		    "|"
 		    "DONE(d)"
 		    "CANCELLED(c)")))
-		  
+
 #+END_SRC
 
 When filing tasks and other notes, they can be annotated with tags,
@@ -465,21 +474,53 @@ of every list is quite time consuming, and shouldn't be done all the
 time.  A good approach is reviewing all lists once a week---the
 so-called weekly review.  When deciding what to do next, you should
 first review your calendar/agenda to check appointments and deadlines,
-then check the =NEXT= tasks, filtered by your current context.
+then check the =NEXT= actions, filtered by your current context.
 
 #+BEGIN_SRC emacs-lisp
   (setq org-agenda-files
-	'(me/gtd-projects-file
-	  me/gtd-inbox-file
-	  me/gtd-ticker-file))
-#+END_SRC
+    (list
+      me/gtd-projects-file
+      me/gtd-inbox-file
+      me/gtd-tickler-file))
+ #+END_SRC
 
 For day-to-day use of the GTD system, you should use both [[https://orgmode.org/manual/Sparse-trees.html][sparse trees]]
 and [[https://orgmode.org/manual/Agenda-views.html#Agenda-views][agenda views]].  Each Org document can be turned into a sparse tree
 with =C-c /=, which will use some dispatcher to show little, selected
 information about each item in the document.
 
+In order to easily open the GTD files, we provide the following commands.
+
+#+BEGIN_SRC emacs-lisp
+  (defun open-gtd-inbox ()
+    (interactive)
+    (find-file me/gtd-inbox-file))
+
+  (defun open-gtd-projects ()
+    (interactive)
+    (find-file me/gtd-projects-file))
+
+  (defun open-gtd-tickler ()
+    (interactive)
+    (find-file me/gtd-tickler-file))
+
+  (defun open-gtd-someday ()
+    (interactive)
+    (find-file me/gtd-someday-file))
+#+END_SRC
+
 [[https://orgmode.org/manual/Agenda-views.html#Agenda-views][Agenda views]] provide a summarized overview of the calendar/agenda and
 pending tasks from multiple files.  [[orgmode.org/worg/org-tutorials/org-custom-agenda-commands.html][Custom agenda commands]] can be
-defined to, e.g., show only the next tasks, filter them by context.
+defined to, e.g., show only the next actions, filter them by context.
+
+I use =C-c a= to access the agenda dispatcher, which then allows me to choose
+among the many agenda views.
+
+#+BEGIN_SRC emacs-lisp
+  (global-set-key (kbd "C-c a") 'org-agenda)
+#+END_SRC
+
+**** Engage
+
+Do stuff!  Complete the next actions!
 

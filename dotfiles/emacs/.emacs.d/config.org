@@ -18,6 +18,7 @@
   - [[#editing-keybindings][Editing Keybindings]]
   - [[#better-completion-and-search][Better Completion and Search]]
   - [[#better-window-navigation][Better Window Navigation]]
+  - [[#auto-completion][Auto-Completion]]
 - [[#org-mode-and-getting-things-done][Org Mode and Getting Things Done]]
   - [[#org-mode][Org Mode]]
   - [[#gettings-things-done][Gettings Things Done]]
@@ -346,6 +347,41 @@ I also disable the usual window navigation so I get used to arrows.
 
 #+BEGIN_SRC emacs-lisp
   (global-set-key (kbd "C-x o") nil)
+#+END_SRC
+
+** Auto-Completion
+
+Auto-completion at point.  Display a small pop-in containing the candidates.
+Use fuzzy matching provided by the =flx= package.
+
+#+BEGIN_QUOTE
+Company is a text completion framework for Emacs. The name stands for "complete
+anything". It uses pluggable back-ends and front-ends to retrieve and display
+completion candidates.
+
+[[http://company-mode.github.io/][Dmitry Gutov]]
+#+END_QUOTE
+
+#+BEGIN_SRC emacs-lisp
+  (use-package company
+    :ensure t
+    :defer 1
+    :config
+    (global-company-mode 1)
+    (setq-default
+     company-idle-delay .2
+     company-minimum-prefix-length 1
+     company-require-match nil
+     company-tooltip-align-annotations t))
+
+  (use-package flx :ensure t :defer 1)
+
+  (use-package company-flx
+    :ensure t
+    :defer 1
+    :after company flx
+    :config
+    (company-flx-mode 1))
 #+END_SRC
 
 

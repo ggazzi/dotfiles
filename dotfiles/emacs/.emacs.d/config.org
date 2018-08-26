@@ -17,6 +17,7 @@
   - [[#better-defaults][Better Defaults]]
   - [[#editing-keybindings][Editing Keybindings]]
   - [[#better-completion-and-search][Better Completion and Search]]
+  - [[#better-window-navigation][Better Window Navigation]]
 - [[#org-mode-and-getting-things-done][Org Mode and Getting Things Done]]
   - [[#org-mode][Org Mode]]
   - [[#gettings-things-done][Gettings Things Done]]
@@ -328,6 +329,23 @@ smaller, simpler, and smoother to use yet highly customizable.
     :bind
     (:map global-map
           ("C-s" . 'swiper)))
+#+END_SRC
+
+** Better Window Navigation
+
+I like to navigate between windows with =C-x <arrow>=.
+
+#+BEGIN_SRC emacs-lisp
+  (global-set-key (kbd "C-x <left>") 'windmove-left)
+  (global-set-key (kbd "C-x <right>") 'windmove-right)
+  (global-set-key (kbd "C-x <down>") 'windmove-down)
+  (global-set-key (kbd "C-x <up>") 'windmove-up)
+#+END_SRC
+
+I also disable the usual window navigation so I get used to arrows.
+
+#+BEGIN_SRC emacs-lisp
+  (global-set-key (kbd "C-x o") nil)
 #+END_SRC
 
 

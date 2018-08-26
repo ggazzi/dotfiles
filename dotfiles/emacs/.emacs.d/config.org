@@ -69,15 +69,23 @@ be done whenever this file is saved, which we guarantee with a custom
 entry to =after-save-hook=.
 
 #+BEGIN_SRC emacs-lisp
+  (defvar me/config-org-file
+    (expand-file-name "config.org" user-emacs-directory))
+
+  (defvar me/config-elisp-file
+    (expand-file-name "config.el" user-emacs-directory))
+
   (defun compile-config-from-org ()
     "If the current buffer is 'config.org', we compile the tangled
   elisp in the file."
-    (when (equal (buffer-file-name)
-                 (expand-file-name "config.org" user-emacs-directory))
+    (when (equal (buffer-file-name) me/config-org-file)
       ;; Avoid running hooks when tangling
-      (let ((prog-mode-hook nil))
+      (let ((prog-mode-hook nil)
+            (compiled-file (replace-regexp-in-string "org$" "el" me/config-org-file)))
         (org-babel-tangle)
-        (byte-compile-file (expand-file-name "config.el" user-emacs-directory)))))
+        (unless (equal compiled-file me/config-elisp-file)
+          (rename-file compiled-file me/config-elisp-file t))
+        (load-file me/config-elisp-file))))
 
   (add-hook 'after-save-hook 'compile-config-from-org)
 #+END_SRC

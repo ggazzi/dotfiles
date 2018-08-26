@@ -293,9 +293,20 @@ authoring documents with a fast and effective plain-text system.
       "Construct the buffer name for a source editing buffer. See
   `org-src--construct-edit-buffer-name'."
       (format "*%s*" org-buffer-name))
+    (defun org-kill-region-or-line ()
+      "Kill the region if active, otherwise kill the current line
+
+  See also 'kill-region' and 'org-kill-line'."
+      (interactive)
+      (if (region-active-p)
+          (call-interactively 'kill-region)
+        (call-interactively 'org-kill-line)))
     :hook
     ((org-mode . org-sticky-header-mode)
      (org-mode . toc-org-enable))
+    :bind
+    (:map org-mode-map
+          ("C-k" . 'org-kill-region-or-line))
     :config
     (setq-default
      org-support-shift-select 'always

@@ -27,6 +27,7 @@
   - [[#version-control][Version Control]]
   - [[#directory-browser][Directory Browser]]
   - [[#spell-and-grammar-checking][Spell and Grammar Checking]]
+  - [[#shellbash][Shell/Bash]]
 
 * Credits
 
@@ -779,4 +780,16 @@ enabled for the current buffer with =C-S-l e= and disabled with =C-S-l d=.
     (setq langtool-bin "/bin/languagetool")
     (setq langtool-language-tool-jar "/usr/share/java/languagetool/languagetool.jar")
     (setq langtool-mother-tongue "pt-BR"))
+#+END_SRC
+** Shell/Bash
+
+A bash shell can be run inside Emacs with the =ansi-term= command.  A shortcut
+for opening a bash is =C-x t=.
+
+#+BEGIN_SRC emacs-lisp
+  (defun term-bash ()
+    (interactive)
+    (ansi-term "bash"))
+
+  (global-set-key (kbd "C-x t") 'term-bash)
 #+END_SRC

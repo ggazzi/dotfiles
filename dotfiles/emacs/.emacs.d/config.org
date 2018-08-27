@@ -66,7 +66,7 @@ packages and auto-installing any missing packages.
 #+END_SRC
 
 This config file is written in =org-mode=, and should be stored in the
-file =.emacs.d/config.dot=. 
+file =.emacs.d/config.dot=.
 
 ** Compiling the Configuration
 
@@ -687,7 +687,7 @@ Do stuff!  Complete the next actions!
 ** Version Control
 
 [[https://magit.vc/][Magit]] provides git facilities directily withing Emacs.  It is honestly the best
-git frontend I have ever use.
+git frontend I have ever used.
 
 #+BEGIN_QUOTE
 [[https://github.com/magit/magit][Jonas Bernoulli]]

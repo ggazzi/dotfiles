@@ -26,6 +26,7 @@
 - [[#features][Features]]
   - [[#version-control][Version Control]]
   - [[#directory-browser][Directory Browser]]
+  - [[#spell-and-grammar-checking][Spell and Grammar Checking]]
 
 * Credits
 
@@ -440,7 +441,8 @@ authoring documents with a fast and effective plain-text system.
         (call-interactively 'org-kill-line)))
     :hook
     ((org-mode . org-sticky-header-mode)
-     (org-mode . toc-org-enable))
+     (org-mode . toc-org-enable)
+     (org-mode . flyspell-mode))
     :bind
     (:map org-mode-map
           ("C-k" . 'org-kill-region-or-line))
@@ -732,4 +734,49 @@ of magit is available from there, as documented in the [[https://magit.vc/manual
      dired-listing-switches "-alh --group-directories-first"
      dired-ls-F-marks-symlinks nil
      dired-recursive-copies 'always))
+#+END_SRC
+** Spell and Grammar Checking
+
+Commands related to spell and grammar checking are prefixed with =C-S-l=.
+
+The underlying spell checker is preferably Aspell, but alternatively Hunspell.
+Note that Aspell personal dictionaries are stored in =~/.aspell.LANG.pws=, where
+=LANG= is the two-letter code.  I use British English most of the time.
+
+#+BEGIN_SRC emacs-lisp
+  (cond
+   ((executable-find "aspell")
+    (setq ispell-program-name "aspell"))
+   ((executable-find "hunspell")
+    (setq ispell-program-name "hunspell")))
+
+  (setq ispell-dictionary "en_GB")
+#+END_SRC
+
+The =flyspell-mode= will highlight misspelled words.  Then =C-S-l c= can be used
+to correct them.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package flyspell
+    :ensure t
+    :bind
+    (:map flyspell-mode-map
+          ("C-S-l c" . 'ispell-word))
+    :hook (text-mode-hook . flyspell-mode))
+#+END_SRC
+
+Besides spell checking, [[https://languagetool.org/][languagetool]] can be used to check grammar.  It is
+enabled for the current buffer with =C-S-l e= and disabled with =C-S-l d=.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package langtool
+    :ensure t
+    :bind
+    (:map global-map
+      ("C-S-l e" . langtool-check)
+      ("C-S-l d" . langtool-check-done))
+    :config
+    (setq langtool-bin "/bin/languagetool")
+    (setq langtool-language-tool-jar "/usr/share/java/languagetool/languagetool.jar")
+    (setq langtool-mother-tongue "pt-BR"))
 #+END_SRC

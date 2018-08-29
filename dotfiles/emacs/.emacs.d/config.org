@@ -28,6 +28,7 @@
   - [[#directory-browser][Directory Browser]]
   - [[#spell-and-grammar-checking][Spell and Grammar Checking]]
   - [[#shellbash][Shell/Bash]]
+  - [[#on-the-fly-syntax-and-error-checking][On-The-Fly Syntax and Error Checking]]
 
 * Credits
 

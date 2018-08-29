@@ -23,6 +23,8 @@
 - [[#org-mode-and-getting-things-done][Org Mode and Getting Things Done]]
   - [[#org-mode][Org Mode]]
   - [[#gettings-things-done][Gettings Things Done]]
+- [[#languages][Languages]]
+  - [[#latex][LaTeX]]
 - [[#features][Features]]
   - [[#version-control][Version Control]]
   - [[#directory-browser][Directory Browser]]
@@ -685,6 +687,56 @@ among the many agenda views.
 **** Engage
 
 Do stuff!  Complete the next actions!
+
+
+* Languages
+** LaTeX
+
+First, the =auctex= tool should be installed externally.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package tex
+    :defer t
+    :ensure auctex
+    :preface
+    (defun run-latexmk ()
+      (interactive)
+      (let ((TeX-save-query nil)
+            (TeX-process-asynchronous nil)
+            (master-file (TeX-master-file)))
+        (TeX-save-document "") ;; Save all relevant TeX files
+        (TeX-run-LaTeX "latexmk"
+                     (TeX-command-expand "latexmk %t" 'TeX-master-file)
+                     master-file)
+        ;; The following checks if any errors were found.
+        (if (plist-get TeX-error-report-switches (intern master-file))
+            (TeX-next-error t)
+          (minibuffer-message "latexmk done"))))
+    :config
+    (setq TeX-auto-save t
+          TeX-parse-self t
+          TeX-PDF-mode t)
+    (setq-default TeX-master nil)
+    (add-to-list 'TeX-command-list
+                 '("Make" "make" TeX-run-compile nil t))
+    :bind
+    (:map tex-mode-map
+          ("C-c C-b" . 'run-latexmk))
+    :hook
+    ((LaTeX-mode-hook . visual-line-mode)
+     (LaTeX-mode-hook . flyspell-mode)
+     (LaTeX-mode-hook . LaTeX-math-mode)
+     (LaTeX-mode-hook . TeX-source-correlate-mode)))
+
+  (use-package ebib :ensure t)
+
+  (use-package latex
+    :defer t
+    :after tex ebib
+    (use-package preview)
+    :hook
+    (LaTeX-mode-hook . reftex-mode))
+#+END_SRC
 
 
 * Features

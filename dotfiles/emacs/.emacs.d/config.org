@@ -143,6 +143,8 @@ The mode line can be made prettier (and easier to understand).
   (use-package powerline :ensure t
     :config
     (powerline-center-theme)
+    (custom-set-variables
+    '(powerline-default-separator 'slant))
     (custom-set-faces
     '(powerline-active1 ((t (:background "#6b2382" :foreground "#f8f8f2"))))
     '(powerline-active2 ((t (:background "#6b2382" :foreground "#f8f8f2"))))
@@ -321,6 +323,9 @@ other completion schemes such as icomplete-mode, Ivy aims to be more efficient,
 smaller, simpler, and smoother to use yet highly customizable.
 #+END_QUOTE
 
+When running =ivy-mode=, pressing =enter= will use the currently selected
+candidate, while =C-enter= will use the current input instead of the current
+candidate.
 
 #+BEGIN_SRC emacs-lisp
   (use-package flx :ensure t)
@@ -339,8 +344,10 @@ smaller, simpler, and smoother to use yet highly customizable.
      '(ivy-minibuffer-match-face-3 ((t (:background "#777777" :weight bold))))
      '(ivy-minibuffer-match-face-4 ((t (:background "#777777" :weight bold)))))
     :bind
-    (:map global-map
-          ("C-c C-r" . 'ivy-resume)))
+    ((:map global-map
+           ("C-c C-r" . 'ivy-resume))
+     (:map ivy-mode-map
+           ("C-<return>" . 'ivy-immediate-done))))
 
   (use-package counsel
     :ensure t
@@ -495,7 +502,6 @@ We can make =org-mode= prettier by showing actual bullets.
               (lambda () (org-bullets-mode 1))))
 #+END_SRC
 
-
 ** Gettings Things Done
 
 I am trying to adopt GTD, implemented using org-mode and following
@@ -607,8 +613,8 @@ Tasks may be in one of the following states.
 #+BEGIN_SRC emacs-lisp
   (setq org-todo-keywords
         '((sequence
-           "NEXT(n)"
            "TODO(t)"
+           "NEXT(n)"
            "WAITING(w)"
            "|"
            "DONE(d)"

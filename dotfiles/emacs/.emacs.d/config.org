@@ -917,6 +917,7 @@ enabled for the current buffer with =C-S-l e= and disabled with =C-S-l d=.
 #+BEGIN_SRC emacs-lisp
   (use-package langtool
     :ensure t
+    :defer t
     :bind
     (:map global-map
       ("C-S-l e" . langtool-check)

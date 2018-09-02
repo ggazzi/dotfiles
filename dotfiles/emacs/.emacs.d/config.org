@@ -9,6 +9,7 @@
 - [[#credits][Credits]]
 - [[#initial-setup-and-compilation][Initial Setup and Compilation]]
   - [[#packaging-system][Packaging System]]
+  - [[#the-use-package-macro][The =use-package= Macro]]
   - [[#compiling-the-configuration][Compiling the Configuration]]
   - [[#load-customel][Load =.custom.el=]]
   - [[#load-secretel][Load =.secret.el=]]
@@ -61,10 +62,13 @@ Their loading will be described along the rest of this configuration.
   (package-initialize)
 #+END_SRC
 
-We also ensure that the =use-package= macro is installed and loaded.
-It provides many facilities for loading packages, including: loading
-packages lazily, loading custom bits of configuration along with the
-packages and auto-installing any missing packages.
+** The =use-package= Macro
+
+We also ensure that the =use-package= macro is installed and loaded.  It
+provides many facilities for loading packages, including: loading packages
+lazily, loading custom bits of configuration along with the packages and
+auto-installing any missing packages.  For more instructions check its [[https://github.com/jwiegley/use-package/blob/master/README.md][readme]]
+file.
 
 #+BEGIN_SRC emacs-lisp
   (unless (package-installed-p 'use-package)
@@ -74,25 +78,43 @@ packages and auto-installing any missing packages.
   (eval-when-compile (require 'use-package))
 #+END_SRC
 
-This config file is written in =org-mode=, and should be stored in the
-file =.emacs.d/config.dot=.
+Note that =use-package= will often setup autoloads to avoid loading too many
+packages at startup.  This will be done when at least one of the following
+options is used: =:bind=, =:bind-keymap=, =:mode=, =:interpreter=, =:commands=
+or =:defer=.  Most of the calls to =use-package= should have at least one of
+these options to make Emacs startup run quickly.
+
+For configuration related to the package, consider using the options listed
+below.  Function definitions, however, should be written under =:preface= so
+that they are pre-compiled with the configuration file.
+
+  - =:config= runs arbitrary elisp code after the package is loaded
+  - =:custom= sets custom variables after the package is loaded
+  - =:custom-face= sets custom faces after the package is loaded
+
+If a package depends on others, use the =:after= option to avoid loading it
+before other packages.
 
 ** Compiling the Configuration
 
-Since the configuration is written in =org-mode= with tangled elisp
-code, it must be compiled to an elisp file.  This compilation should
-be done whenever this file is saved, which we guarantee with a custom
-entry to =after-save-hook=.
+Since the configuration is written in =org-mode= with tangled elisp code, it
+must be compiled to an elisp file.  This compilation should be done whenever
+this file is saved, which we guarantee using an =after-save-hook=.
 
 #+BEGIN_SRC emacs-lisp
   (defvar me/config-org-file
-    (expand-file-name "config.org" user-emacs-directory))
+    (expand-file-name "config.org" user-emacs-directory)
+    "Org file containing the emacs configuration.")
 
   (defvar me/config-elisp-file
-    (expand-file-name "config.el" user-emacs-directory))
+    (expand-file-name "config.el" user-emacs-directory)
+    "Location where the compiled emacs configuration should be written.
+
+  This file will receive the elisp code extracted from
+  'me/config-org-file' and should be loaded on startup.")
 
   (defun me/compile-tangled-config (compiled-file)
-    "Move the 'COMPILED-FILE' to 'me/config-elisp-file' and ensure 
+    "Move the 'COMPILED-FILE' to 'me/config-elisp-file' and ensure
   it is byte-compiled."
     (unless (equal compiled-file me/config-org-file)
       (rename-file compiled-file me/config-elisp-file t))
@@ -112,14 +134,19 @@ entry to =after-save-hook=.
   (add-hook 'after-save-hook 'me/compile-config-from-org-on-save)
 #+END_SRC
 
-We also provide a shortcut command for reloading the config.
+We also provide shortcut commands for reloading the config.
 
 #+BEGIN_SRC emacs-lisp
-  (defun reload-config ()
+  (defun compile-and-reload-config ()
     "Recompile and reload the config from 'me/config-org-file'"
     (interactive)
     (me/compile-tangled-config
      (car (org-babel-tangle-file me/config-org-file me/config-elisp-file "emacs-lisp")))
+    (load-file me/config-elisp-file))
+
+  (defun reload-config ()
+    "Reload the config from 'me/config-org-file'"
+    (interactive)
     (load-file me/config-elisp-file))
 #+END_SRC
 
@@ -161,20 +188,21 @@ and =user-mail-address=.  This is also where you want your API tokens to live.
 The mode line can be made prettier (and easier to understand).
 
 #+BEGIN_SRC emacs-lisp
-   (use-package powerline :ensure t
+   (use-package powerline
+     :ensure t
      :config
      (powerline-center-theme)
-     (custom-set-variables
-      '(powerline-default-separator 'slant)
-      '(powerline-default-separator-dir (quote (left . right)))
-      '(powerline-display-buffer-size nil))
-     (custom-set-faces
-      '(mode-line ((t (:background "grey18" :box (:line-width 1 :color "#44475a")))))
-      '(mode-line-inactive ((t (:background "grey18" :foreground "#f8f8f2" :box (:line-width 1 :color "#373844")))))
-      '(powerline-active1 ((t (:background "#cc863d" :foreground "grey15"))))
-      '(powerline-active2 ((t (:background "#cc863d" :foreground "grey15"))))
-      '(powerline-inactive1 ((t (:background "grey25"))))
-      '(powerline-inactive2 ((t (:background "grey25" :foreground "#f8f8f2"))))))
+     :custom
+      (powerline-default-separator 'slant)
+      (powerline-default-separator-dir '(left . right))
+      (powerline-display-buffer-size nil)
+     :custom-face
+      (mode-line ((t (:background "grey18" :box (:line-width 1 :color "#44475a")))))
+      (mode-line-inactive ((t (:background "grey18" :foreground "#f8f8f2" :box (:line-width 1 :color "#373844")))))
+      (powerline-active1 ((t (:background "#cc863d" :foreground "grey15"))))
+      (powerline-active2 ((t (:background "#cc863d" :foreground "grey15"))))
+      (powerline-inactive1 ((t (:background "grey25"))))
+      (powerline-inactive2 ((t (:background "grey25" :foreground "#f8f8f2")))))
 #+END_SRC
 
 We can also improve how modes are displayed.
@@ -192,7 +220,7 @@ slant by default.  I don't like it.
   (set-face-attribute 'italic nil :underline nil)
 #+END_SRC
 
-Load =afternoon-theme=.
+Load and set =dracula-theme=.
 
 #+BEGIN_SRC emacs-lisp
   (use-package dracula-theme
@@ -206,37 +234,38 @@ When running with a GUI, use the Fira Code font.  In order to simulate
 its ligatures, we use the [[https://github.com/tonsky/FiraCode/wiki/Emacs-instructions][following workaround]].
 
 #+BEGIN_SRC emacs-lisp
-  (when (window-system) (set-frame-font "Fira Code"))
+  (when (window-system)
+    (set-frame-font "Fira Code")
 
-  (let ((alist '((33 . ".\\(?:\\(?:==\\|!!\\)\\|[!=]\\)")
-		 (35 . ".\\(?:###\\|##\\|_(\\|[#(?[_{]\\)")
-		 (36 . ".\\(?:>\\)")
-		 (37 . ".\\(?:\\(?:%%\\)\\|%\\)")
-		 (38 . ".\\(?:\\(?:&&\\)\\|&\\)")
-		 (42 . ".\\(?:\\(?:\\*\\*/\\)\\|\\(?:\\*[*/]\\)\\|[*/>]\\)")
-		 (43 . ".\\(?:\\(?:\\+\\+\\)\\|[+>]\\)")
-		 (45 . ".\\(?:\\(?:-[>-]\\|<<\\|>>\\)\\|[<>}~-]\\)")
-		 (46 . ".\\(?:\\(?:\\.[.<]\\)\\|[.=-]\\)")
-		 (47 . ".\\(?:\\(?:\\*\\*\\|//\\|==\\)\\|[*/=>]\\)")
-		 (48 . ".\\(?:x[a-zA-Z]\\)")
-		 (58 . ".\\(?:::\\|[:=]\\)")
-		 (59 . ".\\(?:;;\\|;\\)")
-		 (60 . ".\\(?:\\(?:!--\\)\\|\\(?:~~\\|->\\|\\$>\\|\\*>\\|\\+>\\|--\\|<[<=-]\\|=[<=>]\\||>\\)\\|[*$+~/<=>|-]\\)")
-		 (61 . ".\\(?:\\(?:/=\\|:=\\|<<\\|=[=>]\\|>>\\)\\|[<=>~]\\)")
-		 (62 . ".\\(?:\\(?:=>\\|>[=>-]\\)\\|[=>-]\\)")
-		 (63 . ".\\(?:\\(\\?\\?\\)\\|[:=?]\\)")
-		 (91 . ".\\(?:]\\)")
-		 (92 . ".\\(?:\\(?:\\\\\\\\\\)\\|\\\\\\)")
-		 (94 . ".\\(?:=\\)")
-		 (119 . ".\\(?:ww\\)")
-		 (123 . ".\\(?:-\\)")
-		 (124 . ".\\(?:\\(?:|[=|]\\)\\|[=>|]\\)")
-		 (126 . ".\\(?:~>\\|~~\\|[>=@~-]\\)")
-		 )
-	       ))
-    (dolist (char-regexp alist)
-      (set-char-table-range composition-function-table (car char-regexp)
-			    `([,(cdr char-regexp) 0 font-shape-gstring]))))
+    (let ((alist '((33 . ".\\(?:\\(?:==\\|!!\\)\\|[!=]\\)")
+                   (35 . ".\\(?:###\\|##\\|_(\\|[#(?[_{]\\)")
+                   (36 . ".\\(?:>\\)")
+                   (37 . ".\\(?:\\(?:%%\\)\\|%\\)")
+                   (38 . ".\\(?:\\(?:&&\\)\\|&\\)")
+                   (42 . ".\\(?:\\(?:\\*\\*/\\)\\|\\(?:\\*[*/]\\)\\|[*/>]\\)")
+                   (43 . ".\\(?:\\(?:\\+\\+\\)\\|[+>]\\)")
+                   (45 . ".\\(?:\\(?:-[>-]\\|<<\\|>>\\)\\|[<>}~-]\\)")
+                   (46 . ".\\(?:\\(?:\\.[.<]\\)\\|[.=-]\\)")
+                   (47 . ".\\(?:\\(?:\\*\\*\\|//\\|==\\)\\|[*/=>]\\)")
+                   (48 . ".\\(?:x[a-zA-Z]\\)")
+                   (58 . ".\\(?:::\\|[:=]\\)")
+                   (59 . ".\\(?:;;\\|;\\)")
+                   (60 . ".\\(?:\\(?:!--\\)\\|\\(?:~~\\|->\\|\\$>\\|\\*>\\|\\+>\\|--\\|<[<=-]\\|=[<=>]\\||>\\)\\|[*$+~/<=>|-]\\)")
+                   (61 . ".\\(?:\\(?:/=\\|:=\\|<<\\|=[=>]\\|>>\\)\\|[<=>~]\\)")
+                   (62 . ".\\(?:\\(?:=>\\|>[=>-]\\)\\|[=>-]\\)")
+                   (63 . ".\\(?:\\(\\?\\?\\)\\|[:=?]\\)")
+                   (91 . ".\\(?:]\\)")
+                   (92 . ".\\(?:\\(?:\\\\\\\\\\)\\|\\\\\\)")
+                   (94 . ".\\(?:=\\)")
+                   (119 . ".\\(?:ww\\)")
+                   (123 . ".\\(?:-\\)")
+                   (124 . ".\\(?:\\(?:|[=|]\\)\\|[=>|]\\)")
+                   (126 . ".\\(?:~>\\|~~\\|[>=@~-]\\)")
+                   )
+                 ))
+      (dolist (char-regexp alist)
+        (set-char-table-range composition-function-table (car char-regexp)
+                              `([,(cdr char-regexp) 0 font-shape-gstring])))))
 #+END_SRC
 
 ** Better Defaults
@@ -266,8 +295,6 @@ Here are some options that I consider better defaults.
    inhibit-startup-screen t                         ; Disable start-up screen
    initial-scratch-message ""                       ; Empty the initial *scratch* buffer
    left-margin-width 1 right-margin-width 1         ; Add left and right margins
-  ; mouse-yank-at-point t                            ; Yank at point rather than pointer
-  ; ns-use-srgb-colorspace nil                       ; Don't use sRGB colors
    recenter-positions '(5 top bottom)               ; Set re-centering positions
    scroll-conservatively most-positive-fixnum       ; Always scroll by one line
    scroll-margin 10                                 ; Add a margin when scrolling vertically
@@ -297,39 +324,53 @@ Garbage-collect on focus-out, Emacs /should/ feel snappier.
 I dislike the inconsistency between =C-w= in Emacs and bash.  Set =C-w= to
 behave like bash, killing backward to the beginning of a word.  Also make =C-k=
 kill the region, if active---otherwise the line is killed, as in the default
-behaviour.
+behaviour.  Note that some modes will have their own variants of =kill-line=
+mapped to =C-k=, and those modes should call =me/bind-kill-region-or-line= in
+their configuration.
 
 #+BEGIN_SRC emacs-lisp
-  (defun kill-region-or-line ()
-    "Kill the region if active, otherwise kill the current line.
-
-  See also 'kill-region' and 'kill-line'."
-    (interactive)
-    (if (region-active-p)
-        (call-interactively 'kill-region)
-      (call-interactively 'kill-line)))
+  (defmacro me/bind-kill-region-or-line (key-map kill-line kill-region)
+    "Define and bind a function that kills the region, if active, or the line.
+  The defined function will interactively call 'KILL-REGION' when
+  the region is currently active, or 'KILL-LINE' otherwise.  It
+  will also be bound to 'C-k' in the given 'KEY-MAP'."
+    (let ((kill-region-or-line
+           (intern (format "%s-or-%s" kill-region kill-line))))
+      `(progn
+         (defun ,kill-region-or-line ()
+           ,(format
+             "Kill the region if active, otherwise kill the current line.
+  See also '%s' and '%s'."
+             kill-region
+             kill-line)
+           (interactive)
+           (if (region-active-p)
+               (call-interactively ',kill-region)
+             (call-interactively ',kill-line)))
+         (define-key ,key-map (kbd "C-k") ',kill-region-or-line))))
 
   (global-set-key (kbd "C-w") 'backward-kill-word)
-  (global-set-key (kbd "C-k") 'kill-region-or-line)
+  (me/bind-kill-region-or-line global-map kill-line kill-region)
 #+END_SRC
 
-Undoing and redoing in Emacs is inconsistent with almost everything else.  Set
-=C-z= to undo and =C-S-z= to redo.  Also use the =undo-tree= mode to have better
-handling of the undo history.
+Undoing and redoing in Emacs is inconsistent with almost every other graphical
+program.  Set =C-z= to undo and =C-S-z= to redo.  Also use the =undo-tree= mode
+to have better handling of the undo history.
 
 #+BEGIN_SRC emacs-lisp
   (use-package undo-tree
     :demand t
     :ensure t
     :delight undo-tree-mode nil
+    :commands global-undo-tree-mode
     :bind
     (:map undo-tree-map
-          ("C-_" . nil)
-          ("C-/" . nil)
-          ("C-?" . nil)
-          ("M-_" . nil)
-          ("C-z" . undo-tree-undo)
-          ("C-S-z" . undo-tree-redo))
+     ("C-_" . nil)
+     ("C-/" . nil)
+     ("C-?" . nil)
+     ("M-_" . nil)
+     ("C-z" . undo-tree-undo)
+     ("C-S-z" . undo-tree-redo))
     :config
     (global-undo-tree-mode 1))
 #+END_SRC
@@ -338,8 +379,7 @@ handling of the undo history.
 
 Having a good completion mechanism can make life a lot easier.  The [[https://oremacs.com/swiper][=ivy=]]
 package provides such a mechanism, which we couple with the fuzzy matching
-provided by =flx=.  The =counsel= package provides ivy-based alternatives to
-some commonly used builtin functionality, and =swiper= an alternative search.
+provided by =flx=.
 
 #+BEGIN_QUOTE
 [[https://github.com/abo-abo/swiper/blob/master/README.md#ivy][abo-abo]]
@@ -349,8 +389,8 @@ other completion schemes such as icomplete-mode, Ivy aims to be more efficient,
 smaller, simpler, and smoother to use yet highly customizable.
 #+END_QUOTE
 
-When running =ivy-mode=, pressing =enter= will use the currently selected
-candidate, while =C-enter= will use the current input instead of the current
+When running =ivy-mode=, pressing =<return>= will use the currently selected
+candidate, while =C-<return>= will use the current input instead of the current
 candidate.
 
 #+BEGIN_SRC emacs-lisp
@@ -359,39 +399,42 @@ candidate.
   (use-package ivy
     :ensure t
     :delight ivy-mode nil
+    :commands ivy-mode ivy-resume ivy-immediate-done
     :config
     (ivy-mode 1)
     (setq ivy-use-virtual-buffers t)
     (setq ivy-re-builders-alist
           '((swiper . ivy--regex-plus)
             (t . ivy--regex-fuzzy)))
-    (custom-set-faces
-     '(ivy-minibuffer-match-face-2 ((t (:background "#777777" :weight bold))))
-     '(ivy-minibuffer-match-face-3 ((t (:background "#777777" :weight bold))))
-     '(ivy-minibuffer-match-face-4 ((t (:background "#777777" :weight bold)))))
+    :custom-face
+    (ivy-minibuffer-match-face-2 ((t (:background "#777777" :weight bold))))
+    (ivy-minibuffer-match-face-3 ((t (:background "#777777" :weight bold))))
+    (ivy-minibuffer-match-face-4 ((t (:background "#777777" :weight bold))))
     :bind
-    ((:map global-map
-           ("C-c C-r" . 'ivy-resume))
-     (:map ivy-mode-map
-           ("C-<return>" . 'ivy-immediate-done))))
+    (("C-c C-r" . 'ivy-resume)
+     :map ivy-mode-map
+     ("C-<return>" . 'ivy-immediate-done)))
+#+END_SRC
 
+The =counsel= package provides ivy-based alternatives to some commonly used
+builtin functionality, and =swiper= an alternative search command.
+
+#+BEGIN_SRC emacs-lisp
   (use-package counsel
     :ensure t
     :bind
-    (:map global-map
-          ("M-x" . 'counsel-M-x)
-          ("C-x C-f" . 'counsel-find-file)
-          ("<f1> f" . 'counsel-describe-function)
-          ("<f1> v" . 'counsel-describe-variable)
-          ("<f1> l" . 'counsel-find-library)
-          ("<f2> i" . 'counsel-info-lookup-symbol)
-          ("C-c u" . 'counsel-unicode-char)))
+    (("M-x" . 'counsel-M-x)
+     ("C-x C-f" . 'counsel-find-file)
+     ("<f1> f" . 'counsel-describe-function)
+     ("<f1> v" . 'counsel-describe-variable)
+     ("<f1> l" . 'counsel-find-library)
+     ("<f2> i" . 'counsel-info-lookup-symbol)
+     ("C-c u" . 'counsel-unicode-char)))
 
   (use-package swiper
     :ensure t
     :bind
-    (:map global-map
-          ("C-s" . 'swiper)))
+    ("C-s" . 'swiper))
 #+END_SRC
 
 ** Better Window Navigation
@@ -427,58 +470,57 @@ completion candidates.
 #+BEGIN_SRC emacs-lisp
   (use-package company
     :ensure t
-    :defer 1
     :delight company-mode nil
+    :commands global-company-mode
     :config
-    (global-company-mode 1)
     (setq-default
      company-idle-delay .2
      company-minimum-prefix-length 1
      company-require-match nil
      company-tooltip-align-annotations t))
 
-  (use-package flx :ensure t :defer 1)
-
   (use-package company-flx
     :ensure t
-    :defer 1
     :after company flx
     :delight company-flx-mode nil
-    :config
-    (company-flx-mode 1))
+    :commands company-flx-mode)
+
+  (global-company-mode 1)
+  (company-flx-mode 1)
 #+END_SRC
 
 ** Line Wrapping
 
-When lines are too long, they are often soft-wrapped.  In order to correct their
-indentation, we use =adaptive-wrap=.
+When lines are too long, they will be soft-wrapped using =visual-line-mode=.
+Since this mode ignores indentation, we use =adaptive-wrap= to correct it.
 
 #+BEGIN_SRC emacs-lisp
   (use-package adaptive-wrap
     :ensure t
+    :commands adaptive-wrap-prefix-mode
     :hook
-    ('visual-line-mode-hook . 'adaptive-wrap-prefix-mode)
-    :config
-    (global-visual-line-mode 1))
+    ('visual-line-mode . 'adaptive-wrap-prefix-mode))
+
+  (global-visual-line-mode 1)
 #+END_SRC
 ** Removing Trailing Whitespace
 
 By default, trailing whitespace is removed whenever a file is saved.  This can
 be avoided by setting the file-local variable
-=remove-trailing-whitespace-on-save= to =nil=.
+=delete-trailing-whitespace-on-save= to =nil=.
 
 #+BEGIN_SRC emacs-lisp
-  (defvar remove-trailing-whitespace-on-save t
-    "When non-nil, trailing whitespace is removed before saving the file.")
+  (defvar delete-trailing-whitespace-on-save t
+    "When non-nil, trailing whitespace is deleted before saving the file.")
 
-  (make-variable-buffer-local 'remove-trailing-whitespace-on-save)
+  (make-variable-buffer-local 'delete-trailing-whitespace-on-save)
 
-  (defun me/remove-trailing-whitespace-before-save ()
+  (defun me/delete-trailing-whitespace-before-save ()
     "Remove trailing whitespace if 'remove-trailing-whitespace-on-save' is non-nil."
-    (when remove-trailing-whitespace-on-save
-      (remove-trailing-whitespace)))
+    (when delete-trailing-whitespace-on-save
+      (delete-trailing-whitespace)))
 
-  (add-hook 'before-save-hook 'me/remove-trailing-whitespace-before-save)
+  (add-hook 'before-save-hook 'me/delete-trailing-whitespace-before-save)
 #+END_SRC
 ** Smart Handling of Parentheses
 
@@ -490,8 +532,8 @@ with examples.
 
 #+BEGIN_SRC emacs-lisp
   (use-package smartparens-config
-    :ensure smartparens
-    :defer t)
+    :ensure smartparens   ; The package name differs from the provided feature
+    :commands smartparens-mode)
 #+END_SRC
 
 The automatic use of =smartparens= should be ensured by setting up hooks for the
@@ -508,40 +550,32 @@ authoring documents with a fast and effective plain-text system.
 [[http://orgmode.org/][Carsten Dominik]]
 #+END_QUOTE
 
+When setting up =org-mode=, we change a number of its settings.  First, we make
+sure buffer names are surrounded by asterisks.  We also correct the binding of
+=C-k= as prescribed in [[Editing Keybindings]].  Finally, set a few settings and
+ensure [[Spell and Grammar Checking][spell checking]] is turned on.
+
 #+BEGIN_SRC emacs-lisp
   (use-package org
-    :ensure t
     :delight org-mode "Org"
+    :commands org-babel-tangle-file
     :preface
     (defun me/org-src-buffer-name (org-buffer-name language)
       "Construct the buffer name for a source editing buffer. See
   `org-src--construct-edit-buffer-name'."
       (format "*%s*" org-buffer-name))
-    (defun org-kill-region-or-line ()
-      "Kill the region if active, otherwise kill the current line
-
-  See also 'kill-region' and 'org-kill-line'."
-      (interactive)
-      (if (region-active-p)
-          (call-interactively 'kill-region)
-        (call-interactively 'org-kill-line)))
-    :hook
-    ((org-mode . org-sticky-header-mode)
-     (org-mode . toc-org-enable)
-     (org-mode . flyspell-mode))
-    :bind
-    (:map org-mode-map
-          ("C-k" . 'org-kill-region-or-line))
     :config
+    (advice-add 'org-src--construct-edit-buffer-name :override #'me/org-src-buffer-name)
+    (me/bind-kill-region-or-line org-mode-map org-kill-line kill-region)
     (setq
-     org-support-shift-select nil
-     org-startup-truncated nil
-     org-log-done 'time
-     org-hide-leading-stars t
-     org-return-follows-link t
-     org-enforce-todo-dependencies t
-     org-ellipsis "⤵")
-    (advice-add 'org-src--construct-edit-buffer-name :override #'me/org-src-buffer-name))
+     org-startup-truncated nil        ; Truncated lines not needed because of visual-line-mode
+     org-log-done 'time               ; Record completion time for tasks
+     org-hide-leading-stars t         ; Only show a single star for each org heading
+     org-return-follows-link t        ; Use <return> to follow links
+     org-enforce-todo-dependencies t  ; Make sure subtasks are completed before supertask
+     org-ellipsis " ⤵")               ; Use a prettier character for folded sections
+    :hook
+    (org-mode . flyspell-mode))       ; Ensure spell
 #+END_SRC
 
 Display in the header-line the heading of the node at the top of the window.
@@ -551,18 +585,26 @@ heading wouldn't be visible.
 #+BEGIN_SRC emacs-lisp
   (use-package org-sticky-header
     :ensure t
+    :after org
     :config
     (setq-default
      org-sticky-header-full-path 'full
-     org-sticky-header-outline-path-separator " / "))
+     org-sticky-header-outline-path-separator " › "
+     org-sticky-header-prefix "› "
+     org-sticky-header-heading-star "")
+    :hook
+    (org-mode . org-sticky-header-mode))
 #+END_SRC
 
-Tired of having to manually update your tables of contents?  This
-package will maintain a TOC at the first heading that has a =:TOC:=
-tag.
+Tired of having to manually update your tables of contents?  This package will
+maintain a TOC at the first heading that has a =:TOC:= tag.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package toc-org :ensure t :after org)
+  (use-package toc-org
+    :ensure t
+    :after org
+    :hook
+    (org-mode . toc-org-enable))
 #+END_SRC
 
 We can make =org-mode= prettier by showing actual bullets.
@@ -572,9 +614,8 @@ We can make =org-mode= prettier by showing actual bullets.
     :ensure t
     :after org
     :delight org-bullets-mode nil
-    :config
-    (add-hook 'org-mode-hook
-              (lambda () (org-bullets-mode 1))))
+    :hook
+    (org-mode . org-bullets-mode))
 #+END_SRC
 
 ** Gettings Things Done
@@ -812,8 +853,6 @@ Moreover, a compilation error overview should be available with =C-c C-o=.
   (use-package latex
     :defer t
     :after tex
-;    :config
-;    (use-package preview-latex)
     :bind
     (:map LaTeX-mode-map
           ("C-c C-o" . TeX-error-overview))
@@ -826,14 +865,23 @@ Moreover, a compilation error overview should be available with =C-c C-o=.
 #+END_SRC
 
 We also enable auto-completion of bibtex keys using [[https://github.com/gbgar/company-bibtex][=company-bibtex=]].  Its
-completion function has to be modified to allow for fuzzy matching, and to show
-more readable annotations.
+completion function is modified to allow for fuzzy matching, and to show more
+readable annotations.
 
 #+BEGIN_SRC emacs-lisp
   (use-package company-bibtex
     :ensure t
-    :after latex
+    :after latex company
+    :functions company-grab company-begin-backend company-bibtex-candidates
+    :commands me/enable-company-bibtex company-bibtex
+    :config
+    (defalias 'company-bibtex 'me/company-bibtex)
+    :hook
+    (LaTeX-mode . me/enable-company-bibtex)
     :preface
+    (defun me/enable-company-bibtex ()
+      (interactive)
+      (add-to-list 'company-backends 'company-bibtex))
     (defun me/company-bibtex (command &optional arg &rest ignored)
       "`company-mode' completion backend for bibtex key completion.
   This backend activates for citation styles used by `pandoc-mode' (@),
@@ -878,14 +926,13 @@ more readable annotations.
     (defun me/company-bibtex-get-metadata (candidate)
       "Get metadata from CANDIDATE."
       (let ((prefix-length 0))
-        (replace-regexp-in-string "{\\|}" ""
-                                  (format "Title: %s\nAuthors: %s"
-                                          (get-text-property prefix-length :title candidate)
-                                          (replace-regexp-in-string "[[:space:]]*\n[[:space:]]*" " "
-                                                                    (get-text-property prefix-length :author candidate))))))
-    :config
-    (add-to-list 'company-backends 'company-bibtex)
-    (defalias 'company-bibtex 'me/company-bibtex))
+        (let ((title
+               (get-text-property prefix-length :title candidate))
+              (authors
+               (replace-regexp-in-string "[[:space:]]*\n[[:space:]]*" " "
+                                         (get-text-property prefix-length :author candidate))))
+          (replace-regexp-in-string "{\\|}" ""
+                                    (format "Title: %s\nAuthors: %s" title authors))))))
 #+END_SRC
 
 
@@ -908,36 +955,41 @@ Git clients exist, only Magit and Git itself deserve to be called porcelains.
 #+END_QUOTE
 
 The magit status buffer can be opened with =C-x g=.  Most of the functionality
-of magit is available from there, as documented in the [[https://magit.vc/manual/magit.html#Getting-Started][magit manual]].
+of magit is available from there, as documented in the [[https://magit.vc/manual/magit.html#Getting-Started][magit manual]].  We also
+ensure that =magit= does [[Better Completion and Search][better completion and search]] than the default.
 
 #+BEGIN_SRC emacs-lisp
   (use-package magit
     :ensure t
     :bind
-    (:map global-map
-          ("C-x g" . 'magit-status))
+    ("C-x g" . 'magit-status)
     :config
     (setq magit-completing-read-function 'ivy-completing-read))
 #+END_SRC
 ** Directory Browser
 
+The Emacs directory browser =dired= usually opens far too many buffers.  We
+avoid this by remapping =<return>= to /replace/ the current buffer when
+following a link, and =C-<return>= to open a new buffer.
+
+We also ensure that =dired= hides details by default and shows directories
+before other files, besides a couple other settings.
+
 #+BEGIN_SRC emacs-lisp
   (use-package dired
     :ensure nil
+    :commands dired-find-file dired-find-alternate-file
     :bind
     (:map dired-mode-map
-          ;; Avoid opening too many dired buffers
-          ("<return>" . 'dired-find-alternate-file)
-          ("C-<return>" . 'dired-find-file))
+     ("<return>" . 'dired-find-alternate-file)
+     ("C-<return>" . 'dired-find-file))
     :hook (dired-mode-hook . dired-hide-details-mode)
     :config
     (setq
-     dired-auto-revert-buffer t
-     dired-dwim-target t
-     dired-hide-details-hide-symlink-targets nil
-     dired-listing-switches "-alh --group-directories-first"
-     dired-ls-F-marks-symlinks nil
-     dired-recursive-copies 'always))
+     dired-auto-revert-buffer t                   ; Reload directories when changed
+     dired-dwim-target t                          ; Intelligently guess targets for copy/rename
+     dired-hide-details-hide-symlink-targets nil  ; Never hide symlink targets
+     dired-listing-switches "-alh --group-directories-first"))
 #+END_SRC
 ** Spell and Grammar Checking
 
@@ -969,22 +1021,6 @@ to correct them.
     :hook (text-mode-hook . flyspell-mode))
 #+END_SRC
 
-Besides spell checking, [[https://languagetool.org/][languagetool]] can be used to check grammar.  It is
-enabled for the current buffer with =C-S-l e= and disabled with =C-S-l d=.
-
-#+BEGIN_SRC emacs-lisp
-  (use-package langtool
-    :ensure t
-    :defer t
-    :bind
-    (:map global-map
-      ("C-S-l e" . langtool-check)
-      ("C-S-l d" . langtool-check-done))
-    :config
-    (setq langtool-bin "/bin/languagetool")
-    (setq langtool-language-tool-jar "/usr/share/java/languagetool/languagetool.jar")
-    (setq langtool-mother-tongue "pt-BR"))
-#+END_SRC
 ** Shell/Bash
 
 A bash shell can be run inside Emacs with the =ansi-term= command.  A shortcut
@@ -996,4 +1032,16 @@ for opening a bash is =C-x t=.
     (ansi-term "bash"))
 
   (global-set-key (kbd "C-x t") 'term-bash)
+#+END_SRC
+** On-The-Fly Syntax and Error Checking
+
+We can use =flycheck= for running linters, compilers or similar tools
+automatically, and highlighting any errors detected directly in the source code.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package flycheck
+    :ensure t
+    :demand t
+    :commands global-flycheck-mode
+    :init (global-flycheck-mode))
 #+END_SRC

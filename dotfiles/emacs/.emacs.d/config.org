@@ -781,7 +781,11 @@ Lisp should use the [[Smart Handling of Parentheses][=smartparens-mode=]].
 
 ** LaTeX
 
-First, the =auctex= tool should be installed externally.
+Note that the =auctex= tool must be installed externally for this to work.  Some
+options are modified, such as a compilation to PDF by default.  Since I often
+split LaTeX projects into multiple files, I also force =TeX-mode= to always ask
+for a master file by setting =TeX-master=.  I also add support for using a
+=Makefile= to compile LaTeX projects.
 
 #+BEGIN_SRC emacs-lisp
   (use-package tex
@@ -793,29 +797,37 @@ First, the =auctex= tool should be installed externally.
           TeX-PDF-mode t)
     (setq-default TeX-master nil)
     (add-to-list 'TeX-command-list
-                 '("Make" "make" TeX-run-compile nil t))
-    :hook
-    ((LaTeX-mode-hook . visual-line-mode)
-     (LaTeX-mode-hook . flyspell-mode)
-     (LaTeX-mode-hook . LaTeX-math-mode)
-     (LaTeX-mode-hook . TeX-source-correlate-mode)))
+                 '("Make" "make" TeX-run-compile nil t)))
+#+END_SRC
 
-  (use-package ebib :ensure t)
+When using =LaTeX-mode=, we want to automatically turn on the following
+features: [[Spell and Grammar Checking][spell checking]], [[Smart Handling of Parentheses][smart parentheses]], synchronisation of the point with
+the document viewer (=TeX-source-correlate-mode=), easy insertion of
+mathematical symbols (=LaTeX-math-mode=) and easier management of labels,
+references and citations (=reftex-mode=).
 
+Moreover, a compilation error overview should be available with =C-c C-o=.
+
+#+BEGIN_SRC emacs-lisp
   (use-package latex
     :defer t
-    :after tex ebib
-    :config
-    (use-package preview)
+    :after tex
+;    :config
+;    (use-package preview-latex)
     :bind
     (:map LaTeX-mode-map
           ("C-c C-o" . TeX-error-overview))
     :hook
-    (LaTeX-mode-hook . reftex-mode))
+    ((LaTeX-mode-hook . flyspell-mode)
+     (LaTeX-mode-hook . smartparens-mode)
+     (LaTeX-mode-hook . LaTeX-math-mode)
+     (LaTeX-mode-hook . TeX-source-correlate-mode)
+     (LaTeX-mode-hook . reftex-mode)))
 #+END_SRC
 
-We also use auto-completion of bibtex keys.  The completion function has to be
-modified to allow for fuzzy matching, and to show more readable annotations.
+We also enable auto-completion of bibtex keys using [[https://github.com/gbgar/company-bibtex][=company-bibtex=]].  Its
+completion function has to be modified to allow for fuzzy matching, and to show
+more readable annotations.
 
 #+BEGIN_SRC emacs-lisp
   (use-package company-bibtex

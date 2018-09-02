@@ -22,10 +22,12 @@
   - [[#auto-completion][Auto-Completion]]
   - [[#line-wrapping][Line Wrapping]]
   - [[#removing-trailing-whitespace][Removing Trailing Whitespace]]
+  - [[#smart-handling-of-parentheses][Smart Handling of Parentheses]]
 - [[#org-mode-and-getting-things-done][Org Mode and Getting Things Done]]
   - [[#org-mode][Org Mode]]
   - [[#gettings-things-done][Gettings Things Done]]
 - [[#languages][Languages]]
+  - [[#emacs-lisp][Emacs Lisp]]
   - [[#latex][LaTeX]]
 - [[#features][Features]]
   - [[#version-control][Version Control]]
@@ -478,6 +480,23 @@ be avoided by setting the file-local variable
 
   (add-hook 'before-save-hook 'me/remove-trailing-whitespace-before-save)
 #+END_SRC
+** Smart Handling of Parentheses
+
+The [[https://github.com/Fuco1/smartparens][=smartparens=]] package makes it easier to deal with parentheses and
+delimiters in general.  It will automatically insert the matching pair (e.g.,
+when you type ='('=, it will insert =')'=), wrap the region inside parentheses,
+among others.  Use the command =sp-cheat-sheet= to see the available commands
+with examples.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package smartparens-config
+    :ensure smartparens
+    :defer t)
+#+END_SRC
+
+The automatic use of =smartparens= should be ensured by setting up hooks for the
+appropriate modes, under the appropriate entry of the [[Languages][Languages section]].
+
 
 * Org Mode and Getting Things Done
 ** Org Mode
@@ -752,6 +771,14 @@ Do stuff!  Complete the next actions!
 
 
 * Languages
+** Emacs Lisp
+
+Lisp should use the [[Smart Handling of Parentheses][=smartparens-mode=]].
+
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'elisp-mode 'smartparens-mode)
+#+END_SRC
+
 ** LaTeX
 
 First, the =auctex= tool should be installed externally.

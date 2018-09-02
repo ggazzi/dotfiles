@@ -87,19 +87,36 @@ entry to =after-save-hook=.
   (defvar me/config-elisp-file
     (expand-file-name "config.el" user-emacs-directory))
 
-  (defun compile-config-from-org ()
-    "If the current buffer is 'config.org', we compile the tangled
-  elisp in the file."
+  (defun me/compile-tangled-config (compiled-file)
+    "Move the 'COMPILED-FILE' to 'me/config-elisp-file' and ensure 
+  it is byte-compiled."
+    (unless (equal compiled-file me/config-org-file)
+      (rename-file compiled-file me/config-elisp-file t))
+    (byte-compile-file me/config-elisp-file))
+
+  (defun me/compile-config-from-org-on-save ()
+    "If the current buffer has 'me/config-org-file' open, compile
+  the tangled elisp in the file, save it to 'me/config-elisp-file'
+  and load it."
     (when (equal (buffer-file-name) me/config-org-file)
       ;; Avoid running hooks when tangling
-      (let ((prog-mode-hook nil)
-            (compiled-file (replace-regexp-in-string "org$" "el" me/config-org-file)))
-        (org-babel-tangle)
-        (unless (equal compiled-file me/config-elisp-file)
-          (rename-file compiled-file me/config-elisp-file t))
+      (let ((prog-mode-hook nil))
+        (me/compile-tangled-config
+         (car (org-babel-tangle nil me/config-elisp-file "emacs-lisp")))
         (load-file me/config-elisp-file))))
 
-  (add-hook 'after-save-hook 'compile-config-from-org)
+  (add-hook 'after-save-hook 'me/compile-config-from-org-on-save)
+#+END_SRC
+
+We also provide a shortcut command for reloading the config.
+
+#+BEGIN_SRC emacs-lisp
+  (defun reload-config ()
+    "Recompile and reload the config from 'me/config-org-file'"
+    (interactive)
+    (me/compile-tangled-config
+     (car (org-babel-tangle-file me/config-org-file me/config-elisp-file "emacs-lisp")))
+    (load-file me/config-elisp-file))
 #+END_SRC
 
 ** Load =.custom.el=

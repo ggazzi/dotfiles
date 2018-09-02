@@ -741,20 +741,6 @@ First, the =auctex= tool should be installed externally.
   (use-package tex
     :defer t
     :ensure auctex
-    :preface
-    (defun run-latexmk ()
-      (interactive)
-      (let ((TeX-save-query nil)
-            (TeX-process-asynchronous nil)
-            (master-file (TeX-master-file)))
-        (TeX-save-document "") ;; Save all relevant TeX files
-        (TeX-run-LaTeX "latexmk"
-                     (TeX-command-expand "latexmk %t" 'TeX-master-file)
-                     master-file)
-        ;; The following checks if any errors were found.
-        (if (plist-get TeX-error-report-switches (intern master-file))
-            (TeX-next-error t)
-          (minibuffer-message "latexmk done"))))
     :config
     (setq TeX-auto-save t
           TeX-parse-self t
@@ -762,9 +748,6 @@ First, the =auctex= tool should be installed externally.
     (setq-default TeX-master nil)
     (add-to-list 'TeX-command-list
                  '("Make" "make" TeX-run-compile nil t))
-    :bind
-    (:map tex-mode-map
-          ("C-c C-b" . 'run-latexmk))
     :hook
     ((LaTeX-mode-hook . visual-line-mode)
      (LaTeX-mode-hook . flyspell-mode)
@@ -776,9 +759,75 @@ First, the =auctex= tool should be installed externally.
   (use-package latex
     :defer t
     :after tex ebib
+    :config
     (use-package preview)
+    :bind
+    (:map LaTeX-mode-map
+          ("C-c C-o" . TeX-error-overview))
     :hook
     (LaTeX-mode-hook . reftex-mode))
+#+END_SRC
+
+We also use auto-completion of bibtex keys.  The completion function has to be
+modified to allow for fuzzy matching, and to show more readable annotations.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package company-bibtex
+    :ensure t
+    :after latex
+    :preface
+    (defun me/company-bibtex (command &optional arg &rest ignored)
+      "`company-mode' completion backend for bibtex key completion.
+  This backend activates for citation styles used by `pandoc-mode' (@),
+  `latex-mode' (\cite{}), and `org-mode' (ebib:), and reads from a
+  bibliography file or files specified in `company-bibtex-bibliography'.
+  COMMAND, ARG, and IGNORED are used by `company-mode'."
+
+      (interactive (list 'interactive))
+      (cl-case command
+        (interactive (company-begin-backend 'company-bibtex))
+        (prefix (cond ((derived-mode-p 'latex-mode)
+                       (company-grab (format "%s\\(%s,\\)*\\(%s\\)"
+                                             company-bibtex-latex-citation-regex
+                                             company-bibtex-key-regex
+                                             company-bibtex-key-regex)
+                                     2))
+                      ((derived-mode-p 'org-mode)
+                       (company-grab (format "%s\\(%s,\\)*\\(%s\\)"
+                                             company-bibtex-org-citation-regex
+                                             company-bibtex-key-regex
+                                             company-bibtex-key-regex)
+                                     2))
+                      ((derived-mode-p 'markdown-mode)
+                       (company-grab (format "%s\\(%s\\)"
+                                             company-bibtex-pandoc-citation-regex
+                                             company-bibtex-key-regex)
+                                     1))
+                      ))
+        (candidates (company-bibtex-candidates arg))
+        (annotation (me/company-bibtex-get-annotation arg))
+        (meta (me/company-bibtex-get-metadata arg))
+        (duplicates t)
+        (no-cache t)))
+
+    (defun me/company-bibtex-get-annotation (candidate)
+      "Get annotation from CANDIDATE, which is its title."
+      (let ((prefix-length 0))
+        (format " | %s"
+                (replace-regexp-in-string "{\\|}" ""
+                                          (get-text-property prefix-length :title candidate)))))
+
+    (defun me/company-bibtex-get-metadata (candidate)
+      "Get metadata from CANDIDATE."
+      (let ((prefix-length 0))
+        (replace-regexp-in-string "{\\|}" ""
+                                  (format "Title: %s\nAuthors: %s"
+                                          (get-text-property prefix-length :title candidate)
+                                          (replace-regexp-in-string "[[:space:]]*\n[[:space:]]*" " "
+                                                                    (get-text-property prefix-length :author candidate))))))
+    :config
+    (add-to-list 'company-backends 'company-bibtex)
+    (defalias 'company-bibtex 'me/company-bibtex))
 #+END_SRC
 
 

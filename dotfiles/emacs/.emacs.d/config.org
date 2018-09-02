@@ -21,6 +21,7 @@
   - [[#better-window-navigation][Better Window Navigation]]
   - [[#auto-completion][Auto-Completion]]
   - [[#line-wrapping][Line Wrapping]]
+  - [[#removing-trailing-whitespace][Removing Trailing Whitespace]]
 - [[#org-mode-and-getting-things-done][Org Mode and Getting Things Done]]
   - [[#org-mode][Org Mode]]
   - [[#gettings-things-done][Gettings Things Done]]
@@ -458,7 +459,25 @@ indentation, we use =adaptive-wrap=.
     :config
     (global-visual-line-mode 1))
 #+END_SRC
+** Removing Trailing Whitespace
 
+By default, trailing whitespace is removed whenever a file is saved.  This can
+be avoided by setting the file-local variable
+=remove-trailing-whitespace-on-save= to =nil=.
+
+#+BEGIN_SRC emacs-lisp
+  (defvar remove-trailing-whitespace-on-save t
+    "When non-nil, trailing whitespace is removed before saving the file.")
+
+  (make-variable-buffer-local 'remove-trailing-whitespace-on-save)
+
+  (defun me/remove-trailing-whitespace-before-save ()
+    "Remove trailing whitespace if 'remove-trailing-whitespace-on-save' is non-nil."
+    (when remove-trailing-whitespace-on-save
+      (remove-trailing-whitespace)))
+
+  (add-hook 'before-save-hook 'me/remove-trailing-whitespace-before-save)
+#+END_SRC
 
 * Org Mode and Getting Things Done
 ** Org Mode

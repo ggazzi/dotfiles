@@ -20,6 +20,7 @@
   - [[#better-completion-and-search][Better Completion and Search]]
   - [[#better-window-navigation][Better Window Navigation]]
   - [[#auto-completion][Auto-Completion]]
+  - [[#line-wrapping][Line Wrapping]]
 - [[#org-mode-and-getting-things-done][Org Mode and Getting Things Done]]
   - [[#org-mode][Org Mode]]
   - [[#gettings-things-done][Gettings Things Done]]
@@ -442,6 +443,20 @@ completion candidates.
     :delight company-flx-mode nil
     :config
     (company-flx-mode 1))
+#+END_SRC
+
+** Line Wrapping
+
+When lines are too long, they are often soft-wrapped.  In order to correct their
+indentation, we use =adaptive-wrap=.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package adaptive-wrap
+    :ensure t
+    :hook
+    ('visual-line-mode-hook . 'adaptive-wrap-prefix-mode)
+    :config
+    (global-visual-line-mode 1))
 #+END_SRC
 
 

@@ -26,6 +26,7 @@
   - [[#smart-handling-of-parentheses][Smart Handling of Parentheses]]
 - [[#org-mode-and-getting-things-done][Org Mode and Getting Things Done]]
   - [[#org-mode][Org Mode]]
+  - [[#synchronisation-with-google-calendar][Synchronisation with Google Calendar]]
   - [[#gettings-things-done][Gettings Things Done]]
 - [[#languages][Languages]]
   - [[#emacs-lisp][Emacs Lisp]]
@@ -175,10 +176,18 @@ I load =~/.emacs.d/.secret.el= to keep sensible things out of version control.
 For instance, you could set your identity by customizing both =user-full-name=
 and =user-mail-address=.  This is also where you want your API tokens to live.
 
+Note that the file will be loaded /after/ the complete configuration.
+
 #+BEGIN_SRC emacs-lisp
-  (let ((secret.el (expand-file-name ".secret.el" user-emacs-directory)))
-    (when (file-exists-p secret.el)
-      (load secret.el)))
+  (defun me/load-secrets (loaded-file-name)
+    (when (eq loaded-file-name me/config-elisp-file)
+      (let ((secret-el (expand-file-name ".secret.el" user-emacs-directory)))
+        (when (file-exists-p secret-el)
+          (load secret-el)
+          (message "Loaded .secret.el")))))
+
+  (run-at-time "1 millisec" nil 'me/load-secrets me/config-elisp-file)
+  (add-hook 'after-load-functions 'me/load-secrets)
 #+END_SRC
 
 
@@ -618,6 +627,31 @@ We can make =org-mode= prettier by showing actual bullets.
     (org-mode . org-bullets-mode))
 #+END_SRC
 
+** Synchronisation with Google Calendar
+
+We can use =org-gcal= to synchronise =org-mode= files with google calendar.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package org-gcal
+    :ensure t
+    :hook
+    ((org-agenda-mode . org-gcal-sync)
+     (org-capture-after-finalize-hook . org-gcal-sync)))
+#+END_SRC
+
+In order to communicate with google you should properly set a client ID, client
+secrets and calendar IDs in =~/.emacs.d/.secret.el=.  This is done as follows,
+and more information on getting the client ID and secrets as well as calendar
+IDs is given in the [[https://github.com/myuhe/org-gcal.el/blob/master/README.org#installation][=org-gcal= readme]].
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  (setq org-gcal-client-id "oauth 2.0 client ID"
+        org-gcal-client-secret "client secret"
+        org-gcal-file-alist '(("username@gmail.com" . "path/to/gcal.org")))
+
+  (add-to-list org-agenda-files "path/to/gcal.org")
+#+END_SRC
+
 ** Gettings Things Done
 
 I am trying to adopt GTD, implemented using org-mode and following
@@ -682,7 +716,7 @@ inside Emacs, you can use =C-c l= to copy a link to its location, then =C-c C-l=
 to paste it.
 
 #+BEGIN_SRC emacs-lisp
-  (global-set-key (kbd "C-c C-l") 'org-store-link)
+  (global-set-key (kbd "C-c l") 'org-store-link)
 #+END_SRC
 
 In particular we set up some templates for easily adding a new task or
@@ -804,6 +838,16 @@ among the many agenda views.
 
 #+BEGIN_SRC emacs-lisp
   (global-set-key (kbd "C-c a") 'org-agenda)
+#+END_SRC
+
+A custom agenda view available with =C-c a n= will display an agenda for the
+current week as well as all next actions.
+
+#+BEGIN_SRC emacs-lisp
+  (setq org-agenda-custom-commands
+        '(("n" "Agenda for the week and next actions"
+           ((agenda)
+            (todo "NEXT")))))
 #+END_SRC
 
 **** Engage

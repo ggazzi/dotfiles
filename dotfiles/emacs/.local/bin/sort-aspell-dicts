@@ -1,0 +1,25 @@
+#!/bin/bash
+
+sort_dict()
+{
+    local dict="$1"
+    local tmp_dict="$dict.unsorted"
+
+    local i=1
+    while [ -e "$tmp_dict" ]
+    do
+        tmp_dict="$dict.unsorted.$i"
+        ((i = i+1))
+    done
+
+    mv "$dict" "$tmp_dict"
+    head -n1 "$tmp_dict" > "$dict"
+    tail -n+2 "$tmp_dict" | sort -u >> "$dict"
+}
+
+CONFIG_DIR=~/Dokumente/git/linux-configs
+
+for dict in "$CONFIG_DIR"/dotfiles/emacs/.aspell.*.pws
+do
+    sort_dict "$dict"
+done

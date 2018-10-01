@@ -31,6 +31,9 @@
 - [[#languages][Languages]]
   - [[#emacs-lisp][Emacs Lisp]]
   - [[#latex][LaTeX]]
+  - [[#haskell][Haskell]]
+  - [[#coq][Coq]]
+  - [[#pkgbuild][PKGBUILD]]
 - [[#features][Features]]
   - [[#version-control][Version Control]]
   - [[#directory-browser][Directory Browser]]
@@ -980,6 +983,38 @@ readable annotations.
                                          (get-text-property prefix-length :author candidate))))
           (replace-regexp-in-string "{\\|}" ""
                                     (format "Title: %s\nAuthors: %s" title authors))))))
+#+END_SRC
+
+** Haskell
+
+#+BEGIN_SRC emacs-lisp
+    (use-package haskell-mode
+      :ensure t
+      :mode "\\.l?hs\\'")
+
+    (use-package hindent
+      :ensure t
+      :hook
+      (haskell-mode . hindent-mode))
+#+END_SRC
+
+** Coq
+
+Proof General is a great Emacs-based interface for coq
+
+#+BEGIN_SRC emacs-lisp
+  (use-package proof-general
+    :ensure t
+    :mode ("\\.v\\'" . coq-mode))
+#+END_SRC
+
+
+** PKGBUILD
+
+#+BEGIN_SRC emacs-lisp
+  (use-package pkgbuild-mode
+    :ensure t
+    :mode ("^PKGBUILD$" . pkgbuild-mode))
 #+END_SRC
 
 

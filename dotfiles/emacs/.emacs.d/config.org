@@ -886,10 +886,11 @@ for a master file by setting =TeX-master=.  I also add support for using a
 #+END_SRC
 
 When using =LaTeX-mode=, we want to automatically turn on the following
-features: [[Spell and Grammar Checking][spell checking]], [[Smart Handling of Parentheses][smart parentheses]], synchronisation of the point with
-the document viewer (=TeX-source-correlate-mode=), easy insertion of
-mathematical symbols (=LaTeX-math-mode=) and easier management of labels,
-references and citations (=reftex-mode=).
+features: [[Spell and Grammar Checking][spell checking]], [[Smart Handling of Parentheses][smart parentheses]] (use =C-q "= to insert regular
+quotes) synchronisation of the point with the document viewer
+(=TeX-source-correlate-mode=), easy insertion of mathematical symbols
+(=LaTeX-math-mode=) and easier management of labels, references and citations
+(=reftex-mode=).
 
 Moreover, a compilation error overview should be available with =C-c C-o=.
 
@@ -900,12 +901,14 @@ Moreover, a compilation error overview should be available with =C-c C-o=.
     :bind
     (:map LaTeX-mode-map
           ("C-c C-o" . TeX-error-overview))
+    :config
+    (use-package smartparens-latex :after smartparens)
     :hook
-    ((LaTeX-mode-hook . flyspell-mode)
-     (LaTeX-mode-hook . smartparens-mode)
-     (LaTeX-mode-hook . LaTeX-math-mode)
-     (LaTeX-mode-hook . TeX-source-correlate-mode)
-     (LaTeX-mode-hook . reftex-mode)))
+    ((LaTeX-mode . flyspell-mode)
+     (LaTeX-mode . smartparens-mode)
+     (LaTeX-mode . LaTeX-math-mode)
+     (LaTeX-mode . TeX-source-correlate-mode)
+     (LaTeX-mode . reftex-mode)))
 #+END_SRC
 
 We also enable auto-completion of bibtex keys using [[https://github.com/gbgar/company-bibtex][=company-bibtex=]].  Its

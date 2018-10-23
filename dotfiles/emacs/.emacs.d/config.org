@@ -579,15 +579,19 @@ ensure [[Spell and Grammar Checking][spell checking]] is turned on.
     :config
     (advice-add 'org-src--construct-edit-buffer-name :override #'me/org-src-buffer-name)
     (me/bind-kill-region-or-line org-mode-map org-kill-line kill-region)
-    (setq
-     org-startup-truncated nil        ; Truncated lines not needed because of visual-line-mode
-     org-log-done 'time               ; Record completion time for tasks
-     org-hide-leading-stars t         ; Only show a single star for each org heading
-     org-return-follows-link t        ; Use <return> to follow links
-     org-enforce-todo-dependencies t  ; Make sure subtasks are completed before supertask
-     org-ellipsis " ⤵")               ; Use a prettier character for folded sections
+    :custom
+    (org-agenda-use-time-grid nil)     ; Simplify the look of agendas
+    (org-log-done 'time)               ; Record completion time for tasks
+    (org-log-reschedule 'note)         ; Record rescheduling with notes
+    (org-log-into-drawer "LOGBOOK")    ; Write the log into a drawer
+    (org-hide-leading-stars t)         ; Only show a single star for each org heading
+    (org-return-follows-link t)        ; Use <return> to follow links
+    (org-enforce-todo-dependencies t)  ; Make sure subtasks are completed before supertask
+    (org-ellipsis " ⤵")                ; Use a prettier character for folded sections
+    (org-habit-show-all-today t)       ; Always display full habit tracker
+    (org-modules '(org-bibtex org-docview org-info org-habit))
     :hook
-    (org-mode . flyspell-mode))       ; Ensure spell
+    (org-mode . flyspell-mode))       ; Ensure spell checking is used
 #+END_SRC
 
 Display in the header-line the heading of the node at the top of the window.
@@ -599,11 +603,11 @@ heading wouldn't be visible.
     :ensure t
     :after org
     :config
-    (setq-default
-     org-sticky-header-full-path 'full
-     org-sticky-header-outline-path-separator " › "
-     org-sticky-header-prefix "› "
-     org-sticky-header-heading-star "")
+    :custom
+    (org-sticky-header-full-path 'full)
+    (org-sticky-header-outline-path-separator " › ")
+    (org-sticky-header-prefix "› ")
+    (org-sticky-header-heading-star "")
     :hook
     (org-mode . org-sticky-header-mode))
 #+END_SRC
@@ -659,6 +663,8 @@ IDs is given in the [[https://github.com/myuhe/org-gcal.el/blob/master/README.or
 
 I am trying to adopt GTD, implemented using org-mode and following
 some workflows suggested [[https://orgmode.org/worg/org-gtd-etc.html][online]].
+
+There is a good tutorial of using =org-mode= in a GTD-like manner [[https://www.youtube.com/watch?v=R4QSTDco_w8&index=11&list=PLVtKhBrRV_ZkPnBtt_TD1Cs9PJlU0IIdE][on YouTube]].
 
 *** File Structure
 
@@ -763,15 +769,18 @@ Tasks may be in one of the following states.
   - =DONE=: completed succesfully
   - =CANCELLED=: no longer relevant
 
+Changes to these states will often be logged, either with a timestamp and a note
+(states with "@") or with just a timestamp (entries with "/!").
+
 #+BEGIN_SRC emacs-lisp
   (setq org-todo-keywords
         '((sequence
-           "TODO(t)"
-           "NEXT(n)"
-           "WAITING(w)"
+           "TODO(t!)"
+           "NEXT(n!)"
+           "WAITING(w@/!)"
            "|"
-           "DONE(d)"
-           "CANCELLED(c)")))
+           "DONE(d@)"
+           "CANCELLED(c@)")))
 #+END_SRC
 
 When filing tasks and other notes, they can be annotated with tags,

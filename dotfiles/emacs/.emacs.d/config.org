@@ -1093,13 +1093,19 @@ Note that Aspell personal dictionaries are stored in =~/.aspell.LANG.pws=, where
 =LANG= is the two-letter code.  I use British English most of the time.
 
 #+BEGIN_SRC emacs-lisp
-  (cond
-   ((executable-find "aspell")
-    (setq ispell-program-name "aspell"))
-   ((executable-find "hunspell")
-    (setq ispell-program-name "hunspell")))
-
-  (setq ispell-dictionary "en_GB")
+  (use-package ispell
+    :config
+    (cond
+     ((executable-find "aspell")
+      (setq ispell-program-name "aspell"))
+     ((executable-find "hunspell")
+      (setq ispell-program-name "hunspell")))
+    (setq ispell-dictionary "en_GB")
+    :bind
+    (("C-S-l b" . 'ispell-buffer)
+     ("C-S-l d" . 'ispell-change-dictionary)
+     ("C-S-l r" . 'ispell-region)
+     ("C-S-l w" . 'ispell-word)))
 #+END_SRC
 
 The =flyspell-mode= will highlight misspelled words.  Then =C-S-l c= can be used

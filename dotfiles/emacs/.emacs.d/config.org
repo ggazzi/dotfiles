@@ -999,7 +999,9 @@ readable annotations.
 #+BEGIN_SRC emacs-lisp
     (use-package haskell-mode
       :ensure t
-      :mode "\\.l?hs\\'")
+      :mode "\\.l?hs\\'"
+      :hook
+      (haskell-mode . smartparens-mode))
 
     (use-package hindent
       :ensure t

@@ -1,0 +1,16 @@
+# Author: Guilherme Azzi <ggazzi@inf.ufrgs.br>
+
+pkgname=ggazzi-xmonad
+pkgver=0.1
+pkgrel=1
+pkgdesc="My metapackage for xmonad"
+arch=('any')
+license=(MIT)
+depends=('xmonad' 'xmonad-contrib' 'xmobar' 'stalonetray' 'dmenu' 'scrot' 'cabal-install' 'xcompmgr' 'xscreensaver'
+         'xorg-server' 'xf86-video'
+         'otf-fira-mono' 'otf-fira-sans' 'arc-gtk-theme' 'arc-icon-theme' 'otf-fira-code-mozilla'
+         'firefox' 'gnome-terminal' 'nautilus' 'file-roller' 'gconf' 'python-pip'
+        )
+source=('ggazzi-xmonad.install')
+md5sums=('329a6f43ace6ced8afc8b1f63e08f5cf')
+install='ggazzi-xmonad.install'

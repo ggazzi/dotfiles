@@ -1,0 +1,11 @@
+icon_size 21
+
+sticky 1
+window_type dock
+#dockapp_mode wmaker
+window_strut auto
+skip_taskbar 1
+icon_gravity NE
+background black
+geometry 12x1
+kludges force_icons_size

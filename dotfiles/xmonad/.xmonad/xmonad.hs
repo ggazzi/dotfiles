@@ -5,22 +5,28 @@ Author: Guilherme Grochau Azzi
 
 import qualified Data.Map as Map
 import qualified Data.List as List
+import Data.IORef
 import XMonad
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.DynamicBars
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.SetWMName
+import XMonad.Hooks.EwmhDesktops (ewmh)
 import           XMonad.Layout.Fullscreen
 import           XMonad.Layout.NoBorders
 import           XMonad.Layout.Spiral
 import XMonad.Actions.Commands
 import XMonad.Layout.ThreeColumns
+import XMonad.Layout.Gaps
+import XMonad.Layout.Spacing
 import qualified XMonad.StackSet as W
 import qualified XMonad.Util.EZConfig as EZ
 import XMonad.Util.Run (spawnPipe)
 import XMonad.Util.EZConfig(additionalKeys)
+import XMonad.Util.Dmenu
 import System.IO
 import System.Exit
+import System.Process hiding (runCommand)
 
 
 ------------------------------------------------------------------------
@@ -34,7 +40,7 @@ systemTerminal = "gnome-terminal"
 -- |Background
 -- Path to image used as background
 background :: String
-background = fehCommand ++ "~/Dropbox/Wallpapers/Third Sunrise.jpg"
+background = fehCommand ++ "\"$HOME/Dropbox/Wallpapers/Third Sunrise.jpg\""
   where
     fehCommand = "feh --bg-scale "
 
@@ -121,7 +127,6 @@ xmobarCurrentWorkspaceColor :: String
 xmobarCurrentWorkspaceColor = "#CEFFAC"
 
 
-
 ------------------------------------------------------------------------
 -- | Key bindings
 --
@@ -133,12 +138,15 @@ myModMask :: KeyMask
 myModMask = mod4Mask
 
 myKeys conf = EZ.mkKeymap conf $
-  ("M-S-p", runCommand (myCommands conf))
+  ("M-S-p", runCommandConfig (rofi "xmonad") (myCommands conf))
   : [ (k,c) | (_,ks,c) <- myCommandsAndKeys conf, k <- ks ]
 
 myCommands conf = [ (name ++ describeKeys ks, c) | (name,ks,c) <- myCommandsAndKeys conf ]
   where
     describeKeys ks= " (" ++ List.intercalate ", " ks  ++ ")"
+
+rofi :: String -> [String] -> X String
+rofi prompt = menuArgs "rofi" ["-dmenu", "-i", "-matching", "fuzzy", "-p", prompt]
 
 --myKeys = let modMask = myModMask in
 --myKeys conf@(XConfig {XMonad.modMask = modMask}) = Map.fromList $
@@ -154,7 +162,7 @@ myCommandsAndKeys conf =
      spawn "xscreensaver-command --lock")
 
   , ("Launcher", ["M-p"],
-     spawn "$(yeganesh -x -- -fn 'xft:fira sans-12:encoding=utf-8')")
+     spawn "rofi -combi-modi drun,window -modi combi -show combi")
 
   , ("Web Browser", ["C-M-b"],
      spawn "firefox")
@@ -299,17 +307,45 @@ myCommandsAndKeys conf =
 -- per-workspace layout choices.
 --
 -- By default, do nothing.
-myStartupHook :: X ()
-myStartupHook = do
+
+myTrayWidth = 252 -- = 12 * 21, i.e., 12 icons of 21px each
+
+--myStartupHook :: X ()
+myStartupHook trayScreenRef = do
 --  spawn dualMonitorsCommand
-  spawn nmapplet
+
+  -- Change keyboard layout
+  spawn "setxkbmap us,de -variant intl, -option grp:alt_space_toggle"
+
+  -- Set a wallpaper
+  spawn "feh --bg-fill \"$HOME/Dropbox/Wallpapers/Third Sunrise.jpg\""
+
+  -- Start the system tray
+  currentScreen <- gets (W.current . windowset)
+  let trayPadding = rect_width (screenRect $ W.screenDetail currentScreen) - myTrayWidth
+  liftIO $ writeIORef trayScreenRef (W.screen currentScreen)
+  spawn $ "killall stalonetray; stalonetray --geometry " ++ "12x1+" ++ show trayPadding
+  spawn "nm-applet"
+
+  -- Start the status bars
+  dynStatusBarStartup (myStatusBar trayScreenRef) myStatusBarCleanup
+  spawn "xscreensaver -no-splash"
+
+  -- Start the sound server
+  spawn "pulseaudio --start --log-target=syslog"
+  spawn "killall pasystray; pasystray"
+
+  -- Start some applications
   spawn emailClient
 --  spawn syndaemon
-  spawn background
-  dynStatusBarStartup myStatusBar myStatusBarCleanup
 
-myStatusBar id = spawnPipe ("xmobar -x" ++ show (fromEnum id) ++ " " ++ myXmobarrc)
-myStatusBarCleanup = return () -- TODO
+
+myStatusBar trayScreenRef screenId = do
+  trayScreenId <- liftIO $ readIORef trayScreenRef
+  spawnPipe $ "xmobar --screen=" ++ show (fromEnum screenId) ++ " ~/.xmonad/" ++
+    if screenId == trayScreenId then "xmobar-tray.hs" else "xmobar.hs"
+
+myStatusBarCleanup = return () -- spawn "killall xmobar"
 
 
 
@@ -318,7 +354,8 @@ myStatusBarCleanup = return () -- TODO
 --
 main :: IO ()
 main = do
-  xmonad $ defaults
+  trayScreen <- liftIO $ newIORef (S 0)
+  xmonad . ewmh $ defaults
     { logHook = let pp = xmobarPP
                       { ppTitle = xmobarColor xmobarTitleColor "" . shorten 100
                       , ppCurrent = xmobarColor xmobarCurrentWorkspaceColor ""
@@ -326,8 +363,8 @@ main = do
                       }
                 in multiPP pp (pp {ppTitle = shorten 100})
     , manageHook = manageDocks <+> myManageHook
-    , startupHook = setWMName "LG3D" <+> myStartupHook
-    , handleEventHook = docksEventHook <+> dynStatusBarEventHook myStatusBar myStatusBarCleanup
+    , startupHook = setWMName "LG3D" <+> myStartupHook trayScreen
+    , handleEventHook = docksEventHook <+> dynStatusBarEventHook (myStatusBar trayScreen) myStatusBarCleanup
     }
 
 
@@ -355,7 +392,5 @@ defaults = def {
 --    mouseBindings      = myMouseBindings,
 
     -- hooks, layouts
-    , layoutHook         = avoidStruts $ smartBorders myLayout
-    , manageHook         = manageDocks <+> myManageHook
-    , startupHook        = setWMName "LG3D" <+> myStartupHook
+    , layoutHook         = avoidStruts $ spacingRaw True (Border 0 0 0 0) False (Border 2 2 2 2) True myLayout
 }

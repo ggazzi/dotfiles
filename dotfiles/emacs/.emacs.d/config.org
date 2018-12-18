@@ -205,21 +205,11 @@ Note that the file will be loaded /after/ the complete configuration.
 The mode line can be made prettier (and easier to understand).
 
 #+BEGIN_SRC emacs-lisp
-   (use-package powerline
-     :ensure t
-     :config
-     (powerline-center-theme)
-     :custom
-      (powerline-default-separator 'slant)
-      (powerline-default-separator-dir '(left . right))
-      (powerline-display-buffer-size nil)
-     :custom-face
-      (mode-line ((t (:background "grey18" :box (:line-width 1 :color "#44475a")))))
-      (mode-line-inactive ((t (:background "grey18" :foreground "#f8f8f2" :box (:line-width 1 :color "#373844")))))
-      (powerline-active1 ((t (:background "#cc863d" :foreground "grey15"))))
-      (powerline-active2 ((t (:background "#cc863d" :foreground "grey15"))))
-      (powerline-inactive1 ((t (:background "grey25"))))
-      (powerline-inactive2 ((t (:background "grey25" :foreground "#f8f8f2")))))
+  (use-package spaceline
+    :ensure t
+    :config
+    (spaceline-emacs-theme)
+    (spaceline-toggle-line-column-on))
 #+END_SRC
 
 We can also improve how modes are displayed.
@@ -305,7 +295,7 @@ Here are some options that I consider better defaults.
    cursor-in-non-selected-windows t                 ; Hide the cursor in inactive windows
    delete-by-moving-to-trash t                      ; Delete files to trash
    display-time-default-load-average nil            ; Don't display load average
-   display-time-format "%H:%M"                      ; Format the time string
+   display-time-format nil                          ; Don't display the time
    fill-column 80                                   ; Set width for automatic line breaks
    help-window-select t                             ; Focus new help windows when opened
    indent-tabs-mode nil                             ; Stop using tabs to indent
@@ -324,9 +314,6 @@ Here are some options that I consider better defaults.
   (display-time-mode 1)                             ; Enable time in the mode-line
   (fset 'yes-or-no-p 'y-or-n-p)                     ; Replace yes/no prompts with y/n
   (global-subword-mode 1)                           ; Iterate through CamelCase words
-  (fringe-mode 0)                                   ; Disable fringes
-  (global-display-line-numbers-mode 1)              ; Display line numbers beside text
-  (line-number-mode 0)                              ; Omit line numbers in the status bar
   (column-number-mode 1)                            ; Display column numbers in the status bar
 #+END_SRC
 
@@ -555,6 +542,15 @@ with examples.
 
 The automatic use of =smartparens= should be ensured by setting up hooks for the
 appropriate modes, under the appropriate entry of the [[Languages][Languages section]].
+
+The =expand-region= package allows the region to be expanded according to delimiters.
+
+#+BEGIN_SRC emacs-lisp
+    (use-package expand-region
+      :ensure t
+      :bind
+      ("C-=" . er/expand-region))
+#+END_SRC
 
 
 * Org Mode and Getting Things Done

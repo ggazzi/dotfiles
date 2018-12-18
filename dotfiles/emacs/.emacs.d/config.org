@@ -141,17 +141,22 @@ this file is saved, which we guarantee using an =after-save-hook=.
 We also provide shortcut commands for reloading the config.
 
 #+BEGIN_SRC emacs-lisp
-  (defun compile-and-reload-config ()
-    "Recompile and reload the config from 'me/config-org-file'"
+  (defun compile-config ()
+    "Recompile the config from 'me/config-org-file' into 'me/config-elisp-file'"
     (interactive)
     (me/compile-tangled-config
-     (car (org-babel-tangle-file me/config-org-file me/config-elisp-file "emacs-lisp")))
-    (load-file me/config-elisp-file))
+     (car (org-babel-tangle-file me/config-org-file me/config-elisp-file "emacs-lisp"))))
 
   (defun reload-config ()
     "Reload the config from 'me/config-org-file'"
     (interactive)
     (load-file me/config-elisp-file))
+
+  (defun compile-and-reload-config ()
+    "Recompile and reload the config from 'me/config-org-file'"
+    (interactive)
+    (compile-config)
+    (reload-config))
 #+END_SRC
 
 ** Load =.custom.el=

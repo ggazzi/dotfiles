@@ -26,7 +26,6 @@
   - [[#smart-handling-of-parentheses][Smart Handling of Parentheses]]
 - [[#org-mode-and-getting-things-done][Org Mode and Getting Things Done]]
   - [[#org-mode][Org Mode]]
-  - [[#synchronisation-with-google-calendar][Synchronisation with Google Calendar]]
   - [[#gettings-things-done][Gettings Things Done]]
 - [[#languages][Languages]]
   - [[#emacs-lisp][Emacs Lisp]]
@@ -635,30 +634,6 @@ We can make =org-mode= prettier by showing actual bullets.
     (org-mode . org-bullets-mode))
 #+END_SRC
 
-** Synchronisation with Google Calendar
-
-We can use =org-gcal= to synchronise =org-mode= files with google calendar.
-
-#+BEGIN_SRC emacs-lisp
-  (use-package org-gcal
-    :ensure t
-    :hook
-    ((org-agenda-mode . org-gcal-sync)
-     (org-capture-after-finalize-hook . org-gcal-sync)))
-#+END_SRC
-
-In order to communicate with google you should properly set a client ID, client
-secrets and calendar IDs in =~/.emacs.d/.secret.el=.  This is done as follows,
-and more information on getting the client ID and secrets as well as calendar
-IDs is given in the [[https://github.com/myuhe/org-gcal.el/blob/master/README.org#installation][=org-gcal= readme]].
-
-#+BEGIN_SRC emacs-lisp :tangle no
-  (setq org-gcal-client-id "oauth 2.0 client ID"
-        org-gcal-client-secret "client secret"
-        org-gcal-file-alist '(("username@gmail.com" . "path/to/gcal.org")))
-
-  (add-to-list org-agenda-files "path/to/gcal.org")
-#+END_SRC
 
 ** Gettings Things Done
 

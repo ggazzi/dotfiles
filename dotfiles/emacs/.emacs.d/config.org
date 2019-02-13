@@ -602,9 +602,7 @@ ensure [[Spell and Grammar Checking][spell checking]] is turned on.
     (org-enforce-todo-dependencies t)  ; Make sure subtasks are completed before supertask
     (org-ellipsis " ⤵")                ; Use a prettier character for folded sections
     (org-habit-show-all-today t)       ; Always display full habit tracker
-    (org-modules '(org-bibtex org-docview org-info org-habit))
-    :hook
-    (org-mode . flyspell-mode))       ; Ensure spell checking is used
+    (org-modules '(org-bibtex org-docview org-info org-habit)))
 #+END_SRC
 
 Display in the header-line the heading of the node at the top of the window.
@@ -689,6 +687,13 @@ which includes the following.
 #+END_SRC
 
 
+I also keep a separate projects file for my work at SESE.  Currently I use the
+same inbox, tickler and someday/maybe file for work and personal stuff.
+
+#+BEGIN_SRC emacs-lisp
+  (defvar me/gtd-work-projects-file (expand-file-name "~/tubCloud/sese-projects.org"))
+#+END_SRC
+
 *** Steps
 **** Capture
 
@@ -746,7 +751,8 @@ targets include any project, the tickler or the someday/maybe list.
 
 #+BEGIN_SRC emacs-lisp
   (setq org-refile-targets
-	'((me/gtd-projects-file :maxlevel . 3)
+	'((me/gtd-projects-file :maxlevel . 2)
+      (me/gtd-work-projects-file :maxlevel . 2)
 	  (me/gtd-someday-file :maxlevel . 2)
 	  (me/gtd-tickler-file :maxlevel . 2)))
 #+END_SRC
@@ -801,6 +807,7 @@ then check the =NEXT= actions, filtered by your current context.
   (setq org-agenda-files
     (list
       me/gtd-projects-file
+      me/gtd-work-projects-file
       me/gtd-inbox-file
       me/gtd-tickler-file))
  #+END_SRC
@@ -820,6 +827,10 @@ In order to easily open the GTD files, we provide the following commands.
   (defun open-gtd-projects ()
     (interactive)
     (find-file me/gtd-projects-file))
+
+  (defun open-gtd-work-projects ()
+    (interactive)
+    (find-file me/gtd-work-projects-file))
 
   (defun open-gtd-tickler ()
     (interactive)

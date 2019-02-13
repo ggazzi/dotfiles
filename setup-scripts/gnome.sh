@@ -8,7 +8,7 @@ sudo pacman -S adwaita-icon-theme baobab eog evince gnome-backgrounds gnome-calc
 echo
 echo "Installing themes"
 sudo pacman -S otf-fira-mono otf-fira-sans arc-gtk-theme arc-icon-theme gtk-engine-murrine arc-kde qt5-styleplugins
-aurget -S --noedit otf-fira-code otf-hasklig
+aurget -S --noedit otf-fira-code-mozilla otf-hasklig
 
 echo
 echo "Installing utilities"

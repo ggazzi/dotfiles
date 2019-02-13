@@ -21,6 +21,7 @@
   - [[#better-completion-and-search][Better Completion and Search]]
   - [[#better-window-navigation][Better Window Navigation]]
   - [[#auto-completion][Auto-Completion]]
+  - [[#recursive-minibuffers][Recursive Minibuffers]]
   - [[#line-wrapping][Line Wrapping]]
   - [[#removing-trailing-whitespace][Removing Trailing Whitespace]]
   - [[#smart-handling-of-parentheses][Smart Handling of Parentheses]]
@@ -490,6 +491,15 @@ completion candidates.
 
   (global-company-mode 1)
   (company-flx-mode 1)
+#+END_SRC
+
+** Recursive Minibuffers
+
+   It should be possible to invoke mini minibuffer-based commands from within
+   the minibuffer, keeping a stack of minibuffers.
+
+#+BEGIN_SRC emacs-lisp
+  (setq enable-recursive-minibuffers t)
 #+END_SRC
 
 ** Line Wrapping

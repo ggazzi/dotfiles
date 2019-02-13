@@ -209,7 +209,8 @@ The mode line can be made prettier (and easier to understand).
     :ensure t
     :config
     (spaceline-emacs-theme)
-    (spaceline-toggle-line-column-on))
+    (spaceline-toggle-line-column-on)
+    (spaceline-toggle-hud-on))
 #+END_SRC
 
 We can also improve how modes are displayed.
@@ -406,7 +407,7 @@ candidate.
     :commands ivy-mode ivy-resume ivy-immediate-done
     :config
     (ivy-mode 1)
-    (setq ivy-use-virtual-buffers t)
+    (setq ivy-count-format "(%d/%d)")
     (setq ivy-re-builders-alist
           '((swiper . ivy--regex-plus)
             (t . ivy--regex-fuzzy)))
@@ -416,7 +417,7 @@ candidate.
     (ivy-minibuffer-match-face-4 ((t (:background "#777777" :weight bold))))
     :bind
     (("C-c C-r" . 'ivy-resume)
-     :map ivy-mode-map
+     :map ivy-minibuffer-map
      ("C-<return>" . 'ivy-immediate-done)))
 #+END_SRC
 
@@ -429,6 +430,7 @@ builtin functionality, and =swiper= an alternative search command.
     :bind
     (("M-x" . 'counsel-M-x)
      ("C-x C-f" . 'counsel-find-file)
+     ("C-x C-S-f" . 'counsel-recentf)
      ("<f1> f" . 'counsel-describe-function)
      ("<f1> v" . 'counsel-describe-variable)
      ("<f1> l" . 'counsel-find-library)

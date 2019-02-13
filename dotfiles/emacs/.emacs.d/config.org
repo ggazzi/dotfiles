@@ -33,6 +33,7 @@
   - [[#latex][LaTeX]]
   - [[#haskell][Haskell]]
   - [[#coq][Coq]]
+  - [[#python][Python]]
   - [[#pkgbuild][PKGBUILD]]
 - [[#features][Features]]
   - [[#version-control][Version Control]]
@@ -407,7 +408,7 @@ candidate.
     :commands ivy-mode ivy-resume ivy-immediate-done
     :config
     (ivy-mode 1)
-    (setq ivy-count-format "(%d/%d)")
+    (setq ivy-count-format "(%d/%d) ")
     (setq ivy-re-builders-alist
           '((swiper . ivy--regex-plus)
             (t . ivy--regex-fuzzy)))
@@ -1007,6 +1008,13 @@ Proof General is a great Emacs-based interface for coq
     :mode ("\\.v\\'" . coq-mode))
 #+END_SRC
 
+** Python
+
+#+BEGIN_SRC elisp
+  (use-package python-mode
+    :ensure t
+    :mode ("\\.py\\'" . python-mode))
+#+END_SRC
 
 ** PKGBUILD
 

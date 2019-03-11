@@ -862,6 +862,20 @@ current week as well as all next actions.
             (todo "NEXT")))))
 #+END_SRC
 
+For weekly reviews it might also be useful to have a summary of what was done in
+the last week.  This is available from =C-c a W=.
+
+#+BEGIN_SRC emacs-lisp
+  (add-to-list 'org-agenda-custom-commands
+               '("W" "Weekly review"
+                 agenda ""
+                 ((org-agenda-span 'week)
+                  (org-agenda-start-with-log-mode 1)
+                  (org-agenda-skip-function
+                   '(org-agenda-skip-entry-if 'nottodo 'done))
+                  )))
+#+END_SRC
+
 **** Engage
 
 Do stuff!  Complete the next actions!

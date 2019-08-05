@@ -828,6 +828,17 @@ entry.  The decision of what to do next should be taken based on the
 current context and next tasks, not based on artificial scheduling
 decisions made with possibly outdated information.
 
+Tasks are usually grouped into projects.  Moreover, weekly goals can often be
+defined.  These are signalled using tags, which should not be inherited.
+
+#+BEGIN_SRC emacs-lisp
+  (config-org-mode
+   (add-to-list 'org-tags-exclude-from-inheritance "PROJECT")
+   (add-to-list 'org-tags-exclude-from-inheritance "FINISHED_PROJECT")
+   (add-to-list 'org-tags-exclude-from-inheritance "WEEK_GOAL"))
+#+END_SRC
+
+
 **** Reflect
 
 The lists should be reviewed frequently, which help keeps the big
@@ -894,15 +905,27 @@ current week as well as all next actions.
 #+BEGIN_SRC emacs-lisp
   (config-org-mode
    (add-to-list 'org-agenda-custom-commands
-                '("n" "Agenda for the week and next actions"
-                  ((agenda "")
-                   (todo "NEXT")
+                '("n" "Agenda for the day and next actions"
+                  ((agenda "" ((org-agenda-span 1)))
+                   (tags-todo "+TODO=\"NEXT\"+PRIORITY=\"A\"")
+                   (tags-todo "+TODO=\"NEXT\"+PRIORITY=\"B\"")
+                   (tags-todo "+TODO=\"NEXT\"-PRIORITY=\"A\"-PRIORITY=\"B\""))))
+   (add-to-list 'org-agenda-custom-commands
+                '("d" "Agenda for the daily review"
+                  ((agenda)
+                   (tags "+WEEK_GOAL")
+                   (tags-todo "+TODO=\"NEXT\"+PRIORITY=\"A\"")
+                   (tags-todo "+TODO=\"NEXT\"+PRIORITY=\"B\"")
+                   (tags-todo "+TODO=\"NEXT\"-PRIORITY=\"A\"-PRIORITY=\"B\"")
                    (todo "WAITING"))))
    (add-to-list 'org-agenda-custom-commands
-                '("N" "Agenda for the week and todos"
-                  ((agenda)
-                   (tags-todo "+PRIORITY=\"A\"")
-                   (tags-todo "+PRIORITY<>\"A\"")))))
+                '("w" "Agenda for the weekly review"
+                  ((agenda "" ((org-agenda-span 'week)))
+                   (tags "+WEEK_GOAL")
+                   (stuck "")
+                   (tags "+FINISHED_PROJECT")
+                   (tags "+PROJECT")
+                   (todo "WAITING")))))
 #+END_SRC
 
 For weekly reviews it might also be useful to have a summary of what was done in

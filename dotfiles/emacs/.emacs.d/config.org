@@ -669,6 +669,14 @@ We can make =org-mode= prettier by showing actual bullets.
     (org-mode . org-bullets-mode))
 #+END_SRC
 
+We can enable richer control of dependencies between tasks.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package org-edna
+    :ensure t  :defer t
+    :hook (org-mode . org-edna-load))
+#+END_SRC
+
 
 ** Gettings Things Done
 

@@ -59,9 +59,9 @@ Their loading will be described along the rest of this configuration.
 #+BEGIN_SRC emacs-lisp
   (require 'package)
 
-  (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa"))
-  (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
-  (add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/"))
+  (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
+  (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
+  (add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/") t)
 
   (setq package-enable-at-startup nil)
   (package-initialize)
@@ -201,6 +201,13 @@ Note that the file will be loaded /after/ the complete configuration.
 
 
 * User Interface
+
+A first important fix: for keyboard layouts with dead keys we need to load the following package.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package iso-transl)
+#+END_SRC
+
 ** Mode Line
 
 The mode line can be made prettier (and easier to understand).

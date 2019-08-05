@@ -920,6 +920,15 @@ the last week.  This is available from =C-c a W=.
                    ))))
 #+END_SRC
 
+It is often useful to see additional information about the entries of the
+agenda, such as time estimates.  This can be accessed using the column view,
+invoked with =C-c C-x C-c=.  The following block defines the columns shown in
+the agenda view.
+
+#+BEGIN_SRC emacs-lisp
+  (config-org-mode
+   (setq-default org-agenda-overriding-columns-format
+                 "%CATEGORY %60ITEM %TODO %PRIORITY(PRI) %Effort{:} %CLOCKSUM(Time){:} %TAGS"))
 #+END_SRC
 
 **** Engage

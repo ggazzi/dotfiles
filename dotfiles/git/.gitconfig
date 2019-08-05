@@ -30,7 +30,7 @@
 	unassume-unchanged = update-index --no-assume-unchanged
 
 [core]
-	editor = vim
+	editor = emacs -nw
 [diff]
 	tool = kdiff3
 [merge]

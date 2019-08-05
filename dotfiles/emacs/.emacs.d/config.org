@@ -587,18 +587,35 @@ sure buffer names are surrounded by asterisks.  We also correct the binding of
 =C-k= as prescribed in [[Editing Keybindings]].  Finally, set a few settings and
 ensure [[Spell and Grammar Checking][spell checking]] is turned on.
 
+Since the configuration of =org-mode= is complex and highly tied to my GTD
+practices, we will not do all of it in here.  Instead, we define a macro
+=org-config= which registers functions that will be called during configuration
+of =org-mode=.
+
 #+BEGIN_SRC emacs-lisp
   (use-package org
     :delight org-mode "Org"
+    :defer nil
     :commands org-babel-tangle-file
     :preface
     (defun me/org-src-buffer-name (org-buffer-name language)
       "Construct the buffer name for a source editing buffer. See
   `org-src--construct-edit-buffer-name'."
       (format "*%s*" org-buffer-name))
+    (defvar me/org-config-hook '()
+      "Functions that will be called when loading and configuring org-mode.")
+    (defvar me/org-configured nil)
+    (defmacro config-org-mode (&rest body)
+      "Register the given statements to be executed when loading/configuring org-mode."
+      `(progn (if me/org-configured
+                  (progn . ,body))
+              (add-to-list 'me/org-config-hook (lambda () (progn . ,body)))))
     :config
     (advice-add 'org-src--construct-edit-buffer-name :override #'me/org-src-buffer-name)
     (me/bind-kill-region-or-line org-mode-map org-kill-line kill-region)
+    (setq org-agenda-custom-commands nil)
+    (mapc (lambda (fn) (funcall fn)) me/org-config-hook)
+    (setq me/org-configured t)
     :custom
     (org-agenda-use-time-grid nil)     ; Simplify the look of agendas
     (org-log-done 'time)               ; Record completion time for tasks
@@ -726,22 +743,23 @@ inside Emacs, you can use =C-c l= to copy a link to its location, then =C-c C-l=
 to paste it.
 
 #+BEGIN_SRC emacs-lisp
-  (global-set-key (kbd "C-c l") 'org-store-link)
+  (config-org-mode (global-set-key (kbd "C-c l") 'org-store-link))
 #+END_SRC
 
 In particular we set up some templates for easily adding a new task or
 a new reminder for a particular point in the future.
 
 #+BEGIN_SRC emacs-lisp
-  (setq org-capture-templates
-	'(("t" "To-do [inbox]" entry
-	   (file+headline me/gtd-inbox-file "Tasks")
-	   "* TODO %i%?")
-	  ("n" "Note [inbox]" entry
-	   (file+headline me/gtd-inbox-file "Notes"))
-	  ("r" "Reminder" entry
-	   (file+headline me/gtd-ticker-file "Tickler")
-	   "* %i%? \n %U")))
+  (config-org-mode
+   (setq org-capture-templates
+         '(("t" "To-do [inbox]" entry
+            (file+headline me/gtd-inbox-file "Tasks")
+            "* TODO %i%?")
+           ("n" "Note [inbox]" entry
+            (file+headline me/gtd-inbox-file "Notes"))
+           ("r" "Reminder" entry
+            (file+headline me/gtd-ticker-file "Tickler")
+            "* %i%? \n %U"))))
 #+END_SRC
 
 **** Clarify and Organize
@@ -757,11 +775,12 @@ appropriate place, we can [[https://orgmode.org/manual/Refile-and-copy.html#Refi
 targets include any project, the tickler or the someday/maybe list.
 
 #+BEGIN_SRC emacs-lisp
-  (setq org-refile-targets
-	'((me/gtd-projects-file :maxlevel . 2)
-      (me/gtd-work-projects-file :maxlevel . 2)
-	  (me/gtd-someday-file :maxlevel . 2)
-	  (me/gtd-tickler-file :maxlevel . 2)))
+  (config-org-mode
+   (setq org-refile-targets
+         '((me/gtd-projects-file :maxlevel . 2)
+           (me/gtd-work-projects-file :maxlevel . 2)
+           (me/gtd-someday-file :maxlevel . 2)
+           (me/gtd-tickler-file :maxlevel . 2))))
 #+END_SRC
 
 Tasks may be in one of the following states.
@@ -775,14 +794,15 @@ Changes to these states will often be logged, either with a timestamp and a note
 (states with "@") or with just a timestamp (entries with "/!").
 
 #+BEGIN_SRC emacs-lisp
-  (setq org-todo-keywords
-        '((sequence
-           "TODO(t!)"
-           "NEXT(n!)"
-           "WAITING(w@/!)"
-           "|"
-           "DONE(d@)"
-           "CANCELLED(c@)")))
+  (config-org-mode
+   (setq org-todo-keywords
+         '((sequence
+            "TODO(t!)"
+            "NEXT(n!)"
+            "WAITING(w@/!)"
+            "|"
+            "DONE(d@)"
+            "CANCELLED(c@)"))))
 #+END_SRC
 
 When filing tasks and other notes, they can be annotated with tags,
@@ -811,12 +831,13 @@ first review your calendar/agenda to check appointments and deadlines,
 then check the =NEXT= actions, filtered by your current context.
 
 #+BEGIN_SRC emacs-lisp
-  (setq org-agenda-files
-    (list
-      me/gtd-projects-file
-      me/gtd-work-projects-file
-      me/gtd-inbox-file
-      me/gtd-tickler-file))
+  (config-org-mode
+   (setq org-agenda-files
+         (list
+          me/gtd-projects-file
+          me/gtd-work-projects-file
+          me/gtd-inbox-file
+          me/gtd-tickler-file)))
  #+END_SRC
 
 For day-to-day use of the GTD system, you should use both [[https://orgmode.org/manual/Sparse-trees.html][sparse trees]]
@@ -856,31 +877,41 @@ I use =C-c a= to access the agenda dispatcher, which then allows me to choose
 among the many agenda views.
 
 #+BEGIN_SRC emacs-lisp
-  (global-set-key (kbd "C-c a") 'org-agenda)
+  (config-org-mode (global-set-key (kbd "C-c a") 'org-agenda))
 #+END_SRC
 
 A custom agenda view available with =C-c a n= will display an agenda for the
 current week as well as all next actions.
 
 #+BEGIN_SRC emacs-lisp
-  (setq org-agenda-custom-commands
-        '(("n" "Agenda for the week and next actions"
-           ((agenda)
-            (todo "NEXT")))))
+  (config-org-mode
+   (add-to-list 'org-agenda-custom-commands
+                '("n" "Agenda for the week and next actions"
+                  ((agenda "")
+                   (todo "NEXT")
+                   (todo "WAITING"))))
+   (add-to-list 'org-agenda-custom-commands
+                '("N" "Agenda for the week and todos"
+                  ((agenda)
+                   (tags-todo "+PRIORITY=\"A\"")
+                   (tags-todo "+PRIORITY<>\"A\"")))))
 #+END_SRC
 
 For weekly reviews it might also be useful to have a summary of what was done in
 the last week.  This is available from =C-c a W=.
 
 #+BEGIN_SRC emacs-lisp
-  (add-to-list 'org-agenda-custom-commands
-               '("W" "Weekly review"
-                 agenda ""
-                 ((org-agenda-span 'week)
-                  (org-agenda-start-with-log-mode 1)
-                  (org-agenda-skip-function
-                   '(org-agenda-skip-entry-if 'nottodo 'done))
-                  )))
+  (config-org-mode
+   (add-to-list 'org-agenda-custom-commands
+                '("W" "Weekly review"
+                  agenda ""
+                  ((org-agenda-span 'week)
+                   (org-agenda-start-with-log-mode 1)
+                   (org-agenda-skip-function
+                    '(org-agenda-skip-entry-if 'nottodo 'done))
+                   ))))
+#+END_SRC
+
 #+END_SRC
 
 **** Engage

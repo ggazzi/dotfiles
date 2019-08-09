@@ -906,28 +906,49 @@ current week as well as all next actions.
 
 #+BEGIN_SRC emacs-lisp
   (config-org-mode
-   (add-to-list 'org-agenda-custom-commands
-                '("n" "Agenda for the day and next actions"
-                  ((agenda "" ((org-agenda-span 1)))
-                   (tags-todo "+TODO=\"NEXT\"+PRIORITY=\"A\"")
-                   (tags-todo "+TODO=\"NEXT\"+PRIORITY=\"B\"")
-                   (tags-todo "+TODO=\"NEXT\"-PRIORITY=\"A\"-PRIORITY=\"B\""))))
-   (add-to-list 'org-agenda-custom-commands
-                '("d" "Agenda for the daily review"
-                  ((agenda)
-                   (tags "+WEEK_GOAL")
-                   (tags-todo "+TODO=\"NEXT\"+PRIORITY=\"A\"")
-                   (tags-todo "+TODO=\"NEXT\"+PRIORITY=\"B\"")
-                   (tags-todo "+TODO=\"NEXT\"-PRIORITY=\"A\"-PRIORITY=\"B\"")
-                   (todo "WAITING"))))
-   (add-to-list 'org-agenda-custom-commands
-                '("w" "Agenda for the weekly review"
-                  ((agenda "" ((org-agenda-span 'week)))
-                   (tags "+WEEK_GOAL")
-                   (stuck "")
-                   (tags "+FINISHED_PROJECT")
-                   (tags "+PROJECT")
-                   (todo "WAITING")))))
+   (let ((next-actions-day
+          '(tags-todo "+TODO=\"NEXT\"+PRIORITY=\"A\""
+                      ((org-agenda-overriding-header "Most Important/Urgent Actions for Today"))))
+         (next-actions-week
+          '(tags-todo "+TODO=\"NEXT\"+PRIORITY=\"B\""
+                      ((org-agenda-overriding-header "Next Actions for the Week"))))
+         (next-actions-rest
+          '(tags-todo "+TODO=\"NEXT\"-PRIORITY=\"A\"-PRIORITY=\"B\""
+                      ((org-agenda-overriding-header "Next Actions"))))
+         (goals-week
+          '(tags "+WEEK_GOAL" ((org-agenda-overriding-header "Goals for the Week"))))
+         (waiting-for
+          '(todo "WAITING" ((org-agenda-overriding-header "Waiting For"))))
+         (projects-unfinished
+          '(tags "+PROJECT" ((org-agenda-overriding-header "Projects"))))
+         (projects-finished
+          '(tags "+FINISHED_PROJECT" ((org-agenda-overriding-header "Finished Projects")))))
+     ; Remove previous versions of these commands
+     (let ((case-fold-search nil))
+       (setq org-agenda-custom-commands
+             (seq-filter (lambda (comm) (not (string-match (car comm) "wnd"))) org-agenda-custom-commands)))
+     (add-to-list 'org-agenda-custom-commands
+                  `("n" "Next Actions"
+                    ((agenda "" ((org-agenda-span 1)))
+                     ,next-actions-day
+                     ,next-actions-week
+                     ,next-actions-rest)))
+     (add-to-list 'org-agenda-custom-commands
+                  `("d" "Daily Review"
+                    ((agenda)
+                     ,goals-week
+                     ,next-actions-day
+                     ,next-actions-week
+                     ,next-actions-rest
+                     ,waiting-for)))
+     (add-to-list 'org-agenda-custom-commands
+                  `("w" "Weekly Review"
+                    ((agenda "" ((org-agenda-span 'week)))
+                     ,goals-week
+                     (stuck "")
+                     ,projects-finished
+                     ,projects-unfinished
+                     ,waiting-for)))))
 #+END_SRC
 
 For weekly reviews it might also be useful to have a summary of what was done in

@@ -612,10 +612,10 @@ of =org-mode=.
               (add-to-list 'me/org-config-hook (lambda () (progn . ,body)))))
     :config
     (advice-add 'org-src--construct-edit-buffer-name :override #'me/org-src-buffer-name)
-    (me/bind-kill-region-or-line org-mode-map org-kill-line kill-region)
     (setq org-agenda-custom-commands nil)
     (mapc (lambda (fn) (funcall fn)) me/org-config-hook)
     (setq me/org-configured t)
+    (org-mode . (lambda () (me/bind-kill-region-or-line org-mode-map org-kill-line kill-region)))
     :custom
     (org-agenda-use-time-grid nil)     ; Simplify the look of agendas
     (org-log-done 'time)               ; Record completion time for tasks
@@ -833,6 +833,8 @@ defined.  These are signalled using tags, which should not be inherited.
 
 #+BEGIN_SRC emacs-lisp
   (config-org-mode
+   (if (not (boundp 'org-tags-exclude-from-inheritance))
+       (setq org-tags-exclude-from-inheritance nil))
    (add-to-list 'org-tags-exclude-from-inheritance "PROJECT")
    (add-to-list 'org-tags-exclude-from-inheritance "FINISHED_PROJECT")
    (add-to-list 'org-tags-exclude-from-inheritance "WEEK_GOAL"))

@@ -774,8 +774,9 @@ other inboxes in one's life: e-mail, messaging apps, a physical
 inbox...
 
 #+BEGIN_SRC emacs-lisp
-  (setq org-default-notes-file (concat me/gtd-directory "/inbox.org"))
-  (define-key global-map "\C-cc" 'org-capture)
+  (config-org-mode
+   (setq org-default-notes-file (concat me/gtd-directory "/inbox.org"))
+   (define-key global-map "\C-cc" 'org-capture))
 #+END_SRC
 
 You can add links to the captured entries with =C-c C-l=, which make it easier
@@ -868,9 +869,10 @@ defined.  These are signalled using tags, which should not be inherited.
   (config-org-mode
    (if (not (boundp 'org-tags-exclude-from-inheritance))
        (setq org-tags-exclude-from-inheritance nil))
-   (add-to-list 'org-tags-exclude-from-inheritance "PROJECT")
-   (add-to-list 'org-tags-exclude-from-inheritance "FINISHED_PROJECT")
-   (add-to-list 'org-tags-exclude-from-inheritance "WEEK_GOAL"))
+   (add-to-list 'org-tags-exclude-from-inheritance "PROJ")
+   (add-to-list 'org-tags-exclude-from-inheritance "DONE_PROJ")
+   (add-to-list 'org-tags-exclude-from-inheritance "WEEK_GOAL")
+   (setq org-stuck-projects '("+PROJ" ("NEXT" "TODO"))))
 #+END_SRC
 
 
@@ -953,9 +955,9 @@ current week as well as all next actions.
          (waiting-for
           '(todo "WAITING" ((org-agenda-overriding-header "Waiting For"))))
          (projects-unfinished
-          '(tags "+PROJECT" ((org-agenda-overriding-header "Projects"))))
+          '(tags "+PROJ" ((org-agenda-overriding-header "Projects"))))
          (projects-finished
-          '(tags "+FINISHED_PROJECT" ((org-agenda-overriding-header "Finished Projects")))))
+          '(tags "+DONE_PROJ" ((org-agenda-overriding-header "Finished Projects")))))
      ; Remove previous versions of these commands
      (let ((case-fold-search nil))
        (setq org-agenda-custom-commands

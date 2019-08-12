@@ -986,20 +986,6 @@ current week as well as all next actions.
                      ,waiting-for)))))
 #+END_SRC
 
-For weekly reviews it might also be useful to have a summary of what was done in
-the last week.  This is available from =C-c a W=.
-
-#+BEGIN_SRC emacs-lisp
-  (config-org-mode
-   (add-to-list 'org-agenda-custom-commands
-                '("W" "Weekly review"
-                  agenda ""
-                  ((org-agenda-span 'week)
-                   (org-agenda-start-with-log-mode 1)
-                   (org-agenda-skip-function
-                    '(org-agenda-skip-entry-if 'nottodo 'done))
-                   ))))
-#+END_SRC
 
 It is often useful to see additional information about the entries of the
 agenda, such as time estimates.  This can be accessed using the column view,

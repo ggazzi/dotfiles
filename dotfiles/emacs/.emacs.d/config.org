@@ -610,11 +610,15 @@ of =org-mode=.
       `(progn (if me/org-configured
                   (progn . ,body))
               (add-to-list 'me/org-config-hook (lambda () (progn . ,body)))))
+    (defun ensure-list (list-or-element)
+      (if (listp list-or-element) list-or-element (list list-or-element)))
     :config
+       ; Use better buffer names when editing source code blocks
     (advice-add 'org-src--construct-edit-buffer-name :override #'me/org-src-buffer-name)
-    (setq org-agenda-custom-commands nil)
-    (mapc (lambda (fn) (funcall fn)) me/org-config-hook)
+    (mapc (lambda (fn) (funcall fn)) me/org-config-hook) ; Run all registered config functions
     (setq me/org-configured t)
+    :hook
+       ; Use my bindings to kill line and region (org mode has its own commands)
     (org-mode . (lambda () (me/bind-kill-region-or-line org-mode-map org-kill-line kill-region)))
     :custom
     (org-agenda-use-time-grid nil)     ; Simplify the look of agendas
@@ -628,6 +632,8 @@ of =org-mode=.
     (org-habit-show-all-today t)       ; Always display full habit tracker
     (org-modules '(org-bibtex org-docview org-info org-habit)))
 #+END_SRC
+
+*** Appearance
 
 Display in the header-line the heading of the node at the top of the window.
 This avoids confusion when there is some text at the top of the window, and its
@@ -658,19 +664,46 @@ maintain a TOC at the first heading that has a =:TOC:= tag.
     (org-mode . toc-org-enable))
 #+END_SRC
 
-We can make =org-mode= prettier by showing actual bullets.
+We can make =org-mode= prettier by showing actual bullets, both for headings and
+for list items.
 
-#+BEGIN_SRC emacs-lisp
-  (use-package org-bullets
-    :ensure t
-    :after org
-    :delight org-bullets-mode nil
-    :hook
-    (org-mode . org-bullets-mode))
+ #+BEGIN_SRC emacs-lisp
+   (use-package org-bullets
+     :ensure t
+     :after org
+     :delight org-bullets-mode nil
+     :hook
+     (org-bullets-mode
+      . (lambda () (font-lock-add-keywords 'org-mode
+                                           '(("^[[:space:]]*\\([-]\\) "
+                                              (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))))
+     (org-mode . org-bullets-mode))
 #+END_SRC
 
-We can enable richer control of dependencies between tasks.
+We also make text in =org-mode= be displayed with variable-width fonts, except
+where we actually need fixed-width.
 
+#+BEGIN_SRC emacs-lisp
+  (defun ensure-list (list-or-element)
+    (if (listp list-or-element) list-or-element (list list-or-element)))
+
+  (defun me/config-org-fixed-width ()
+    (mapc (lambda (face)
+            (set-face-attribute face nil :inherit
+                                (cl-adjoin 'fixed-pitch
+                                           (ensure-list (face-attribute face :inherit)))))
+          '(org-code org-block org-block-begin-line org-block-end-line
+                     org-verbatim org-table org-indent
+                     org-property-value org-special-keyword)))
+  (config-org-mode
+   (add-hook 'org-mode-hook 'variable-pitch-mode)
+   (add-hook 'org-mode-hook 'me/config-org-fixed-width))
+#+END_SRC
+
+
+*** Task Dependencies
+
+We can enable richer control of dependencies between tasks.
 #+BEGIN_SRC emacs-lisp
   (use-package org-edna
     :ensure t  :defer t

@@ -623,7 +623,6 @@ of =org-mode=.
     :custom
     (org-agenda-use-time-grid nil)     ; Simplify the look of agendas
     (org-log-done 'time)               ; Record completion time for tasks
-    (org-log-reschedule 'note)         ; Record rescheduling with notes
     (org-log-into-drawer "LOGBOOK")    ; Write the log into a drawer
     (org-hide-leading-stars t)         ; Only show a single star for each org heading
     (org-return-follows-link t)        ; Use <return> to follow links
@@ -843,8 +842,8 @@ Changes to these states will often be logged, either with a timestamp and a note
             "NEXT(n!)"
             "WAITING(w@/!)"
             "|"
-            "DONE(d@)"
-            "CANCELLED(c@)"))))
+            "DONE(d!)"
+            "CANCELLED(c!)"))))
 #+END_SRC
 
 When filing tasks and other notes, they can be annotated with tags,

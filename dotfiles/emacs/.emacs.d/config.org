@@ -998,7 +998,10 @@ current week as well as all next actions.
                      (stuck "")
                      ,projects-finished
                      ,projects-unfinished
-                     ,waiting-for)))))
+                     ,waiting-for)))
+     (add-to-list 'org-agenda-custom-commands
+                  `("N" "Next Actions without Context"
+                    tags "TODO=\"NEXT\"-{@[^w]}"))))
 #+END_SRC
 
 

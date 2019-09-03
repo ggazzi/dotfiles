@@ -939,7 +939,22 @@ A custom agenda view available with =C-c a n= will display an agenda for the
 current week as well as all next actions.
 
 #+BEGIN_SRC emacs-lisp
+  (defconst me/org-completed-date-regexp
+    (concat " \\("
+            "CLOSED: \\[%Y-%m-%d"
+            "\\|"
+            "- State \"\\(DONE\\|CANCELLED\\)\" * from .* \\[%Y-%m-%d"
+            "\\|"
+            "- State .* ->  *\"\\(DONE\\|CANCELLED\\)\" * \\[%Y-%m-%d"
+            "\\) ")
+      "Matches any completion time stamp.")
+
   (config-org-mode
+   (setq org-agenda-custom-commands
+         (if (boundp 'org-agenda-custom-commands)
+             (let ((case-fold-search nil)) ; Remove previous versions of these commands
+               (seq-filter (lambda (comm) (not (string-match (car comm) "wnd"))) org-agenda-custom-commands))
+           nil))
    (let ((next-actions-day
           '(tags-todo "+TODO=\"NEXT\"+PRIORITY=\"A\""
                       ((org-agenda-overriding-header "Most Important/Urgent Actions for Today"))))
@@ -949,6 +964,10 @@ current week as well as all next actions.
          (next-actions-rest
           '(tags-todo "+TODO=\"NEXT\"-PRIORITY=\"A\"-PRIORITY=\"B\""
                       ((org-agenda-overriding-header "Next Actions"))))
+         (completed-day
+          '(todo "TODO|DONE|CANCELLED" ((org-agenda-overriding-header "Completed Today")
+                     (org-agenda-skip-function '(org-agenda-skip-entry-if 'notregexp (format-time-string me/org-completed-date-regexp)))
+                     (org-agenda-sorting-strategy '(priority-down)))))
          (goals-week
           '(tags "+WEEK_GOAL" ((org-agenda-overriding-header "Goals for the Week"))))
          (waiting-for
@@ -957,10 +976,6 @@ current week as well as all next actions.
           '(tags "+PROJ" ((org-agenda-overriding-header "Projects"))))
          (projects-finished
           '(tags "+DONE_PROJ" ((org-agenda-overriding-header "Finished Projects")))))
-     ; Remove previous versions of these commands
-     (let ((case-fold-search nil))
-       (setq org-agenda-custom-commands
-             (seq-filter (lambda (comm) (not (string-match (car comm) "wnd"))) org-agenda-custom-commands)))
      (add-to-list 'org-agenda-custom-commands
                   `("n" "Next Actions"
                     ((agenda "" ((org-agenda-span 1)))
@@ -974,7 +989,8 @@ current week as well as all next actions.
                      ,next-actions-day
                      ,next-actions-week
                      ,next-actions-rest
-                     ,waiting-for)))
+                     ,waiting-for
+                     ,completed-day)))
      (add-to-list 'org-agenda-custom-commands
                   `("w" "Weekly Review"
                     ((agenda "" ((org-agenda-span 'week)))

@@ -984,7 +984,7 @@ current week as well as all next actions.
           '(tags "+DONE_PROJ" ((org-agenda-overriding-header "Finished Projects")))))
      (add-to-list 'org-agenda-custom-commands
                   `("n" "Next Actions"
-                    ((agenda "" ((org-agenda-span 1)))
+                    ((agenda "" ((org-agenda-span 1) (org-deadline-warning-days 7)))
                      ,next-actions-day
                      ,next-actions-week
                      ,next-actions-rest)))

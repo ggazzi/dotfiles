@@ -709,6 +709,12 @@ We can enable richer control of dependencies between tasks.
     :hook (org-mode . org-edna-load))
 #+END_SRC
 
+To enable referencing other tasks, we use unique IDs.
+
+#+BEGIN_SRC emacs-lisp
+  (require 'org-id)
+#+END_SRC
+
 
 ** Gettings Things Done
 

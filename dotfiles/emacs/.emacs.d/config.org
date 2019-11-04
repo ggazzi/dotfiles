@@ -846,7 +846,7 @@ Changes to these states will often be logged, either with a timestamp and a note
          '((sequence
             "TODO(t!)"
             "NEXT(n!)"
-            "WAITING(w@/!)"
+            "WAITING(w!)"
             "|"
             "DONE(d!)"
             "CANCELLED(c!)"))))
@@ -959,7 +959,7 @@ current week as well as all next actions.
    (setq org-agenda-custom-commands
          (if (boundp 'org-agenda-custom-commands)
              (let ((case-fold-search nil)) ; Remove previous versions of these commands
-               (seq-filter (lambda (comm) (not (string-match (car comm) "wnd"))) org-agenda-custom-commands))
+               (seq-filter (lambda (comm) (not (string-match (car comm) "wndN"))) org-agenda-custom-commands))
            nil))
    (let ((next-actions-day
           '(tags-todo "+TODO=\"NEXT\"+PRIORITY=\"A\""

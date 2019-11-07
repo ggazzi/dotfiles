@@ -716,6 +716,14 @@ To enable referencing other tasks, we use unique IDs.
 #+END_SRC
 
 
+*** Query Language
+
+In order to more comfortably search through the =org-mode= entries, we use the =org-ql= package.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package org-ql :ensure t :defer nil)
+#+END_SRC
+
 ** Gettings Things Done
 
 I am trying to adopt GTD, implemented using org-mode and following
@@ -980,6 +988,11 @@ current week as well as all next actions.
           '(todo "WAITING" ((org-agenda-overriding-header "Waiting For"))))
          (projects-unfinished
           '(tags "+PROJ" ((org-agenda-overriding-header "Projects"))))
+         (projects-stuck
+          '(org-ql-block '(and (tags "PROJ")
+                               (not (descendants (or (todo "NEXT" "WAITING")
+                                                     (and (todo "TODO") (or (deadline) (scheduled)))))))
+                         ((org-ql-block-header "Stuck Projects"))))
          (projects-finished
           '(tags "+DONE_PROJ" ((org-agenda-overriding-header "Finished Projects")))))
      (add-to-list 'org-agenda-custom-commands
@@ -1001,8 +1014,8 @@ current week as well as all next actions.
                   `("w" "Weekly Review"
                     ((agenda "" ((org-agenda-span 'week)))
                      ,goals-week
-                     (stuck "")
-                     ,projects-finished
+                     ,projects-stuck
+                     ;,projects-finished
                      ,projects-unfinished
                      ,waiting-for)))
      (add-to-list 'org-agenda-custom-commands

@@ -25,6 +25,9 @@
   - [[#line-wrapping][Line Wrapping]]
   - [[#removing-trailing-whitespace][Removing Trailing Whitespace]]
   - [[#smart-handling-of-parentheses][Smart Handling of Parentheses]]
+- [[#org-mode-and-getting-things-done][Org Mode and Getting Things Done]]
+  - [[#org-mode][Org Mode]]
+  - [[#getting-things-done][Getting Things Done]]
 - [[#languages][Languages]]
   - [[#emacs-lisp][Emacs Lisp]]
 
@@ -571,6 +574,440 @@ is easier to find the matching ones.
   (use-package rainbow-delimiters
     :ensure t :defer t)
 #+END_SRC
+
+
+
+* Org Mode and Getting Things Done
+
+#+BEGIN_QUOTE
+Org mode is for keeping notes, maintaining TODO lists, planning projects, and
+authoring documents with a fast and effective plain-text system.
+
+[[http://orgmode.org/][Carsten Dominik]]
+#+END_QUOTE
+
+I use =org-mode= quite ubiquitously in Emacs, this it is loaded on every
+startup.  Moreover, its configuration is complex and tied to my GTD practices,
+so it is distributed over this entire section.
+
+
+** Org Mode
+
+*** Better Defaults
+
+When setting up =org-mode=, we change a number of its settings.  First, we make
+sure buffer names are surrounded by asterisks.  We also correct the binding of
+=C-k= as prescribed in [[Editing Keybindings]].  Finally, we configure a few default settings.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package org
+    :delight org-mode "Org"
+    :defer nil
+
+    :preface
+    (defun me/org-src-buffer-name (org-buffer-name language)
+      "Construct the buffer name for a source editing buffer. See
+    `org-src--construct-edit-buffer-name'."
+      (format "*%s*" org-buffer-name))
+
+    :config
+    ; Use better buffer names when editing source code blocks
+    (advice-add 'org-src--construct-edit-buffer-name :override #'me/org-src-buffer-name)
+    ;  (setq org-startup-indented t) ; Use proper indentation DOESN'T WORK DUE TO VISUAL-LINE-MODE
+
+    :hook
+    ; Use my bindings to kill line and region (org mode has its own commands)
+    (org-mode . (lambda () (me/bind-kill-region-or-line org-mode-map org-kill-line kill-region)))
+
+    :custom
+    (org-agenda-use-time-grid nil)     ; Simplify the look of agendas
+    (org-log-done 'time)               ; Record completion time for tasks
+    (org-log-into-drawer "LOGBOOK")    ; Write the log into a drawer
+    (org-hide-leading-stars t)         ; Only show a single star for each org heading
+    (org-return-follows-link t)        ; Use <return> to follow links
+    (org-enforce-todo-dependencies t)  ; Make sure subtasks are completed before supertask
+    (org-ellipsis " ⤵")                ; Use a prettier character for folded sections
+    (org-habit-show-all-today t)       ; Always display full habit tracker
+    (org-modules '(org-bibtex org-docview org-info org-habit)))
+#+END_SRC
+
+*** Appearance
+**** Heading: Path to Current Item
+
+Display in the header-line the heading of the node at the top of the window.
+This avoids confusion when there is some text at the top of the window, and its
+heading wouldn't be visible.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package org-sticky-header
+    :ensure t :defer nil
+
+    :custom
+    (org-sticky-header-full-path 'full)
+    (org-sticky-header-outline-path-separator " › ")
+    (org-sticky-header-prefix "› ")
+    (org-sticky-header-heading-star "")
+
+    :hook
+    (org-mode . org-sticky-header-mode))
+#+END_SRC
+
+**** Bullets
+
+We can make =org-mode= prettier by showing actual bullets, both for headings and
+for list items.  The former is provided by a package, the latter by a font
+replacement rule.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package org-bullets
+    :ensure t :defer nil
+    :delight org-bullets-mode nil
+    :hook (org-mode . org-bullets-mode))
+
+  (font-lock-add-keywords 'org-mode
+                          '(("^[[:space:]]*\\([-]\\) "
+                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+#+END_SRC
+
+**** Variable-Width Fonts
+
+We also make text in =org-mode= be displayed with variable-width fonts, except
+where we actually need fixed-width.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package org-variable-pitch
+    :ensure t :defer nil
+
+    :hook
+    (org-mode . org-variable-pitch-minor-mode))
+#+END_SRC
+
+*** Tables of Contents
+
+Tired of having to manually update your tables of contents?  This package will
+maintain a TOC at the first heading that has a =:TOC:= tag.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package toc-org
+    :ensure t
+    :after org
+    :hook
+    (org-mode . toc-org-enable))
+#+END_SRC
+
+*** Task Dependencies
+
+We can enable richer control of dependencies between tasks.
+#+BEGIN_SRC emacs-lisp
+  (use-package org-edna :ensure t :defer nil)
+#+END_SRC
+
+To enable referencing other tasks, we use unique IDs.
+
+#+BEGIN_SRC emacs-lisp
+  (require 'org-id)
+#+END_SRC
+
+*** Query Language
+
+In order to more comfortably search through the =org-mode= entries, we use the =org-ql= package.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package org-ql :ensure t :defer nil)
+#+END_SRC
+
+
+
+** Getting Things Done
+
+I am trying to adopt GTD, implemented using org-mode and following
+some workflows suggested [[https://orgmode.org/worg/org-gtd-etc.html][online]].
+
+There is a good tutorial of using =org-mode= in a GTD-like manner [[https://www.youtube.com/watch?v=R4QSTDco_w8&index=11&list=PLVtKhBrRV_ZkPnBtt_TD1Cs9PJlU0IIdE][on YouTube]].
+
+*** Relevant Files
+
+The first important and configurable file in my GTD setup is the inbox, where
+stuff gets captured to process later.
+
+#+BEGIN_SRC emacs-lisp
+  (defgroup gtd nil
+    "Configuration of my GTD setup"
+    :group 'applications)
+
+  (defcustom gtd-inbox-file nil
+    "Path to an org file where captured stuff gets written."
+    :type 'file
+    :group 'gtd)
+#+END_SRC
+
+Besides the inbox, I may have a bunch of files containing projects, notes,
+tasks, etc.  These files must be known so we can compile lists (e.g., next
+actions, someday/maybes).  We keep lists of such files, so that we may share
+some of them between machines.
+
+#+BEGIN_SRC emacs-lisp
+  (defcustom project-list-files nil
+    "Paths to elisp files containing lists of project files."
+    :type '(list file)
+    :group 'gtd)
+
+  (defun me/read-project-list-file (project-list-file)
+    (let ((root-dir
+           (file-truename (file-name-directory project-list-file))))
+      (mapcar (lambda (path) (expand-file-name path root-dir))
+              (with-temp-buffer
+                (insert-file-contents project-list-file)
+                (read (current-buffer))))))
+
+  (defun me/load-project-list-file (project-list-file)
+    (let ((project-list (me/read-project-list-file project-list-file)))
+      (setq org-refile-targets (append org-refile-targets project-list))
+      (setq org-agenda-files (append org-agenda-files project-list))))
+
+  (defun load-project-list-files (&optional list-files)
+    "Load project list files.
+
+  Load them and add the corresponding project files to
+  org-refile-targets and org-agenda-files (see custom variable
+  PROJECT-LIST-FILES)"
+    (interactive)
+    (mapcar #'me/load-project-list-file (or list-files project-list-files)))
+
+  (defun reload-project-list-files (&optional list-files)
+    "Reset and reload project list files.
+
+  Load them and add set corresponding project files to
+  org-refile-targets and org-agenda-files (see custom variable
+  PROJECT-LIST-FILES)"
+    (interactive)
+    (progn
+      (setq org-refile-targets nil)
+      (setq org-agenda-files nil)
+      (load-project-list-files list-files)))
+#+END_SRC
+
+
+
+
+
+*** Steps
+**** Capture
+
+The first part of the GTD system is capturing /everything/---every
+thought, task, idea---into an inbox to be later processed.  Adding a
+new entry to the inbox should be super easy and frictionless, so there
+is no incentive to avoid it, and it also doesn't interrupt the task at
+hand.
+
+In Emacs this we use the [[https://orgmode.org/manual/Capture.html][capture]] feature of =org-mode=, which can be
+activated with =C-c c=, to add entries to =inbox.org=.  There may be
+other inboxes in one's life: e-mail, messaging apps, a physical
+inbox...
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  (if gtd-inbox-file
+      (setq org-default-notes-file gtd-inbox-file))
+  (define-key global-map "\C-cc" 'org-capture)
+#+END_SRC
+
+You can add links to the captured entries with =C-c C-l=, which makes it easier
+to access related material.  If you are linking to something that was accessed
+inside Emacs, you can use =C-c l= to copy a link to its location, then =C-c C-l=
+to paste it.
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  (global-set-key (kbd "C-c l") 'org-store-link)
+#+END_SRC
+
+In particular we set up some templates for easily adding a new task or
+a new reminder for a particular point in the future.
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  (setq org-capture-templates
+        '(("t" "To-do [inbox]" entry
+           (file+headline me/gtd-inbox-file "Tasks")
+           "* TODO %i%?")
+          ("n" "Note [inbox]" entry
+           (file+headline me/gtd-inbox-file "Notes"))))
+#+END_SRC
+
+**** Clarify and Organize
+
+Every inbox should be periodically checked.  The meaning of each entry
+should be checked, and it should either be solved or moved to the
+appropriate place, according to the standard GTD workflow:
+
+#+CAPTION: Illustration of Standard GTD Workflow
+[[[[https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/GTDcanonical.png/1280px-GTDcanonical.png]]]]
+
+In order to easily move entries from the inbox to the appropriate place, we can
+[[https://orgmode.org/manual/Refile-and-copy.html#Refile-and-copy][refile]] entries with =C-c C-w=.
+
+
+Tasks may be in one of the following states.
+  - =NEXT=: incomplete and should be done in the near future
+  - =TODO=: incomplete, but need not be done in the near future
+  - =WAITING=: incomplete, but there's nothing to be done for now
+  - =DONE=: completed succesfully
+  - =CANCELLED=: no longer relevant
+
+Changes to these states will often be logged, either with a timestamp and a note
+(states with "@") or with just a timestamp (entries with "/!").
+
+#+BEGIN_SRC emacs-lisp  :tangle no
+  (setq org-todo-keywords
+        '((sequence
+           "TODO(t!)"
+           "NEXT(n!)"
+           "WAITING(w!)"
+           "|"
+           "DONE(d!)"
+           "CANCELLED(c!)")))
+#+END_SRC
+
+When filing tasks and other notes, they can be annotated with tags,
+which may denote a few different things.
+
+ - Regular categories, like =:work:= or =:health:=
+ - People involved in the task, like =:Dad:= or =:Sabine:=
+ - GTD contexts starting with an =@=, such as =@home=, =@office=,
+   =@phone=, =@email=, =@errands=, =@laptop=.
+
+Tasks and notes can also [[orgmode.org/manual/Deadlines-and-scheduling.html][be scheduled or have deadlines]], including
+repeating schedules and items.  You should avoid adding dates to
+anything that isn't an appointment, a hard deadline or a tickler
+entry.  The decision of what to do next should be taken based on the
+current context and next tasks, not based on artificial scheduling
+decisions made with possibly outdated information.
+
+Tasks are usually grouped into projects, which may be finished or
+suspended/paused.  Moreover, weekly goals can often be defined, as well as
+Someday/Maybe entries.  These are signalled using tags, which should not be
+inherited.
+
+#+BEGIN_SRC emacs-lisp :tangle no
+   (if (not (boundp 'org-tags-exclude-from-inheritance))
+       (setq org-tags-exclude-from-inheritance nil))
+  (setq org-tags-exclude-from-inheritance
+        (append org-tags-exclude-from-inheritance
+                '("PROJ" "DONE_PROJ" "SUSPENDED_PROJ"
+                  "SOMEDAY_MAYBE" "WEEK_GOAL")))
+
+#+END_SRC
+
+**** Reflect
+
+The lists should be reviewed frequently, which help keeps the big picture of
+your life in your head.  Of course, reviewing every entry of every list is quite
+time consuming, and shouldn't be done all the time.  A good approach is
+reviewing all lists once a week---the so-called weekly review.  When deciding
+what to do next, you should first review your calendar/agenda to check
+appointments and deadlines, then check the =NEXT= actions, filtered by your
+current context.
+
+For day-to-day use of the GTD system, you should use both [[https://orgmode.org/manual/Sparse-trees.html][sparse trees]]
+and [[https://orgmode.org/manual/Agenda-views.html#Agenda-views][agenda views]].  Each Org document can be turned into a sparse tree
+with =C-c /=, which will use some dispatcher to show little, selected
+information about each item in the document.
+
+[[https://orgmode.org/manual/Agenda-views.html#Agenda-views][Agenda views]] provide a summarized overview of the calendar/agenda and
+pending tasks from multiple files.  [[orgmode.org/worg/org-tutorials/org-custom-agenda-commands.html][Custom agenda commands]] can be
+defined to, e.g., show only the next actions, filter them by context.
+
+I use =C-c a= to access the agenda dispatcher, which then allows me to choose
+among the many agenda views.
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  (config-org-mode (global-set-key (kbd "C-c a") 'org-agenda))
+#+END_SRC
+
+A custom agenda view available with =C-c a n= will display an agenda for the
+current week as well as all next actions.
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  (defconst me/org-completed-date-regexp
+    (concat " \\("
+            "CLOSED: \\[%Y-%m-%d"
+            "\\|"
+            "- State \"\\(DONE\\|CANCELLED\\)\" * from .* \\[%Y-%m-%d"
+            "\\|"
+            "- State .* ->  *\"\\(DONE\\|CANCELLED\\)\" * \\[%Y-%m-%d"
+            "\\) ")
+      "Matches any completion time stamp.")
+
+  (config-org-mode
+   (setq org-agenda-custom-commands
+         (if (boundp 'org-agenda-custom-commands)
+             (let ((case-fold-search nil)) ; Remove previous versions of these commands
+               (seq-filter (lambda (comm) (not (string-match (car comm) "wndN"))) org-agenda-custom-commands))
+           nil))
+   (let ((next-actions-day
+          '(tags-todo "+TODO=\"NEXT\"+PRIORITY=\"A\""
+                      ((org-agenda-overriding-header "Most Important/Urgent Actions for Today"))))
+         (next-actions-week
+          '(tags-todo "+TODO=\"NEXT\"+PRIORITY=\"B\""
+                      ((org-agenda-overriding-header "Next Actions for the Week"))))
+         (next-actions-rest
+          '(tags-todo "+TODO=\"NEXT\"-PRIORITY=\"A\"-PRIORITY=\"B\""
+                      ((org-agenda-overriding-header "Next Actions"))))
+         (completed-day
+          '(todo "TODO|DONE|CANCELLED" ((org-agenda-overriding-header "Completed Today")
+                     (org-agenda-skip-function '(org-agenda-skip-entry-if 'notregexp (format-time-string me/org-completed-date-regexp)))
+                     (org-agenda-sorting-strategy '(priority-down)))))
+         (goals-week
+          '(tags "+WEEK_GOAL" ((org-agenda-overriding-header "Goals for the Week"))))
+         (waiting-for
+          '(todo "WAITING" ((org-agenda-overriding-header "Waiting For"))))
+         (projects-unfinished
+          '(tags "+PROJ" ((org-agenda-overriding-header "Projects"))))
+         (projects-stuck
+          '(org-ql-block '(and (tags "PROJ")
+                               (not (descendants (or (todo "NEXT" "WAITING")
+                                                     (and (todo "TODO") (or (deadline) (scheduled)))))))
+                         ((org-ql-block-header "Stuck Projects"))))
+         (projects-finished
+          '(tags "+DONE_PROJ" ((org-agenda-overriding-header "Finished Projects")))))
+     (add-to-list 'org-agenda-custom-commands
+                  `("n" "Next Actions"
+                    ((agenda "" ((org-agenda-span 1) (org-deadline-warning-days 7)))
+                     ,next-actions-day
+                     ,next-actions-week
+                     ,next-actions-rest)))
+     (add-to-list 'org-agenda-custom-commands
+                  `("d" "Daily Review"
+                    ((agenda)
+                     ,goals-week
+                     ,next-actions-day
+                     ,next-actions-week
+                     ,next-actions-rest
+                     ,waiting-for
+                     ,completed-day)))
+     (add-to-list 'org-agenda-custom-commands
+                  `("w" "Weekly Review"
+                    ((agenda "" ((org-agenda-span 'week)))
+                     ,goals-week
+                     ,projects-stuck
+                     ;,projects-finished
+                     ,projects-unfinished
+                     ,waiting-for)))
+     (add-to-list 'org-agenda-custom-commands
+                  `("N" "Next Actions without Context"
+                    tags "TODO=\"NEXT\"-{@[^w]}"))))
+#+END_SRC
+
+
+It is often useful to see additional information about the entries of the
+agenda, such as time estimates.  This can be accessed using the column view,
+invoked with =C-c C-x C-c=.  The following block defines the columns shown in
+the agenda view.
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  (config-org-mode
+   (setq-default org-agenda-overriding-columns-format
+                 "%CATEGORY %60ITEM %TODO %PRIORITY(PRI) %Effort{:} %CLOCKSUM(Time){:} %TAGS"))
+#+END_SRC
+
 
 
 

@@ -1,0 +1,1042 @@
+#+TITLE: Emacs Configuration
+#+AUTHOR: Guilherme Azzi
+
+# Export all elisp snippets inside this file:
+#+PROPERTY: header-args:emacs-lisp :tangle yes
+
+
+* Table of Contents :TOC:
+- [[#credits][Credits]]
+- [[#initial-setup-and-compilation][Initial Setup and Compilation]]
+  - [[#packaging-system][Packaging System]]
+  - [[#the-use-package-macro][The =use-package= Macro]]
+  - [[#compiling-the-configuration][Compiling the Configuration]]
+  - [[#load-customel][Load =.custom.el=]]
+  - [[#load-secretel][Load =.secret.el=]]
+- [[#user-interface][User Interface]]
+  - [[#mode-line][Mode Line]]
+  - [[#colours-and-fonts][Colours and Fonts]]
+  - [[#better-defaults][Better Defaults]]
+  - [[#editing-keybindings][Editing Keybindings]]
+  - [[#better-completion-and-search][Better Completion and Search]]
+  - [[#better-window-navigation][Better Window Navigation]]
+  - [[#auto-completion][Auto-Completion]]
+  - [[#recursive-minibuffers][Recursive Minibuffers]]
+  - [[#line-wrapping][Line Wrapping]]
+  - [[#removing-trailing-whitespace][Removing Trailing Whitespace]]
+  - [[#smart-handling-of-parentheses][Smart Handling of Parentheses]]
+- [[#org-mode-and-getting-things-done][Org Mode and Getting Things Done]]
+  - [[#org-mode][Org Mode]]
+  - [[#getting-things-done][Getting Things Done]]
+- [[#languages][Languages]]
+  - [[#emacs-lisp][Emacs Lisp]]
+
+* Credits
+
+This configuration is heavily based on the work of others, in particular the following.
+
+  - [[https://github.com/larstvei/dot-emacs]]
+
+
+* Initial Setup and Compilation
+** Packaging System
+
+We initialize the packaging system, adding some common package
+repositories.  Installed packages will /not/ be enabled by default.
+Their loading will be described along the rest of this configuration.
+
+#+BEGIN_SRC emacs-lisp
+  (require 'package)
+
+  (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
+  (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
+  (add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/") t)
+
+  (setq package-enable-at-startup nil)
+  (package-initialize)
+#+END_SRC
+
+** The =use-package= Macro
+
+We also ensure that the =use-package= macro is installed and loaded.  It
+provides many facilities for loading packages, including: loading packages
+lazily, loading custom bits of configuration along with the packages and
+auto-installing any missing packages.  For more instructions check its [[https://github.com/jwiegley/use-package/blob/master/README.md][readme]]
+file.
+
+#+BEGIN_SRC emacs-lisp
+  (unless (package-installed-p 'use-package)
+    (package-refresh-contents)
+    (package-install 'use-package))
+
+  (eval-when-compile (require 'use-package))
+#+END_SRC
+
+Note that =use-package= will often setup autoloads to avoid loading too many
+packages at startup.  This will be done when at least one of the following
+options is used: =:bind=, =:bind-keymap=, =:mode=, =:interpreter=, =:commands=
+or =:defer=.  Most of the calls to =use-package= should have at least one of
+these options to make Emacs startup run quickly.
+
+For configuration related to the package, consider using the options listed
+below.  Function definitions, however, should be written under =:preface= so
+that they are pre-compiled with the configuration file.
+
+  - =:config= runs arbitrary elisp code after the package is loaded
+  - =:custom= sets custom variables after the package is loaded
+  - =:custom-face= sets custom faces after the package is loaded
+
+If a package depends on others, use the =:after= option to avoid loading it
+before other packages.
+
+** Compiling the Configuration
+
+Since the configuration is written in =org-mode= with tangled elisp code, it
+must be compiled to an elisp file.  This compilation should be done whenever
+this file is saved, which we guarantee using an =after-save-hook=.
+
+#+BEGIN_SRC emacs-lisp
+  (defvar me/config-org-file
+    (expand-file-name "config.org" user-emacs-directory)
+    "Org file containing the emacs configuration.")
+
+  (defvar me/config-elisp-file
+    (expand-file-name "config.el" user-emacs-directory)
+    "Location where the compiled emacs configuration should be written.
+
+  This file will receive the elisp code extracted from
+  'me/config-org-file' and should be loaded on startup.")
+
+  (defun me/compile-tangled-config (compiled-file)
+    "Move the 'COMPILED-FILE' to 'me/config-elisp-file' and ensure
+  it is byte-compiled."
+    (unless (equal compiled-file me/config-org-file)
+      (rename-file compiled-file me/config-elisp-file t))
+    (byte-compile-file me/config-elisp-file))
+
+  (defun me/compile-config-from-org-on-save ()
+    "If the current buffer has 'me/config-org-file' open, compile
+  the tangled elisp in the file, save it to 'me/config-elisp-file'
+  and load it."
+    (when (equal (file-truename (buffer-file-name))
+                 (file-truename me/config-org-file))
+      ;; Avoid running hooks when tangling
+      (let ((prog-mode-hook nil))
+        (message "Compiling saved emacs config...")
+        (me/compile-tangled-config
+         (car (org-babel-tangle nil me/config-elisp-file "emacs-lisp")))
+        (message "Reloading saved emacs config...")
+        (load-file me/config-elisp-file))))
+
+  (add-hook 'after-save-hook 'me/compile-config-from-org-on-save)
+#+END_SRC
+
+We also provide shortcut commands for reloading the config.
+
+#+BEGIN_SRC emacs-lisp
+  (defun compile-config ()
+    "Recompile the config from 'me/config-org-file' into 'me/config-elisp-file'"
+    (interactive)
+    (me/compile-tangled-config
+     (car (org-babel-tangle-file me/config-org-file me/config-elisp-file "emacs-lisp"))))
+
+  (defun reload-config ()
+    "Reload the config from 'me/config-org-file'"
+    (interactive)
+    (load-file me/config-elisp-file))
+
+  (defun compile-and-reload-config ()
+    "Recompile and reload the config from 'me/config-org-file'"
+    (interactive)
+    (compile-config)
+    (reload-config))
+#+END_SRC
+
+** Load =.custom.el=
+
+One is able to use the customization interface that is bundled within Emacs.  It
+is meant to help people who are not familiar with Emacs Lisp in the
+configuration of Emacs itself.  By default, changes in the customization will be
+automatically detected and appended at the end of the configuration file.
+
+Since, in this case, the configuration file is compiled by =org-mode=, the saved
+changes would be easily overwritten.  Thus, we configure Emacs to save
+configuration code in another file.  Ideally we would keep that file essentially
+empty, incorporating any changes into the main configuration file and
+documenting them.
+
+#+BEGIN_SRC emacs-lisp
+  (setq-default custom-file (expand-file-name ".custom.el" user-emacs-directory))
+  (when (file-exists-p custom-file)
+    (load custom-file))
+#+END_SRC
+
+** Load =.secret.el=
+
+I use =~/.emacs.d/.secret.el= to keep sensible things out of version control.
+For instance, you could set your identity by customizing both =user-full-name=
+and =user-mail-address=.  This is also where you want your API tokens to live.
+
+Note that the file will be loaded /after/ the complete configuration.
+
+#+BEGIN_SRC emacs-lisp
+  (defun me/load-secrets (loaded-file-name)
+    (when (eq loaded-file-name me/config-elisp-file)
+      (let ((secret-el (expand-file-name ".secret.el" user-emacs-directory)))
+        (when (file-exists-p secret-el)
+          (load secret-el)
+          (message "Loaded .secret.el")))))
+
+  (run-at-time "1 millisec" nil 'me/load-secrets me/config-elisp-file)
+  (add-hook 'after-load-functions 'me/load-secrets)
+#+END_SRC
+
+
+
+* User Interface
+
+A first important fix: for keyboard layouts with dead keys we need to load the following package.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package iso-transl)
+#+END_SRC
+
+** Mode Line
+
+The mode line can be made prettier (and easier to understand).
+
+#+BEGIN_SRC emacs-lisp
+  (use-package spaceline
+    :ensure t
+    :config
+    (spaceline-emacs-theme)
+    (spaceline-toggle-line-column-on)
+    (spaceline-toggle-hud-on))
+#+END_SRC
+
+We can also improve how modes are displayed.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package delight :ensure t)
+#+END_SRC
+
+** Colours and Fonts
+
+The face for italic text is underlined when the font does not support
+slant by default.  I don't like it.
+
+#+BEGIN_SRC emacs-lisp
+  (set-face-attribute 'italic nil :underline nil)
+#+END_SRC
+
+Load and set =dracula-theme=.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package dracula-theme
+    :ensure t :demand t
+    :config
+    (load-theme 'dracula t))
+#+END_SRC
+
+When running with a GUI, use the Fira Code font.  In order to simulate
+its ligatures, we use the [[https://github.com/tonsky/FiraCode/wiki/Emacs-instructions][following workaround]].
+
+#+BEGIN_SRC emacs-lisp
+  (defvar me/fixed-width-font "Fira Code")
+
+  (when (window-system)
+    (set-frame-font me/fixed-width-font)
+
+    (let ((alist '((33 . ".\\(?:\\(?:==\\|!!\\)\\|[!=]\\)")
+                   (35 . ".\\(?:###\\|##\\|_(\\|[#(?[_{]\\)")
+                   (36 . ".\\(?:>\\)")
+                   (37 . ".\\(?:\\(?:%%\\)\\|%\\)")
+                   (38 . ".\\(?:\\(?:&&\\)\\|&\\)")
+                   (42 . ".\\(?:\\(?:\\*\\*/\\)\\|\\(?:\\*[*/]\\)\\|[*/>]\\)")
+                   (43 . ".\\(?:\\(?:\\+\\+\\)\\|[+>]\\)")
+                   (45 . ".\\(?:\\(?:-[>-]\\|<<\\|>>\\)\\|[<>}~-]\\)")
+                   (46 . ".\\(?:\\(?:\\.[.<]\\)\\|[.=-]\\)")
+                   (47 . ".\\(?:\\(?:\\*\\*\\|//\\|==\\)\\|[*/=>]\\)")
+                   (48 . ".\\(?:x[a-zA-Z]\\)")
+                   (58 . ".\\(?:::\\|[:=]\\)")
+                   (59 . ".\\(?:;;\\|;\\)")
+                   (60 . ".\\(?:\\(?:!--\\)\\|\\(?:~~\\|->\\|\\$>\\|\\*>\\|\\+>\\|--\\|<[<=-]\\|=[<=>]\\||>\\)\\|[*$+~/<=>|-]\\)")
+                   (61 . ".\\(?:\\(?:/=\\|:=\\|<<\\|=[=>]\\|>>\\)\\|[<=>~]\\)")
+                   (62 . ".\\(?:\\(?:=>\\|>[=>-]\\)\\|[=>-]\\)")
+                   (63 . ".\\(?:\\(\\?\\?\\)\\|[:=?]\\)")
+                   (91 . ".\\(?:]\\)")
+                   (92 . ".\\(?:\\(?:\\\\\\\\\\)\\|\\\\\\)")
+                   (94 . ".\\(?:=\\)")
+                   (119 . ".\\(?:ww\\)")
+                   (123 . ".\\(?:-\\)")
+                   (124 . ".\\(?:\\(?:|[=|]\\)\\|[=>|]\\)")
+                   (126 . ".\\(?:~>\\|~~\\|[>=@~-]\\)")
+                   )
+                 ))
+      (dolist (char-regexp alist)
+        (set-char-table-range composition-function-table (car char-regexp)
+                              `([,(cdr char-regexp) 0 font-shape-gstring])))))
+#+END_SRC
+** Better Defaults
+
+Some UI elements are rather invasive and require a mouse.
+
+#+BEGIN_SRC emacs-lisp
+  (when window-system
+    (blink-cursor-mode 0)                           ; Disable the cursor blinking
+    (menu-bar-mode 0)                               ; Disable the menu bar
+    (tool-bar-mode 0))                              ; Disable the tool bar
+#+END_SRC
+
+Here are some options that I consider better defaults.
+
+#+BEGIN_SRC emacs-lisp
+  (setq-default
+   auto-window-vscroll nil                          ; Lighten vertical scroll
+   confirm-kill-emacs 'yes-or-no-p                  ; Confirm before exiting Emacs
+   cursor-in-non-selected-windows t                 ; Hide the cursor in inactive windows
+   delete-by-moving-to-trash t                      ; Delete files to trash
+   display-time-default-load-average nil            ; Don't display load average
+   display-time-format nil                          ; Don't display the time
+   fill-column 80                                   ; Set width for automatic line breaks
+   help-window-select t                             ; Focus new help windows when opened
+   indent-tabs-mode nil                             ; Stop using tabs to indent
+   inhibit-startup-screen t                         ; Disable start-up screen
+   initial-scratch-message ""                       ; Empty the initial *scratch* buffer
+   left-margin-width 1 right-margin-width 1         ; Add left and right margins
+   recenter-positions '(5 top bottom)               ; Set re-centering positions
+   scroll-conservatively most-positive-fixnum       ; Always scroll by one line
+   scroll-margin 10                                 ; Add a margin when scrolling vertically
+   select-enable-clipboard t                        ; Merge system's and Emacs' clipboard
+   tab-width 4                                      ; Set width for tabs
+   uniquify-buffer-name-style 'forward              ; Uniquify buffer names
+   window-combination-resize t                      ; Resize windows proportionally
+   x-stretch-cursor t)                              ; Stretch cursor to the glyph width
+  (delete-selection-mode 1)                         ; Replace region when inserting text
+  (display-time-mode 1)                             ; Enable time in the mode-line
+  (fset 'yes-or-no-p 'y-or-n-p)                     ; Replace yes/no prompts with y/n
+  (global-subword-mode 1)                           ; Iterate through CamelCase words
+  (column-number-mode 1)                            ; Display column numbers in the status bar
+#+END_SRC
+
+Garbage-collect on focus-out, Emacs /should/ feel snappier.
+
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'focus-out-hook #'garbage-collect)
+#+END_SRC
+
+** Editing Keybindings
+
+I dislike the inconsistency between =C-w= in Emacs and bash.  Set =C-w= to
+behave like bash, killing backward to the beginning of a word.  Also make =C-k=
+kill the region, if active---otherwise the line is killed, as in the default
+behaviour.  Note that some modes will have their own variants of =kill-line=
+mapped to =C-k=, and those modes should call =me/bind-kill-region-or-line= in
+their configuration.
+
+#+BEGIN_SRC emacs-lisp
+  (defmacro me/bind-kill-region-or-line (key-map kill-line kill-region)
+    "Define and bind a function that kills the region, if active, or the line.
+  The defined function will interactively call 'KILL-REGION' when
+  the region is currently active, or 'KILL-LINE' otherwise.  It
+  will also be bound to 'C-k' in the given 'KEY-MAP'."
+    (let ((kill-region-or-line
+           (intern (format "%s-or-%s" kill-region kill-line))))
+      `(progn
+         (defun ,kill-region-or-line ()
+           ,(format
+             "Kill the region if active, otherwise kill the current line.
+  See also '%s' and '%s'."
+             kill-region
+             kill-line)
+           (interactive)
+           (if (region-active-p)
+               (call-interactively ',kill-region)
+             (call-interactively ',kill-line)))
+         (define-key ,key-map (kbd "C-k") ',kill-region-or-line))))
+
+  (global-set-key (kbd "C-w") 'backward-kill-word)
+  (me/bind-kill-region-or-line global-map kill-line kill-region)
+#+END_SRC
+
+Undoing and redoing in Emacs is inconsistent with almost every other graphical
+program.  Set =C-z= to undo and =C-S-z= to redo.  Also use the =undo-tree= mode
+to have better handling of the undo history.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package undo-tree
+    :demand t :ensure t
+    :delight undo-tree-mode nil
+    :commands global-undo-tree-mode
+    :bind
+    (:map undo-tree-map
+     ("C-_" . nil)
+     ("C-/" . nil)
+     ("C-?" . nil)
+     ("M-_" . nil)
+     ("C-z" . undo-tree-undo)
+     ("C-S-z" . undo-tree-redo))
+    :config
+    (global-undo-tree-mode 1))
+#+END_SRC
+
+** Better Completion and Search
+
+Having a good completion mechanism can make life a lot easier.  The [[https://oremacs.com/swiper][=ivy=]]
+package provides such a mechanism, which we couple with the fuzzy matching
+provided by =flx=.
+
+#+BEGIN_QUOTE
+[[https://github.com/abo-abo/swiper/blob/master/README.md#ivy][abo-abo]]
+
+Ivy is a generic completion mechanism for Emacs. While it operates similarly to
+other completion schemes such as icomplete-mode, Ivy aims to be more efficient,
+smaller, simpler, and smoother to use yet highly customizable.
+#+END_QUOTE
+
+When running =ivy-mode=, pressing =<return>= will use the currently selected
+candidate, while =C-<return>= will use the current input instead of the current
+candidate.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package flx :ensure t)
+
+  (use-package ivy
+    :ensure t
+    :delight ivy-mode nil
+    :commands ivy-mode ivy-resume ivy-immediate-done
+    :config
+    (ivy-mode 1)
+    (setq ivy-count-format "(%d/%d) ")
+    (setq ivy-re-builders-alist
+          '((swiper . ivy--regex-plus)
+            (t . ivy--regex-fuzzy)))
+    :custom-face
+    (ivy-minibuffer-match-face-2 ((t (:background "#777777" :weight bold))))
+    (ivy-minibuffer-match-face-3 ((t (:background "#777777" :weight bold))))
+    (ivy-minibuffer-match-face-4 ((t (:background "#777777" :weight bold))))
+    :bind
+    (("C-c C-r" . 'ivy-resume)
+     :map ivy-minibuffer-map
+     ("C-<return>" . 'ivy-immediate-done)))
+#+END_SRC
+
+The =counsel= package provides ivy-based alternatives to some commonly used
+builtin functionality, and =swiper= an alternative search command.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package counsel
+    :ensure t
+    :bind
+    (("M-x" . 'counsel-M-x)
+     ("C-x C-f" . 'counsel-find-file)
+     ("C-x C-S-f" . 'counsel-recentf)
+     ("<f1> f" . 'counsel-describe-function)
+     ("<f1> v" . 'counsel-describe-variable)
+     ("<f1> l" . 'counsel-find-library)
+     ("<f2> i" . 'counsel-info-lookup-symbol)
+     ("C-c u" . 'counsel-unicode-char)))
+
+  (use-package swiper
+    :ensure t
+    :bind
+    ("C-s" . 'swiper))
+#+END_SRC
+
+** Better Window Navigation
+
+I like to navigate between windows with =C-x <arrow>=.
+
+#+BEGIN_SRC emacs-lisp
+  (global-set-key (kbd "C-x <left>") 'windmove-left)
+  (global-set-key (kbd "C-x <right>") 'windmove-right)
+  (global-set-key (kbd "C-x <down>") 'windmove-down)
+  (global-set-key (kbd "C-x <up>") 'windmove-up)
+#+END_SRC
+
+I also disable the usual window navigation so I get used to arrows.
+
+#+BEGIN_SRC emacs-lisp
+  (global-set-key (kbd "C-x o") nil)
+#+END_SRC
+
+** Auto-Completion
+
+Auto-completion at point.  Display a small pop-in containing the candidates.
+Use fuzzy matching provided by the =flx= package.
+
+#+BEGIN_QUOTE
+Company is a text completion framework for Emacs. The name stands for "complete
+anything". It uses pluggable back-ends and front-ends to retrieve and display
+completion candidates.
+
+[[http://company-mode.github.io/][Dmitry Gutov]]
+#+END_QUOTE
+
+#+BEGIN_SRC emacs-lisp
+  (use-package company
+    :ensure t
+    :delight company-mode nil
+    :commands global-company-mode
+    :config
+    (setq-default
+     company-idle-delay .2
+     company-minimum-prefix-length 1
+     company-require-match nil
+     company-tooltip-align-annotations t))
+
+  (use-package company-flx
+    :ensure t
+    :after company flx
+    :delight company-flx-mode nil
+    :commands company-flx-mode)
+
+  (global-company-mode 1)
+  (company-flx-mode 1)
+#+END_SRC
+
+** Recursive Minibuffers
+
+   It should be possible to invoke mini minibuffer-based commands from within
+   the minibuffer, keeping a stack of minibuffers.
+
+#+BEGIN_SRC emacs-lisp
+  (setq enable-recursive-minibuffers t)
+#+END_SRC
+
+** Line Wrapping
+
+When lines are too long, they will be soft-wrapped using =visual-line-mode=.
+Since this mode ignores indentation, we use =adaptive-wrap= to correct it.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package adaptive-wrap
+    :ensure t
+    :commands adaptive-wrap-prefix-mode
+    :hook
+    ('visual-line-mode . 'adaptive-wrap-prefix-mode))
+
+  (global-visual-line-mode 1)
+#+END_SRC
+
+** Removing Trailing Whitespace
+
+By default, trailing whitespace is removed whenever a file is saved.  This can
+be avoided by setting the file-local variable
+=delete-trailing-whitespace-on-save= to =nil=.
+
+#+BEGIN_SRC emacs-lisp
+  (defvar delete-trailing-whitespace-on-save t
+    "When non-nil, trailing whitespace is deleted before saving the file.")
+
+  (make-variable-buffer-local 'delete-trailing-whitespace-on-save)
+
+  (defun me/delete-trailing-whitespace-before-save ()
+    "Remove trailing whitespace if 'remove-trailing-whitespace-on-save' is non-nil."
+    (when delete-trailing-whitespace-on-save
+      (delete-trailing-whitespace)))
+
+  (add-hook 'before-save-hook 'me/delete-trailing-whitespace-before-save)
+#+END_SRC
+
+** Smart Handling of Parentheses
+
+The [[https://github.com/Fuco1/smartparens][=smartparens=]] package makes it easier to deal with parentheses and
+delimiters in general.  It will automatically insert the matching pair (e.g.,
+when you type ='('=, it will insert =')'=), wrap the region inside parentheses,
+among others.  Use the command =sp-cheat-sheet= to see the available commands
+with examples.
+
+
+#+BEGIN_SRC emacs-lisp
+  (use-package smartparens-config
+    :ensure smartparens   ; The package name differs from the provided feature
+    :commands smartparens-mode)
+#+END_SRC
+
+The automatic use of =smartparens= should be ensured by setting up hooks for the
+appropriate modes, under the appropriate entry of the [[Languages][Languages section]].
+
+The =expand-region= package allows the region to be expanded according to delimiters.
+
+#+BEGIN_SRC emacs-lisp
+    (use-package expand-region
+      :ensure t
+      :bind
+      ("C-=" . er/expand-region))
+#+END_SRC
+
+
+The =rainbow-delimiters= package makes parentheses and brackets colorful, so it
+is easier to find the matching ones.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package rainbow-delimiters
+    :ensure t :defer t)
+#+END_SRC
+
+
+
+* Org Mode and Getting Things Done
+
+#+BEGIN_QUOTE
+Org mode is for keeping notes, maintaining TODO lists, planning projects, and
+authoring documents with a fast and effective plain-text system.
+
+[[http://orgmode.org/][Carsten Dominik]]
+#+END_QUOTE
+
+I use =org-mode= quite ubiquitously in Emacs, this it is loaded on every
+startup.  Moreover, its configuration is complex and tied to my GTD practices,
+so it is distributed over this entire section.
+
+** Org Mode
+
+*** Better Defaults
+
+When setting up =org-mode=, we change a number of its settings.  First, we make
+sure buffer names are surrounded by asterisks.  We also correct the binding of
+=C-k= as prescribed in [[Editing Keybindings]].  Finally, we configure a few default settings.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package org
+    :delight org-mode "Org"
+    :defer nil
+
+    :preface
+    (defun me/org-src-buffer-name (org-buffer-name language)
+      "Construct the buffer name for a source editing buffer. See
+    `org-src--construct-edit-buffer-name'."
+      (format "*%s*" org-buffer-name))
+
+    :config
+    (setq org-startup-indented t) ; Use proper indentation
+
+    ; Use better buffer names when editing source code blocks
+    (advice-add 'org-src--construct-edit-buffer-name :override #'me/org-src-buffer-name)
+
+    :hook
+    ; Use my bindings to kill line and region (org mode has its own commands)
+    (org-mode . (lambda () (me/bind-kill-region-or-line org-mode-map org-kill-line kill-region)))
+
+    :custom
+    (org-agenda-use-time-grid nil)     ; Simplify the look of agendas
+    (org-log-done 'time)               ; Record completion time for tasks
+    (org-log-into-drawer "LOGBOOK")    ; Write the log into a drawer
+    (org-hide-leading-stars t)         ; Only show a single star for each org heading
+    (org-return-follows-link t)        ; Use <return> to follow links
+    (org-enforce-todo-dependencies t)  ; Make sure subtasks are completed before supertask
+    (org-ellipsis " ⤵")                ; Use a prettier character for folded sections
+    (org-habit-show-all-today t)       ; Always display full habit tracker
+    (org-modules '(org-bibtex org-docview org-info org-habit)))
+#+END_SRC
+
+*** Appearance
+**** Heading: Path to Current Item
+
+Display in the header-line the heading of the node at the top of the window.
+This avoids confusion when there is some text at the top of the window, and its
+heading wouldn't be visible.
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  (use-package org-sticky-header
+    :ensure t :defer nil
+
+    :custom
+    (org-sticky-header-full-path 'full)
+    (org-sticky-header-outline-path-separator " › ")
+    (org-sticky-header-prefix "› ")
+    (org-sticky-header-heading-star "")
+
+    :hook
+    (org-mode . org-sticky-header-mode))
+#+END_SRC
+
+**** Bullets
+
+We can make =org-mode= prettier by showing actual bullets, both for headings and
+for list items.  The former is provided by a package, the latter by a font
+replacement rule.
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  (use-package org-bullets
+    :ensure t :defer nil
+    :delight org-bullets-mode nil
+    :hook (org-mode . org-bullets-mode))
+
+  (font-lock-add-keywords 'org-mode
+                          '(("^[[:space:]]*\\([-]\\) "
+                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+#+END_SRC
+
+**** Variable-Width Fonts
+
+We also make text in =org-mode= be displayed with variable-width fonts, except
+where we actually need fixed-width.
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  ; OLD CODE, REPLACED BY org-variable-pitch
+  (defun ensure-list (list-or-element)
+    (if (listp list-or-element) list-or-element (list list-or-element)))
+
+  (defun me/config-org-fixed-width ()
+    (mapc (lambda (face)
+            (set-face-attribute face nil :inherit
+                                (cl-adjoin 'fixed-pitch
+                                           (ensure-list (face-attribute face :inherit)))))
+          '(org-code org-block org-block-begin-line org-block-end-line
+                     org-verbatim org-table
+                     org-property-value org-special-keyword)))
+
+  (add-hook 'org-mode-hook 'variable-pitch-mode)
+  (add-hook 'org-mode-hook 'me/config-org-fixed-width)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  (use-package org-variable-pitch
+    :ensure t :defer nil
+
+    :hook
+    (org-mode . org-variable-pitch-minor-mode))
+
+    :custom
+    (org-variable-pitch-fixed-font me/fixed-width-font))
+#+END_SRC
+
+*** Tables of Contents
+
+Tired of having to manually update your tables of contents?  This package will
+maintain a TOC at the first heading that has a =:TOC:= tag.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package toc-org
+    :ensure t
+    :after org
+    :hook
+    (org-mode . toc-org-enable))
+#+END_SRC
+
+*** Task Dependencies
+
+We can enable richer control of dependencies between tasks.
+#+BEGIN_SRC emacs-lisp
+  (use-package org-edna :ensure t :defer nil)
+#+END_SRC
+
+To enable referencing other tasks, we use unique IDs.
+
+#+BEGIN_SRC emacs-lisp
+  (require 'org-id)
+#+END_SRC
+
+*** Query Language
+
+In order to more comfortably search through the =org-mode= entries, we use the =org-ql= package.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package org-ql :ensure t :defer nil)
+#+END_SRC
+
+
+** Getting Things Done
+
+I am trying to adopt GTD, implemented using org-mode and following
+some workflows suggested [[https://orgmode.org/worg/org-gtd-etc.html][online]].
+
+There is a good tutorial of using =org-mode= in a GTD-like manner [[https://www.youtube.com/watch?v=R4QSTDco_w8&index=11&list=PLVtKhBrRV_ZkPnBtt_TD1Cs9PJlU0IIdE][on YouTube]].
+
+*** Relevant Files
+
+The first important and configurable file in my GTD setup is the inbox, where
+stuff gets captured to process later.
+
+#+BEGIN_SRC emacs-lisp
+  (defgroup gtd nil
+    "Configuration of my GTD setup"
+    :group 'applications)
+
+  (defcustom gtd-inbox-file nil
+    "Path to an org file where captured stuff gets written."
+    :type 'file
+    :group 'gtd)
+#+END_SRC
+
+Besides the inbox, I may have a bunch of files containing projects, notes,
+tasks, etc.  These files must be known so we can compile lists (e.g., next
+actions, someday/maybes).  We keep lists of such files, so that we may share
+some of them between machines.
+
+#+BEGIN_SRC emacs-lisp
+  (defcustom project-list-files nil
+    "Paths to elisp files containing lists of project files."
+    :type '(list file)
+    :group 'gtd)
+
+  (defun me/read-project-list-file (project-list-file)
+    (let ((root-dir
+           (file-truename (file-name-directory project-list-file))))
+      (mapcar (lambda (path) (expand-file-name path root-dir))
+              (with-temp-buffer
+                (insert-file-contents project-list-file)
+                (read (current-buffer))))))
+
+  (defun me/load-project-list-file (project-list-file)
+    (let ((project-list (me/read-project-list-file project-list-file)))
+      (setq org-refile-targets (append org-refile-targets project-list))
+      (setq org-agenda-files (append org-agenda-files project-list))))
+
+  (defun load-project-list-files (&optional list-files)
+    "Load project list files.
+
+  Load them and add the corresponding project files to
+  org-refile-targets and org-agenda-files (see custom variable
+  PROJECT-LIST-FILES)"
+    (interactive)
+    (mapcar #'me/load-project-list-file (or list-files project-list-files)))
+
+  (defun reload-project-list-files (&optional list-files)
+    "Reset and reload project list files.
+
+  Load them and add set corresponding project files to
+  org-refile-targets and org-agenda-files (see custom variable
+  PROJECT-LIST-FILES)"
+    (interactive)
+    (progn
+      (setq org-refile-targets nil)
+      (setq org-agenda-files nil)
+      (load-project-list-files list-files)))
+#+END_SRC
+
+
+
+
+
+*** Steps
+**** Capture
+
+The first part of the GTD system is capturing /everything/---every
+thought, task, idea---into an inbox to be later processed.  Adding a
+new entry to the inbox should be super easy and frictionless, so there
+is no incentive to avoid it, and it also doesn't interrupt the task at
+hand.
+
+In Emacs this we use the [[https://orgmode.org/manual/Capture.html][capture]] feature of =org-mode=, which can be
+activated with =C-c c=, to add entries to =inbox.org=.  There may be
+other inboxes in one's life: e-mail, messaging apps, a physical
+inbox...
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  (if gtd-inbox-file
+      (setq org-default-notes-file gtd-inbox-file))
+  (define-key global-map "\C-cc" 'org-capture)
+#+END_SRC
+
+You can add links to the captured entries with =C-c C-l=, which makes it easier
+to access related material.  If you are linking to something that was accessed
+inside Emacs, you can use =C-c l= to copy a link to its location, then =C-c C-l=
+to paste it.
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  (global-set-key (kbd "C-c l") 'org-store-link)
+#+END_SRC
+
+In particular we set up some templates for easily adding a new task or
+a new reminder for a particular point in the future.
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  (setq org-capture-templates
+        '(("t" "To-do [inbox]" entry
+           (file+headline me/gtd-inbox-file "Tasks")
+           "* TODO %i%?")
+          ("n" "Note [inbox]" entry
+           (file+headline me/gtd-inbox-file "Notes"))))
+#+END_SRC
+
+**** Clarify and Organize
+
+Every inbox should be periodically checked.  The meaning of each entry
+should be checked, and it should either be solved or moved to the
+appropriate place, according to the standard GTD workflow:
+
+#+CAPTION: Illustration of Standard GTD Workflow
+[[[[https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/GTDcanonical.png/1280px-GTDcanonical.png]]]]
+
+In order to easily move entries from the inbox to the appropriate place, we can
+[[https://orgmode.org/manual/Refile-and-copy.html#Refile-and-copy][refile]] entries with =C-c C-w=.
+
+
+Tasks may be in one of the following states.
+  - =NEXT=: incomplete and should be done in the near future
+  - =TODO=: incomplete, but need not be done in the near future
+  - =WAITING=: incomplete, but there's nothing to be done for now
+  - =DONE=: completed succesfully
+  - =CANCELLED=: no longer relevant
+
+Changes to these states will often be logged, either with a timestamp and a note
+(states with "@") or with just a timestamp (entries with "/!").
+
+#+BEGIN_SRC emacs-lisp  :tangle no
+  (setq org-todo-keywords
+        '((sequence
+           "TODO(t!)"
+           "NEXT(n!)"
+           "WAITING(w!)"
+           "|"
+           "DONE(d!)"
+           "CANCELLED(c!)")))
+#+END_SRC
+
+When filing tasks and other notes, they can be annotated with tags,
+which may denote a few different things.
+
+ - Regular categories, like =:work:= or =:health:=
+ - People involved in the task, like =:Dad:= or =:Sabine:=
+ - GTD contexts starting with an =@=, such as =@home=, =@office=,
+   =@phone=, =@email=, =@errands=, =@laptop=.
+
+Tasks and notes can also [[orgmode.org/manual/Deadlines-and-scheduling.html][be scheduled or have deadlines]], including
+repeating schedules and items.  You should avoid adding dates to
+anything that isn't an appointment, a hard deadline or a tickler
+entry.  The decision of what to do next should be taken based on the
+current context and next tasks, not based on artificial scheduling
+decisions made with possibly outdated information.
+
+Tasks are usually grouped into projects, which may be finished or
+suspended/paused.  Moreover, weekly goals can often be defined, as well as
+Someday/Maybe entries.  These are signalled using tags, which should not be
+inherited.
+
+#+BEGIN_SRC emacs-lisp :tangle no
+   (if (not (boundp 'org-tags-exclude-from-inheritance))
+       (setq org-tags-exclude-from-inheritance nil))
+  (setq org-tags-exclude-from-inheritance
+        (append org-tags-exclude-from-inheritance
+                '("PROJ" "DONE_PROJ" "SUSPENDED_PROJ"
+                  "SOMEDAY_MAYBE" "WEEK_GOAL")))
+
+#+END_SRC
+
+**** Reflect
+
+The lists should be reviewed frequently, which help keeps the big picture of
+your life in your head.  Of course, reviewing every entry of every list is quite
+time consuming, and shouldn't be done all the time.  A good approach is
+reviewing all lists once a week---the so-called weekly review.  When deciding
+what to do next, you should first review your calendar/agenda to check
+appointments and deadlines, then check the =NEXT= actions, filtered by your
+current context.
+
+For day-to-day use of the GTD system, you should use both [[https://orgmode.org/manual/Sparse-trees.html][sparse trees]]
+and [[https://orgmode.org/manual/Agenda-views.html#Agenda-views][agenda views]].  Each Org document can be turned into a sparse tree
+with =C-c /=, which will use some dispatcher to show little, selected
+information about each item in the document.
+
+[[https://orgmode.org/manual/Agenda-views.html#Agenda-views][Agenda views]] provide a summarized overview of the calendar/agenda and
+pending tasks from multiple files.  [[orgmode.org/worg/org-tutorials/org-custom-agenda-commands.html][Custom agenda commands]] can be
+defined to, e.g., show only the next actions, filter them by context.
+
+I use =C-c a= to access the agenda dispatcher, which then allows me to choose
+among the many agenda views.
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  (config-org-mode (global-set-key (kbd "C-c a") 'org-agenda))
+#+END_SRC
+
+A custom agenda view available with =C-c a n= will display an agenda for the
+current week as well as all next actions.
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  (defconst me/org-completed-date-regexp
+    (concat " \\("
+            "CLOSED: \\[%Y-%m-%d"
+            "\\|"
+            "- State \"\\(DONE\\|CANCELLED\\)\" * from .* \\[%Y-%m-%d"
+            "\\|"
+            "- State .* ->  *\"\\(DONE\\|CANCELLED\\)\" * \\[%Y-%m-%d"
+            "\\) ")
+      "Matches any completion time stamp.")
+
+  (config-org-mode
+   (setq org-agenda-custom-commands
+         (if (boundp 'org-agenda-custom-commands)
+             (let ((case-fold-search nil)) ; Remove previous versions of these commands
+               (seq-filter (lambda (comm) (not (string-match (car comm) "wndN"))) org-agenda-custom-commands))
+           nil))
+   (let ((next-actions-day
+          '(tags-todo "+TODO=\"NEXT\"+PRIORITY=\"A\""
+                      ((org-agenda-overriding-header "Most Important/Urgent Actions for Today"))))
+         (next-actions-week
+          '(tags-todo "+TODO=\"NEXT\"+PRIORITY=\"B\""
+                      ((org-agenda-overriding-header "Next Actions for the Week"))))
+         (next-actions-rest
+          '(tags-todo "+TODO=\"NEXT\"-PRIORITY=\"A\"-PRIORITY=\"B\""
+                      ((org-agenda-overriding-header "Next Actions"))))
+         (completed-day
+          '(todo "TODO|DONE|CANCELLED" ((org-agenda-overriding-header "Completed Today")
+                     (org-agenda-skip-function '(org-agenda-skip-entry-if 'notregexp (format-time-string me/org-completed-date-regexp)))
+                     (org-agenda-sorting-strategy '(priority-down)))))
+         (goals-week
+          '(tags "+WEEK_GOAL" ((org-agenda-overriding-header "Goals for the Week"))))
+         (waiting-for
+          '(todo "WAITING" ((org-agenda-overriding-header "Waiting For"))))
+         (projects-unfinished
+          '(tags "+PROJ" ((org-agenda-overriding-header "Projects"))))
+         (projects-stuck
+          '(org-ql-block '(and (tags "PROJ")
+                               (not (descendants (or (todo "NEXT" "WAITING")
+                                                     (and (todo "TODO") (or (deadline) (scheduled)))))))
+                         ((org-ql-block-header "Stuck Projects"))))
+         (projects-finished
+          '(tags "+DONE_PROJ" ((org-agenda-overriding-header "Finished Projects")))))
+     (add-to-list 'org-agenda-custom-commands
+                  `("n" "Next Actions"
+                    ((agenda "" ((org-agenda-span 1) (org-deadline-warning-days 7)))
+                     ,next-actions-day
+                     ,next-actions-week
+                     ,next-actions-rest)))
+     (add-to-list 'org-agenda-custom-commands
+                  `("d" "Daily Review"
+                    ((agenda)
+                     ,goals-week
+                     ,next-actions-day
+                     ,next-actions-week
+                     ,next-actions-rest
+                     ,waiting-for
+                     ,completed-day)))
+     (add-to-list 'org-agenda-custom-commands
+                  `("w" "Weekly Review"
+                    ((agenda "" ((org-agenda-span 'week)))
+                     ,goals-week
+                     ,projects-stuck
+                     ;,projects-finished
+                     ,projects-unfinished
+                     ,waiting-for)))
+     (add-to-list 'org-agenda-custom-commands
+                  `("N" "Next Actions without Context"
+                    tags "TODO=\"NEXT\"-{@[^w]}"))))
+#+END_SRC
+
+
+It is often useful to see additional information about the entries of the
+agenda, such as time estimates.  This can be accessed using the column view,
+invoked with =C-c C-x C-c=.  The following block defines the columns shown in
+the agenda view.
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  (config-org-mode
+   (setq-default org-agenda-overriding-columns-format
+                 "%CATEGORY %60ITEM %TODO %PRIORITY(PRI) %Effort{:} %CLOCKSUM(Time){:} %TAGS"))
+#+END_SRC
+
+
+
+* Languages
+
+** Emacs Lisp
+
+Lisp should use the [[Smart Handling of Parentheses][=smartparens-mode=]].
+
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'emacs-lisp-mode-hook 'smartparens-mode)
+  (add-hook 'emacs-lisp-mode-hook 'rainbow-delimiters-mode)
+#+END_SRC

@@ -35,6 +35,7 @@
   - [[#coq][Coq]]
   - [[#python][Python]]
   - [[#pkgbuild][PKGBUILD]]
+  - [[#idris][Idris]]
 - [[#features][Features]]
   - [[#version-control][Version Control]]
   - [[#directory-browser][Directory Browser]]
@@ -227,6 +228,7 @@ We can also improve how modes are displayed.
   (use-package delight :ensure t)
 #+END_SRC
 
+
 ** Colours and Fonts
 
 The face for italic text is underlined when the font does not support
@@ -251,7 +253,7 @@ its ligatures, we use the [[https://github.com/tonsky/FiraCode/wiki/Emacs-instru
 
 #+BEGIN_SRC emacs-lisp
   (when (window-system)
-    (set-frame-font "Fira Code")
+    (set-frame-font "Fira Sans")
 
     (let ((alist '((33 . ".\\(?:\\(?:==\\|!!\\)\\|[!=]\\)")
                    (35 . ".\\(?:###\\|##\\|_(\\|[#(?[_{]\\)")
@@ -769,7 +771,7 @@ I also keep a separate projects file for my work at SESE.  Currently I use the
 same inbox, tickler and someday/maybe file for work and personal stuff.
 
 #+BEGIN_SRC emacs-lisp
-  (defvar me/gtd-work-projects-file (expand-file-name "~/tubCloud/sese-projects.org"))
+  (defvar me/gtd-work-projects-file (expand-file-name "~/tubCloud/GTD/projects.org"))
 #+END_SRC
 
 *** Steps
@@ -1170,16 +1172,23 @@ readable annotations.
 ** Haskell
 
 #+BEGIN_SRC emacs-lisp
-    (use-package haskell-mode
-      :ensure t
-      :mode "\\.l?hs\\'"
-      :hook
-      (haskell-mode . smartparens-mode))
+  (use-package haskell-mode
+    :ensure t
+    :mode "\\.l?hs\\'"
+    :hook
+    (haskell-mode . smartparens-mode))
 
-    (use-package hindent
-      :ensure t
-      :hook
-      (haskell-mode . hindent-mode))
+  (use-package hindent
+    :ensure t
+    :hook
+    (haskell-mode . hindent-mode))
+
+  (use-package flycheck-haskell
+    :ensure t
+    :hook
+    (haskell-mode . flycheck-haskell-setup)
+    :config
+    (flycheck-ghc-args '("-dynamic")))
 #+END_SRC
 
 ** Coq
@@ -1206,6 +1215,17 @@ Proof General is a great Emacs-based interface for coq
   (use-package pkgbuild-mode
     :ensure t
     :mode ("^PKGBUILD$" . pkgbuild-mode))
+#+END_SRC
+
+
+** Idris
+
+#+BEGIN_SRC emacs-lisp
+  (use-package idris-mode
+    :ensure t
+    :mode "\\.idr\\'"
+    :hook
+    (idris-mode . smartparens-mode))
 #+END_SRC
 
 

@@ -713,7 +713,8 @@ To enable referencing other tasks, we use unique IDs.
 In order to more comfortably search through the =org-mode= entries, we use the =org-ql= package.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package org-ql :ensure t :defer nil)
+  (use-package org-ql :ensure t :defer nil :functions org-ql-search-block)
+  (require 'org-ql-search)
 #+END_SRC
 
 
@@ -754,11 +755,17 @@ some of them between machines.
 
   (defun me/read-project-list-file (project-list-file)
     (let ((root-dir
-           (file-truename (file-name-directory project-list-file))))
-      (mapcar (lambda (path) (expand-file-name path root-dir))
-              (with-temp-buffer
-                (insert-file-contents project-list-file)
-                (read (current-buffer))))))
+           (file-truename (file-name-directory project-list-file)))
+          (project-list
+           (condition-case err
+               (with-temp-buffer
+                 (insert-file-contents project-list-file)
+                 (read (current-buffer)))
+             (error
+              (message "Failed reading project list file '%s':\n %s" project-list-file (error-message-string err))
+              nil))))
+      (mapcar (lambda (path) (expand-file-name path root-dir)) project-list)))
+
 
   (defun me/load-project-list-file (project-list-file)
     (let ((project-list (me/read-project-list-file project-list-file)))
@@ -785,6 +792,8 @@ some of them between machines.
       (setq org-refile-targets nil)
       (setq org-agenda-files nil)
       (load-project-list-files list-files)))
+
+  (reload-project-list-files)
 #+END_SRC
 
 
@@ -805,10 +814,22 @@ activated with =C-c c=, to add entries to =inbox.org=.  There may be
 other inboxes in one's life: e-mail, messaging apps, a physical
 inbox...
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+BEGIN_SRC emacs-lisp
   (if gtd-inbox-file
-      (setq org-default-notes-file gtd-inbox-file))
+      (setq org-default-notes-file (expand-file-name gtd-inbox-file)))
   (define-key global-map "\C-cc" 'org-capture)
+#+END_SRC
+
+In particular we set up some templates for easily adding a new task or
+a new reminder for a particular point in the future.
+
+#+BEGIN_SRC emacs-lisp
+  (setq org-capture-templates
+        '(("t" "To-do [inbox]" entry
+           (file+headline gtd-inbox-file "Tasks")
+           "* TODO %i%?")
+          ("n" "Note [inbox]" entry
+           (file+headline gtd-inbox-file "Notes"))))
 #+END_SRC
 
 You can add links to the captured entries with =C-c C-l=, which makes it easier
@@ -816,20 +837,8 @@ to access related material.  If you are linking to something that was accessed
 inside Emacs, you can use =C-c l= to copy a link to its location, then =C-c C-l=
 to paste it.
 
-#+BEGIN_SRC emacs-lisp :tangle no
+#+BEGIN_SRC emacs-lisp
   (global-set-key (kbd "C-c l") 'org-store-link)
-#+END_SRC
-
-In particular we set up some templates for easily adding a new task or
-a new reminder for a particular point in the future.
-
-#+BEGIN_SRC emacs-lisp :tangle no
-  (setq org-capture-templates
-        '(("t" "To-do [inbox]" entry
-           (file+headline me/gtd-inbox-file "Tasks")
-           "* TODO %i%?")
-          ("n" "Note [inbox]" entry
-           (file+headline me/gtd-inbox-file "Notes"))))
 #+END_SRC
 
 **** Clarify and Organize
@@ -855,15 +864,22 @@ Tasks may be in one of the following states.
 Changes to these states will often be logged, either with a timestamp and a note
 (states with "@") or with just a timestamp (entries with "/!").
 
-#+BEGIN_SRC emacs-lisp  :tangle no
+#+BEGIN_SRC emacs-lisp
+  (setq
+    org/task-todo "☛ TODO"
+    org/task-next "⯮ NEXT"
+    org/task-waiting "⚑ WAIT"
+    org/task-done "✔ DONE"
+    org/task-cancelled "✘ CANC")
+
   (setq org-todo-keywords
-        '((sequence
-           "TODO(t!)"
-           "NEXT(n!)"
-           "WAITING(w!)"
+        `((sequence
+           ,(concat org/task-todo "(t!)")
+           ,(concat org/task-next "(n!)")
+           ,(concat org/task-waiting "(w!)")
            "|"
-           "DONE(d!)"
-           "CANCELLED(c!)")))
+           ,(concat org/task-done "(d!)")
+           ,(concat org/task-cancelled "(c!)"))))
 #+END_SRC
 
 When filing tasks and other notes, they can be annotated with tags,
@@ -883,17 +899,20 @@ decisions made with possibly outdated information.
 
 Tasks are usually grouped into projects, which may be finished or
 suspended/paused.  Moreover, weekly goals can often be defined, as well as
-Someday/Maybe entries.  These are signalled using tags, which should not be
-inherited.
+Someday/Maybe entries.  These are signalled using tags.
 
-#+BEGIN_SRC emacs-lisp :tangle no
-   (if (not (boundp 'org-tags-exclude-from-inheritance))
+#+BEGIN_SRC emacs-lisp
+  (if (not (boundp 'org-tags-exclude-from-inheritance))
        (setq org-tags-exclude-from-inheritance nil))
-  (setq org-tags-exclude-from-inheritance
-        (append org-tags-exclude-from-inheritance
-                '("PROJ" "DONE_PROJ" "SUSPENDED_PROJ"
-                  "SOMEDAY_MAYBE" "WEEK_GOAL")))
+  (add-to-list 'org-tags-exclude-from-inheritance "PROJ")
 
+  (setq org-tag-alist '((:startgroup . nil)
+                        ("PROJ" . ?P)
+                        ("DONE_PROJ" . ?D)
+                        ("SUSPENDED_PROJ" . ?S)
+                        (:endgroup . nil)
+                        ("SOMEDAY_MAYBE" . ?M)
+                        ("WEEK_GOAL" . ?W)))
 #+END_SRC
 
 **** Reflect
@@ -915,99 +934,128 @@ information about each item in the document.
 pending tasks from multiple files.  [[orgmode.org/worg/org-tutorials/org-custom-agenda-commands.html][Custom agenda commands]] can be
 defined to, e.g., show only the next actions, filter them by context.
 
+***** Agenda Views
+
 I use =C-c a= to access the agenda dispatcher, which then allows me to choose
 among the many agenda views.
 
-#+BEGIN_SRC emacs-lisp :tangle no
-  (config-org-mode (global-set-key (kbd "C-c a") 'org-agenda))
+#+BEGIN_SRC emacs-lisp
+  (global-set-key (kbd "C-c a") 'org-agenda)
 #+END_SRC
 
-A custom agenda view available with =C-c a n= will display an agenda for the
-current week as well as all next actions.
+In the remainder of this section I will define several custom agenda views for
+my own workflow.
 
-#+BEGIN_SRC emacs-lisp :tangle no
-  (defconst me/org-completed-date-regexp
-    (concat " \\("
-            "CLOSED: \\[%Y-%m-%d"
-            "\\|"
-            "- State \"\\(DONE\\|CANCELLED\\)\" * from .* \\[%Y-%m-%d"
-            "\\|"
-            "- State .* ->  *\"\\(DONE\\|CANCELLED\\)\" * \\[%Y-%m-%d"
-            "\\) ")
-      "Matches any completion time stamp.")
-
-  (config-org-mode
-   (setq org-agenda-custom-commands
-         (if (boundp 'org-agenda-custom-commands)
-             (let ((case-fold-search nil)) ; Remove previous versions of these commands
-               (seq-filter (lambda (comm) (not (string-match (car comm) "wndN"))) org-agenda-custom-commands))
-           nil))
-   (let ((next-actions-day
-          '(tags-todo "+TODO=\"NEXT\"+PRIORITY=\"A\""
-                      ((org-agenda-overriding-header "Most Important/Urgent Actions for Today"))))
-         (next-actions-week
-          '(tags-todo "+TODO=\"NEXT\"+PRIORITY=\"B\""
-                      ((org-agenda-overriding-header "Next Actions for the Week"))))
-         (next-actions-rest
-          '(tags-todo "+TODO=\"NEXT\"-PRIORITY=\"A\"-PRIORITY=\"B\""
-                      ((org-agenda-overriding-header "Next Actions"))))
-         (completed-day
-          '(todo "TODO|DONE|CANCELLED" ((org-agenda-overriding-header "Completed Today")
-                     (org-agenda-skip-function '(org-agenda-skip-entry-if 'notregexp (format-time-string me/org-completed-date-regexp)))
-                     (org-agenda-sorting-strategy '(priority-down)))))
-         (goals-week
-          '(tags "+WEEK_GOAL" ((org-agenda-overriding-header "Goals for the Week"))))
-         (waiting-for
-          '(todo "WAITING" ((org-agenda-overriding-header "Waiting For"))))
-         (projects-unfinished
-          '(tags "+PROJ" ((org-agenda-overriding-header "Projects"))))
-         (projects-stuck
-          '(org-ql-block '(and (tags "PROJ")
-                               (not (descendants (or (todo "NEXT" "WAITING")
-                                                     (and (todo "TODO") (or (deadline) (scheduled)))))))
-                         ((org-ql-block-header "Stuck Projects"))))
-         (projects-finished
-          '(tags "+DONE_PROJ" ((org-agenda-overriding-header "Finished Projects")))))
-     (add-to-list 'org-agenda-custom-commands
-                  `("n" "Next Actions"
-                    ((agenda "" ((org-agenda-span 1) (org-deadline-warning-days 7)))
-                     ,next-actions-day
-                     ,next-actions-week
-                     ,next-actions-rest)))
-     (add-to-list 'org-agenda-custom-commands
-                  `("d" "Daily Review"
-                    ((agenda)
-                     ,goals-week
-                     ,next-actions-day
-                     ,next-actions-week
-                     ,next-actions-rest
-                     ,waiting-for
-                     ,completed-day)))
-     (add-to-list 'org-agenda-custom-commands
-                  `("w" "Weekly Review"
-                    ((agenda "" ((org-agenda-span 'week)))
-                     ,goals-week
-                     ,projects-stuck
-                     ;,projects-finished
-                     ,projects-unfinished
-                     ,waiting-for)))
-     (add-to-list 'org-agenda-custom-commands
-                  `("N" "Next Actions without Context"
-                    tags "TODO=\"NEXT\"-{@[^w]}"))))
+#+BEGIN_SRC emacs-lisp
+  (defun me/define-agenda (key &rest args)
+    (progn
+      (setq org-agenda-custom-commands
+            (if (boundp 'org-agenda-custom-commands)
+                (seq-filter (lambda (comm) (not (string= (car comm) key))) org-agenda-custom-commands)
+              nil))
+      (add-to-list 'org-agenda-custom-commands (cons key args))))
 #+END_SRC
-
 
 It is often useful to see additional information about the entries of the
 agenda, such as time estimates.  This can be accessed using the column view,
 invoked with =C-c C-x C-c=.  The following block defines the columns shown in
 the agenda view.
 
-#+BEGIN_SRC emacs-lisp :tangle no
-  (config-org-mode
-   (setq-default org-agenda-overriding-columns-format
-                 "%CATEGORY %60ITEM %TODO %PRIORITY(PRI) %Effort{:} %CLOCKSUM(Time){:} %TAGS"))
+#+BEGIN_SRC emacs-lisp
+  (setq-default org-agenda-overriding-columns-format
+                "%CATEGORY %60ITEM %TODO %PRIORITY(PRI) %Effort{:} %CLOCKSUM(Time){:} %TAGS")
 #+END_SRC
 
+****** Next Actions
+
+This agenda view is meant for the constant daily use.  It displays the day
+agenda (tasks scheduled for today, deadlines for the next 7 days), next actions
+by priority.
+
+#+BEGIN_SRC emacs-lisp
+  (me/define-agenda "n" "Next Actions"
+                    `((agenda "" ((org-agenda-span 1) (org-deadline-warning-days 7)))
+                      (org-ql-block '(and (todo ,org/task-next) (priority "A"))
+                                    ((org-ql-block-header "Most Important/Urgent Actions for Today")))
+                      (org-ql-block '(and (todo ,org/task-next) (priority "B"))
+                                    ((org-ql-block-header "Next Actions for the Week")))
+                      (org-ql-block '(and (todo ,org/task-next) (priority <= "C"))
+                                    ((org-ql-block-header "Next Actions")))))
+#+END_SRC
+
+****** Daily Review
+
+At the end of the day I review the tasks I have done today as well as any pending issues, and plan my next day.
+The following lists are useful:
+
+  - Week agenda (tasks scheduled this week, deadlines up to 14 days)
+  - waiting for
+  - completed today
+  - next actions without context
+  - next actions in done/suspended projects
+  - goals for the week
+  - next actions by priority
+
+#+BEGIN_SRC emacs-lisp
+  (me/define-agenda "d" "Daily Review"
+                    `((agenda)
+
+                      (org-ql-block '(todo ,org/task-waiting)
+                                    ((org-ql-block-header "Waiting For")))
+
+                      (org-ql-block '(closed :on today)
+                                    ((org-ql-block-header "Completed Today")))
+
+                      (org-ql-block '(and (todo ,org/task-next) (not (tags)))
+                                    ((org-ql-block-header "Untagged Next Actions")))
+
+                      (org-ql-block '(and (todo ,org/task-next) (tags "DONE_PROJ" "SUSPENDED_PROJ"))
+                                    ((org-ql-block-header "Zombie Actions")))
+
+                      (org-ql-block '(tags "WEEK_GOAL")
+                                    ((org-ql-block-header "Goals for the Week")))
+
+                      (org-ql-block '(and (todo ,org/task-next) (priority "A"))
+                                    ((org-ql-block-header "Most Important/Urgent Actions for Today")))
+
+                      (org-ql-block '(and (todo ,org/task-next) (priority "B"))
+                                    ((org-ql-block-header "Next Actions for the Week")))
+
+                      (org-ql-block '(and (todo ,org/task-next) (priority <= "C"))
+                                    ((org-ql-block-header "Next Actions")))))
+#+END_SRC
+
+****** Weekly Review
+
+Once a week I should review not just tasks, but also projects and longer
+perspectives.  The corresponding agenda contains:
+
+  - Week agenda (tasks scheduled for each day, deadlines up to 14 days)
+  - Stuck projects
+  - Current projects
+  - Suspended projects
+  - Someday/Maybe
+
+#+BEGIN_SRC emacs-lisp
+  (me/define-agenda "w" "Weekly Review"
+                    `((agenda)
+
+                      (org-ql-block '(and (tags-local "PROJ")
+                                          (not (descendants (or (todo ,org/task-next ,org/task-waiting)
+                                                                (and (todo ,org/task-todo) (or (deadline) (scheduled)))))))
+                                    ((org-ql-block-header "Stuck Projects")))
+
+                      (org-ql-block '(and (tags-local "PROJ")
+                                          (descendants (or (todo ,org/task-next ,org/task-waiting)
+                                                           (and (todo ,org/task-todo) (or (deadline) (scheduled))))))
+                                    ((org-ql-block-header "Ongoing Projects")))
+
+                      (org-ql-block '(tags-local "SUSPENDED_PROJ")
+                                    ((org-ql-block-header "Suspended Projects")))
+
+                      (org-ql-block '(tags-local "SOMEDAY_MAYBE")
+                                    ((org-ql-block-header "Someday/Maybe")))))
+#+END_SRC
 
 
 

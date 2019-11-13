@@ -15,6 +15,7 @@
   - [[#load-secretel][Load =.secret.el=]]
 - [[#user-interface][User Interface]]
   - [[#mode-line][Mode Line]]
+  - [[#frame-title][Frame Title]]
   - [[#colours-and-fonts][Colours and Fonts]]
   - [[#better-defaults][Better Defaults]]
   - [[#editing-keybindings][Editing Keybindings]]
@@ -25,6 +26,7 @@
   - [[#line-wrapping][Line Wrapping]]
   - [[#removing-trailing-whitespace][Removing Trailing Whitespace]]
   - [[#smart-handling-of-parentheses][Smart Handling of Parentheses]]
+  - [[#stripe-buffer][Stripe Buffer]]
 - [[#org-mode-and-getting-things-done][Org Mode and Getting Things Done]]
   - [[#org-mode][Org Mode]]
   - [[#getting-things-done][Getting Things Done]]
@@ -36,6 +38,7 @@
 This configuration is heavily based on the work of others, in particular the following.
 
   - [[https://github.com/larstvei/dot-emacs]]
+  - https://github.com/alphapapa/emacs.d
 
 
 * Initial Setup and Compilation
@@ -218,6 +221,16 @@ We can also improve how modes are displayed.
 
 #+BEGIN_SRC emacs-lisp
   (use-package delight :ensure t)
+#+END_SRC
+
+** Frame Title
+
+Display current buffer name in frame titles ([[https://github.com/wasamasa/dotemacs/blob/master/init.org#display-buffer-name-in-frame-titles][source]] apud alphapapa).
+
+#+BEGIN_SRC emacs-lisp
+  (setq frame-title-format
+        '("" (:eval (replace-regexp-in-string "^ +" "" (buffer-name)))
+          " - " invocation-name))
 #+END_SRC
 
 ** Colours and Fonts
@@ -576,6 +589,22 @@ is easier to find the matching ones.
 #+END_SRC
 
 
+** Stripe Buffer
+
+[[https://github.com/sabof/stripe-buffer/raw/master/screenshot.png]] ([[https://github.com/sabof/stripe-buffer/raw/master/screenshot.png][source]])
+
+[[https://github.com/sabof/stripe-buffer][Stripe Buffer]] makes it vastly easier to read tables and dired buffers. We apply this [[https://github.com/sabof/stripe-buffer/pull/14][patch]] for performance.
+
+#+BEGIN_SRC emacs-lisp
+(use-package stripe-buffer
+  :ensure t
+
+  :config
+  (add-hook 'dired-mode-hook 'turn-on-stripe-buffer-mode)
+  (add-hook 'org-mode-hook 'turn-on-stripe-table-mode))
+;            (set-face-attribute 'stripe-highlight nil :background "#eee8d5")))
+#+END_SRC
+
 
 * Org Mode and Getting Things Done
 
@@ -614,6 +643,7 @@ sure buffer names are surrounded by asterisks.  We also correct the binding of
     ; Use better buffer names when editing source code blocks
     (advice-add 'org-src--construct-edit-buffer-name :override #'me/org-src-buffer-name)
     ;  (setq org-startup-indented t) ; Use proper indentation DOESN'T WORK DUE TO VISUAL-LINE-MODE
+    (setq org-fontify-whole-heading-line t) ; Allow decoration of entire heading lines
 
     :hook
     ; Use my bindings to kill line and region (org mode has its own commands)
@@ -632,7 +662,7 @@ sure buffer names are surrounded by asterisks.  We also correct the binding of
 #+END_SRC
 
 *** Appearance
-**** Heading: Path to Current Item
+**** Headings
 
 Display in the header-line the heading of the node at the top of the window.
 This avoids confusion when there is some text at the top of the window, and its
@@ -650,6 +680,14 @@ heading wouldn't be visible.
 
     :hook
     (org-mode . org-sticky-header-mode))
+#+END_SRC
+
+We also make the font of the larger headings overlined, so the structure can be easily seen.
+
+#+BEGIN_SRC emacs-lisp
+  (custom-set-faces
+   '(org-level-1 ((t (:overline t))))
+   '(org-level-2 ((t (:overline t)))))
 #+END_SRC
 
 **** Bullets
@@ -799,7 +837,6 @@ some of them between machines.
 
 
 
-
 *** Steps
 **** Capture
 
@@ -941,6 +978,15 @@ among the many agenda views.
 
 #+BEGIN_SRC emacs-lisp
   (global-set-key (kbd "C-c a") 'org-agenda)
+
+  (setq org-agenda-dim-blocked-tasks t
+        org-agenda-skip-deadline-prewarning-if-scheduled t
+        org-agenda-ignore-properties '(effort appt)
+        org-agenda-window-setup 'current-window
+        org-agenda-compact-blocks nil
+        org-agenda-block-separator ""   ; Remove the ugly separator between blocks, we'll set an overlined face
+        )
+  (custom-set-faces '(org-agenda-structure ((t (:overline t)))))
 #+END_SRC
 
 In the remainder of this section I will define several custom agenda views for

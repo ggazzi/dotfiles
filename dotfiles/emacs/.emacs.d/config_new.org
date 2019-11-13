@@ -836,7 +836,6 @@ some of them between machines.
 
 
 
-
 *** Steps
 **** Capture
 
@@ -1025,7 +1024,7 @@ by priority.
                                     ((org-ql-block-header "Most Important/Urgent Actions for Today")))
                       (org-ql-block '(and (todo ,org/task-next) (priority "B"))
                                     ((org-ql-block-header "Next Actions for the Week")))
-                      (org-ql-block '(and (todo ,org/task-next) (priority <= "C"))
+                      (org-ql-block '(and (todo ,org/task-next) (or (priority < "B") (not (priority))))
                                     ((org-ql-block-header "Next Actions")))))
 #+END_SRC
 
@@ -1067,7 +1066,7 @@ The following lists are useful:
                       (org-ql-block '(and (todo ,org/task-next) (priority "B"))
                                     ((org-ql-block-header "Next Actions for the Week")))
 
-                      (org-ql-block '(and (todo ,org/task-next) (priority <= "C"))
+                      (org-ql-block '(and (todo ,org/task-next) (or (priority < "B") (not (priority))))
                                     ((org-ql-block-header "Next Actions")))))
 #+END_SRC
 

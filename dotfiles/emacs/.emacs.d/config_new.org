@@ -34,6 +34,7 @@
   - [[#emacs-lisp][Emacs Lisp]]
 - [[#utilities][Utilities]]
   - [[#directory-browser][Directory Browser]]
+  - [[#autosaving][Autosaving]]
 
 * Credits
 
@@ -41,6 +42,7 @@ This configuration is heavily based on the work of others, in particular the fol
 
   - [[https://github.com/larstvei/dot-emacs]]
   - https://github.com/alphapapa/emacs.d
+
 
 
 * Initial Setup and Compilation
@@ -1198,4 +1200,26 @@ before other files, besides a couple other settings.
      dired-dwim-target t                          ; Intelligently guess targets for copy/rename
      dired-hide-details-hide-symlink-targets nil  ; Never hide symlink targets
      dired-listing-switches "-alh --group-directories-first"))
+#+END_SRC
+
+** Autosaving
+
+I may want some files to be autosaved with their existing names, instead of the
+default emacs behaviour of autosaving a "copy".  We provide a minor mode for that.
+
+#+BEGIN_SRC emacs-lisp
+  (defun me/auto-save-to-actual-file ()
+    (unless (and (stringp buffer-file-name)
+                 (file-exists-p buffer-file-name))
+      (error "Can only auto-save to the actual file if the buffer corresponds to an existing file."))
+    (setq buffer-auto-save-file-name buffer-file-name))
+
+  (define-minor-mode auto-save-file-mode
+    "Auto-save the file with its current name, and also auto-revert."
+    :init-value nil
+    :lighter "ASav"
+    (me/auto-save-to-actual-file)
+    (auto-save-mode (if auto-save-file-mode +1 -1))
+    (auto-revert-mode (if auto-save-file-mode +1 -1))
+    (add-hook 'after-save-hook #'me/auto-save-to-actual-file t t))
 #+END_SRC

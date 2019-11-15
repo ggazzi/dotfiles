@@ -32,6 +32,8 @@
   - [[#getting-things-done][Getting Things Done]]
 - [[#languages][Languages]]
   - [[#emacs-lisp][Emacs Lisp]]
+- [[#utilities][Utilities]]
+  - [[#directory-browser][Directory Browser]]
 
 * Credits
 
@@ -1113,4 +1115,33 @@ Lisp should use the [[Smart Handling of Parentheses][=smartparens-mode=]].
 #+BEGIN_SRC emacs-lisp
   (add-hook 'emacs-lisp-mode-hook 'smartparens-mode)
   (add-hook 'emacs-lisp-mode-hook 'rainbow-delimiters-mode)
+#+END_SRC
+
+
+* Utilities
+
+** Directory Browser
+
+The Emacs directory browser =dired= usually opens far too many buffers.  We
+avoid this by remapping =<return>= to /replace/ the current buffer when
+following a link, and =C-<return>= to open a new buffer.
+
+We also ensure that =dired= hides details by default and shows directories
+before other files, besides a couple other settings.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package dired
+    :ensure nil
+    :commands dired-find-file dired-find-alternate-file
+    :bind
+    (:map dired-mode-map
+     ("<return>" . 'dired-find-alternate-file)
+     ("C-<return>" . 'dired-find-file))
+    :hook (dired-mode-hook . dired-hide-details-mode)
+    :config
+    (setq
+     dired-auto-revert-buffer t                   ; Reload directories when changed
+     dired-dwim-target t                          ; Intelligently guess targets for copy/rename
+     dired-hide-details-hide-symlink-targets nil  ; Never hide symlink targets
+     dired-listing-switches "-alh --group-directories-first"))
 #+END_SRC

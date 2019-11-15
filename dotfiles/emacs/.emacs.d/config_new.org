@@ -740,6 +740,7 @@ maintain a TOC at the first heading that has a =:TOC:= tag.
 We can enable richer control of dependencies between tasks.
 #+BEGIN_SRC emacs-lisp
   (use-package org-edna :ensure t :defer nil)
+  (org-edna-load)
 #+END_SRC
 
 To enable referencing other tasks, we use unique IDs.
@@ -785,7 +786,10 @@ stuff gets captured to process later.
 Besides the inbox, I may have a bunch of files containing projects, notes,
 tasks, etc.  These files must be known so we can compile lists (e.g., next
 actions, someday/maybes).  We keep lists of such files, so that we may share
-some of them between machines.
+some of them between machines.  Such lists are emacs-lisp files which evaluate
+to a list of files, which may be either the relevant =.org= files or further
+=.el= files that are recursively traversed.  All paths in such an elisp file are
+resolve relative the the elisp file's parent directory.
 
 #+BEGIN_SRC emacs-lisp
   (defcustom project-list-files nil
@@ -794,22 +798,29 @@ some of them between machines.
     :group 'gtd)
 
   (defun me/read-project-list-file (project-list-file)
-    (let ((root-dir
-           (file-truename (file-name-directory project-list-file)))
+    (let (
+          (root-dir (file-truename (file-name-directory project-list-file)))
           (project-list
            (condition-case err
                (with-temp-buffer
                  (insert-file-contents project-list-file)
-                 (read (current-buffer)))
+                 (eval (read (current-buffer))))
              (error
               (message "Failed reading project list file '%s':\n %s" project-list-file (error-message-string err))
               nil))))
-      (mapcar (lambda (path) (expand-file-name path root-dir)) project-list)))
+      (mapcan (lambda (path) (me/resolve-project-or-list-file path root-dir)) project-list)))
 
+  (defun me/resolve-project-or-list-file (project-or-list-file root-dir)
+    (let* (
+           (file (expand-file-name project-or-list-file root-dir))
+           (extension (file-name-extension file)))
+      (cond
+       ((string= extension "org") (list file))
+       ((string= extension "el") (me/read-project-list-file file))
+       (t nil))))
 
   (defun me/load-project-list-file (project-list-file)
     (let ((project-list (me/read-project-list-file project-list-file)))
-      (setq org-refile-targets (append org-refile-targets project-list))
       (setq org-agenda-files (append org-agenda-files project-list))))
 
   (defun load-project-list-files (&optional list-files)
@@ -829,7 +840,6 @@ some of them between machines.
   PROJECT-LIST-FILES)"
     (interactive)
     (progn
-      (setq org-refile-targets nil)
       (setq org-agenda-files nil)
       (load-project-list-files list-files)))
 
@@ -838,61 +848,9 @@ some of them between machines.
 
 
 
-*** Steps
-**** Capture
+*** Actions/Tasks
 
-The first part of the GTD system is capturing /everything/---every
-thought, task, idea---into an inbox to be later processed.  Adding a
-new entry to the inbox should be super easy and frictionless, so there
-is no incentive to avoid it, and it also doesn't interrupt the task at
-hand.
-
-In Emacs this we use the [[https://orgmode.org/manual/Capture.html][capture]] feature of =org-mode=, which can be
-activated with =C-c c=, to add entries to =inbox.org=.  There may be
-other inboxes in one's life: e-mail, messaging apps, a physical
-inbox...
-
-#+BEGIN_SRC emacs-lisp
-  (if gtd-inbox-file
-      (setq org-default-notes-file (expand-file-name gtd-inbox-file)))
-  (define-key global-map "\C-cc" 'org-capture)
-#+END_SRC
-
-In particular we set up some templates for easily adding a new task or
-a new reminder for a particular point in the future.
-
-#+BEGIN_SRC emacs-lisp
-  (setq org-capture-templates
-        '(("t" "To-do [inbox]" entry
-           (file+headline gtd-inbox-file "Tasks")
-           "* TODO %i%?")
-          ("n" "Note [inbox]" entry
-           (file+headline gtd-inbox-file "Notes"))))
-#+END_SRC
-
-You can add links to the captured entries with =C-c C-l=, which makes it easier
-to access related material.  If you are linking to something that was accessed
-inside Emacs, you can use =C-c l= to copy a link to its location, then =C-c C-l=
-to paste it.
-
-#+BEGIN_SRC emacs-lisp
-  (global-set-key (kbd "C-c l") 'org-store-link)
-#+END_SRC
-
-**** Clarify and Organize
-
-Every inbox should be periodically checked.  The meaning of each entry
-should be checked, and it should either be solved or moved to the
-appropriate place, according to the standard GTD workflow:
-
-#+CAPTION: Illustration of Standard GTD Workflow
-[[[[https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/GTDcanonical.png/1280px-GTDcanonical.png]]]]
-
-In order to easily move entries from the inbox to the appropriate place, we can
-[[https://orgmode.org/manual/Refile-and-copy.html#Refile-and-copy][refile]] entries with =C-c C-w=.
-
-
-Tasks may be in one of the following states.
+Actions/Tasks may be in one of the following states.
   - =NEXT=: incomplete and should be done in the near future
   - =TODO=: incomplete, but need not be done in the near future
   - =WAITING=: incomplete, but there's nothing to be done for now
@@ -928,30 +886,105 @@ which may denote a few different things.
  - GTD contexts starting with an =@=, such as =@home=, =@office=,
    =@phone=, =@email=, =@errands=, =@laptop=.
 
-Tasks and notes can also [[orgmode.org/manual/Deadlines-and-scheduling.html][be scheduled or have deadlines]], including
-repeating schedules and items.  You should avoid adding dates to
-anything that isn't an appointment, a hard deadline or a tickler
-entry.  The decision of what to do next should be taken based on the
-current context and next tasks, not based on artificial scheduling
-decisions made with possibly outdated information.
+*** Projects
 
-Tasks are usually grouped into projects, which may be finished or
-suspended/paused.  Moreover, weekly goals can often be defined, as well as
-Someday/Maybe entries.  These are signalled using tags.
+Tasks should be grouped into projects, which may be finished or
+suspended/paused.  These are signalled using tags.
 
 #+BEGIN_SRC emacs-lisp
   (if (not (boundp 'org-tags-exclude-from-inheritance))
        (setq org-tags-exclude-from-inheritance nil))
   (add-to-list 'org-tags-exclude-from-inheritance "PROJ")
 
-  (setq org-tag-alist '((:startgroup . nil)
+  (setq org-tag-alist '((:startgroup)
                         ("PROJ" . ?P)
                         ("DONE_PROJ" . ?D)
-                        ("SUSPENDED_PROJ" . ?S)
-                        (:endgroup . nil)
-                        ("SOMEDAY_MAYBE" . ?M)
-                        ("WEEK_GOAL" . ?W)))
+                        ("PAUSED_PROJ")
+                        (:endgroup)
+                        (:newline)))
 #+END_SRC
+
+*** Someday/Maybe
+
+Someday/Maybe items may be scattered around my files, stored with the relevant
+context information.  In order to indentify them, we use a tag.
+
+#+BEGIN_SRC emacs-lisp
+  (add-to-list 'org-tag-alist '("SOMEDAY/MAYBE" . ?S))
+#+END_SRC
+
+
+*** Steps
+**** Capture
+
+The first part of the GTD system is capturing /everything/---every
+thought, task, idea---into an inbox to be later processed.  Adding a
+new entry to the inbox should be super easy and frictionless, so there
+is no incentive to avoid it, and it also doesn't interrupt the task at
+hand.
+
+In Emacs this we use the [[https://orgmode.org/manual/Capture.html][capture]] feature of =org-mode=, which can be
+activated with =C-c c=, to add entries to =inbox.org=.  There may be
+other inboxes in one's life: e-mail, messaging apps, a physical
+inbox...
+
+#+BEGIN_SRC emacs-lisp
+  (if gtd-inbox-file
+      (setq org-default-notes-file (expand-file-name gtd-inbox-file)))
+  (define-key global-map "\C-cc" 'org-capture)
+#+END_SRC
+
+In particular we set up some templates for easily adding a new task or
+a new reminder for a particular point in the future.
+
+#+BEGIN_SRC emacs-lisp
+  (setq org-capture-templates
+        `(("t" "To-do [inbox]" entry
+           (file+headline gtd-inbox-file "Tasks")
+           ,(concat "* " org/task-todo " %i%?"))
+          ("n" "Note [inbox]" entry
+           (file+headline gtd-inbox-file "Notes"))))
+#+END_SRC
+
+You can add links to the captured entries with =C-c C-l=, which makes it easier
+to access related material.  If you are linking to something that was accessed
+inside Emacs, you can use =C-c l= to copy a link to its location, then =C-c C-l=
+to paste it.
+
+#+BEGIN_SRC emacs-lisp
+  (global-set-key (kbd "C-c l") 'org-store-link)
+#+END_SRC
+
+**** Clarify
+
+Every inbox should be periodically checked.  The meaning of each entry
+should be checked, and it should either be solved or moved to the
+appropriate place, according to the standard GTD workflow:
+
+#+CAPTION: Illustration of Standard GTD Workflow
+[[[[https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/GTDcanonical.png/1280px-GTDcanonical.png]]]]
+
+In order to easily move entries from the inbox to the appropriate place, we can
+[[https://orgmode.org/manual/Refile-and-copy.html#Refile-and-copy][refile]] entries with =C-c C-w=.  Refiling targets are the headings in the current
+file as well as all agenda files.  Moreover, we show the complete paths for
+refiling.
+
+#+BEGIN_SRC emacs-lisp
+  (setq org-refile-targets '((nil :maxlevel . 5)
+                             (org-agenda-files :maxlevel . 5))
+        org-outline-path-complete-in-steps nil
+        org-refile-use-outline-path t)
+#+END_SRC
+
+When filing tasks and notes, remember to tag them with the appropriate contexts,
+and create any necessary new projects.
+
+Tasks and notes can [[orgmode.org/manual/Deadlines-and-scheduling.html][be scheduled or have deadlines]], including
+repeating schedules and items.  You should avoid adding dates to
+anything that isn't an appointment, a hard deadline or a tickler
+entry.  The decision of what to do next should be taken based on the
+current context and next tasks, not based on artificial scheduling
+decisions made with possibly outdated information.
 
 **** Reflect
 
@@ -977,6 +1010,8 @@ defined to, e.g., show only the next actions, filter them by context.
 I use =C-c a= to access the agenda dispatcher, which then allows me to choose
 among the many agenda views.
 
+****** Basic Config
+
 #+BEGIN_SRC emacs-lisp
   (global-set-key (kbd "C-c a") 'org-agenda)
 
@@ -988,6 +1023,24 @@ among the many agenda views.
         org-agenda-block-separator ""   ; Remove the ugly separator between blocks, we'll set an overlined face
         )
   (custom-set-faces '(org-agenda-structure ((t (:overline t)))))
+#+END_SRC
+
+The agenda should be open vertically by default and align the tags on the right[fn:place-agenda-tags].
+
+[fn:place-agenda-tags] From http://lists.gnu.org/archive/html/emacs-orgmode//2010-12/msg00410.html).
+
+#+BEGIN_SRC emacs-lisp
+  (defadvice org-agenda (around split-vertically activate)
+    (let (
+          (split-width-threshold 40)
+          (split-height-threshold nil))
+      ad-do-it))
+
+  (add-hook 'org-agenda-finalize-hook 'me/place-agenda-tags)
+  (defun me/place-agenda-tags ()
+    "Put the agenda tags by the right border of the window."
+    (setq org-agenda-tags-column (- 4 (window-width)))
+    (org-agenda-align-tags))
 #+END_SRC
 
 In the remainder of this section I will define several custom agenda views for
@@ -1012,6 +1065,7 @@ the agenda view.
   (setq-default org-agenda-overriding-columns-format
                 "%CATEGORY %60ITEM %TODO %PRIORITY(PRI) %Effort{:} %CLOCKSUM(Time){:} %TAGS")
 #+END_SRC
+
 
 ****** Next Actions
 

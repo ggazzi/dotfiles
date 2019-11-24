@@ -14,19 +14,10 @@
   - [[#load-customel][Load =.custom.el=]]
   - [[#load-secretel][Load =.secret.el=]]
 - [[#user-interface][User Interface]]
-  - [[#mode-line][Mode Line]]
-  - [[#frame-title][Frame Title]]
-  - [[#colours-and-fonts][Colours and Fonts]]
+  - [[#appearance][Appearance]]
+  - [[#interaction-with-text][Interaction with Text]]
+  - [[#interaction-with-emacs][Interaction with Emacs]]
   - [[#better-defaults][Better Defaults]]
-  - [[#editing-keybindings][Editing Keybindings]]
-  - [[#better-completion-and-search][Better Completion and Search]]
-  - [[#better-window-navigation][Better Window Navigation]]
-  - [[#auto-completion][Auto-Completion]]
-  - [[#recursive-minibuffers][Recursive Minibuffers]]
-  - [[#line-wrapping][Line Wrapping]]
-  - [[#removing-trailing-whitespace][Removing Trailing Whitespace]]
-  - [[#smart-handling-of-parentheses][Smart Handling of Parentheses]]
-  - [[#stripe-buffer][Stripe Buffer]]
 - [[#org-mode-and-getting-things-done][Org Mode and Getting Things Done]]
   - [[#org-mode][Org Mode]]
   - [[#getting-things-done][Getting Things Done]]
@@ -34,7 +25,6 @@
   - [[#emacs-lisp][Emacs Lisp]]
 - [[#utilities][Utilities]]
   - [[#directory-browser][Directory Browser]]
-  - [[#autosaving][Autosaving]]
 
 * Credits
 
@@ -208,95 +198,38 @@ A first important fix: for keyboard layouts with dead keys we need to load the f
   (use-package iso-transl)
 #+END_SRC
 
-** Mode Line
 
-The mode line can be made prettier (and easier to understand).
+** Appearance
+*** Mode Line
 
-#+BEGIN_SRC emacs-lisp
-  (use-package spaceline
-    :ensure t
-    :config
-    (spaceline-emacs-theme)
-    (spaceline-toggle-line-column-on)
-    (spaceline-toggle-hud-on))
-#+END_SRC
+ The mode line can be made prettier (and easier to understand).
 
-We can also improve how modes are displayed.
+ #+BEGIN_SRC emacs-lisp
+   (use-package spaceline
+     :ensure t
+     :config
+     (spaceline-emacs-theme)
+     (spaceline-toggle-line-column-on)
+     (spaceline-toggle-hud-on))
+ #+END_SRC
 
-#+BEGIN_SRC emacs-lisp
-  (use-package delight :ensure t)
-#+END_SRC
+ We can also improve how modes are displayed.
 
-** Frame Title
+ #+BEGIN_SRC emacs-lisp
+   (use-package delight :ensure t)
+ #+END_SRC
 
-Display current buffer name in frame titles ([[https://github.com/wasamasa/dotemacs/blob/master/init.org#display-buffer-name-in-frame-titles][source]] apud alphapapa).
+*** Frame and GUI Elements
 
-#+BEGIN_SRC emacs-lisp
-  (setq frame-title-format
-        '("" (:eval (replace-regexp-in-string "^ +" "" (buffer-name)))
-          " - " invocation-name))
-#+END_SRC
+ Display current buffer name in frame titles ([[https://github.com/wasamasa/dotemacs/blob/master/init.org#display-buffer-name-in-frame-titles][source]] apud alphapapa).
 
-** Colours and Fonts
+ #+BEGIN_SRC emacs-lisp
+   (setq frame-title-format
+         '("" (:eval (replace-regexp-in-string "^ +" "" (buffer-name)))
+           " - " invocation-name))
+ #+END_SRC
 
-The face for italic text is underlined when the font does not support
-slant by default.  I don't like it.
-
-#+BEGIN_SRC emacs-lisp
-  (set-face-attribute 'italic nil :underline nil)
-#+END_SRC
-
-Load and set =dracula-theme=.
-
-#+BEGIN_SRC emacs-lisp
-  (use-package dracula-theme
-    :ensure t :demand t
-    :config
-    (load-theme 'dracula t))
-#+END_SRC
-
-When running with a GUI, use the Fira Code font.  In order to simulate
-its ligatures, we use the [[https://github.com/tonsky/FiraCode/wiki/Emacs-instructions][following workaround]].
-
-#+BEGIN_SRC emacs-lisp
-  (defvar me/fixed-width-font "Fira Code")
-
-  (when (window-system)
-    (set-frame-font me/fixed-width-font)
-
-    (let ((alist '((33 . ".\\(?:\\(?:==\\|!!\\)\\|[!=]\\)")
-                   (35 . ".\\(?:###\\|##\\|_(\\|[#(?[_{]\\)")
-                   (36 . ".\\(?:>\\)")
-                   (37 . ".\\(?:\\(?:%%\\)\\|%\\)")
-                   (38 . ".\\(?:\\(?:&&\\)\\|&\\)")
-                   (42 . ".\\(?:\\(?:\\*\\*/\\)\\|\\(?:\\*[*/]\\)\\|[*/>]\\)")
-                   (43 . ".\\(?:\\(?:\\+\\+\\)\\|[+>]\\)")
-                   (45 . ".\\(?:\\(?:-[>-]\\|<<\\|>>\\)\\|[<>}~-]\\)")
-                   (46 . ".\\(?:\\(?:\\.[.<]\\)\\|[.=-]\\)")
-                   (47 . ".\\(?:\\(?:\\*\\*\\|//\\|==\\)\\|[*/=>]\\)")
-                   (48 . ".\\(?:x[a-zA-Z]\\)")
-                   (58 . ".\\(?:::\\|[:=]\\)")
-                   (59 . ".\\(?:;;\\|;\\)")
-                   (60 . ".\\(?:\\(?:!--\\)\\|\\(?:~~\\|->\\|\\$>\\|\\*>\\|\\+>\\|--\\|<[<=-]\\|=[<=>]\\||>\\)\\|[*$+~/<=>|-]\\)")
-                   (61 . ".\\(?:\\(?:/=\\|:=\\|<<\\|=[=>]\\|>>\\)\\|[<=>~]\\)")
-                   (62 . ".\\(?:\\(?:=>\\|>[=>-]\\)\\|[=>-]\\)")
-                   (63 . ".\\(?:\\(\\?\\?\\)\\|[:=?]\\)")
-                   (91 . ".\\(?:]\\)")
-                   (92 . ".\\(?:\\(?:\\\\\\\\\\)\\|\\\\\\)")
-                   (94 . ".\\(?:=\\)")
-                   (119 . ".\\(?:ww\\)")
-                   (123 . ".\\(?:-\\)")
-                   (124 . ".\\(?:\\(?:|[=|]\\)\\|[=>|]\\)")
-                   (126 . ".\\(?:~>\\|~~\\|[>=@~-]\\)")
-                   )
-                 ))
-      (dolist (char-regexp alist)
-        (set-char-table-range composition-function-table (car char-regexp)
-                              `([,(cdr char-regexp) 0 font-shape-gstring])))))
-#+END_SRC
-** Better Defaults
-
-Some UI elements are rather invasive and require a mouse.
+Some UI elements are rather invasive and require a mouse.  Disable them.
 
 #+BEGIN_SRC emacs-lisp
   (when window-system
@@ -304,6 +237,354 @@ Some UI elements are rather invasive and require a mouse.
     (menu-bar-mode 0)                               ; Disable the menu bar
     (tool-bar-mode 0))                              ; Disable the tool bar
 #+END_SRC
+
+*** Colours and Fonts
+
+ The face for italic text is underlined when the font does not support
+ slant by default.  I don't like it.
+
+ #+BEGIN_SRC emacs-lisp
+   (set-face-attribute 'italic nil :underline nil)
+ #+END_SRC
+
+ Load and set =dracula-theme=.
+
+ #+BEGIN_SRC emacs-lisp
+   (use-package dracula-theme
+     :ensure t :demand t
+     :config
+     (load-theme 'dracula t))
+ #+END_SRC
+
+ When running with a GUI, use the Fira Code font.  In order to simulate
+ its ligatures, we use the [[https://github.com/tonsky/FiraCode/wiki/Emacs-instructions][following workaround]].
+
+ #+BEGIN_SRC emacs-lisp
+   (defvar me/fixed-width-font "Fira Code")
+
+   (when (window-system)
+     (set-frame-font me/fixed-width-font)
+
+     (let ((alist '((33 . ".\\(?:\\(?:==\\|!!\\)\\|[!=]\\)")
+                    (35 . ".\\(?:###\\|##\\|_(\\|[#(?[_{]\\)")
+                    (36 . ".\\(?:>\\)")
+                    (37 . ".\\(?:\\(?:%%\\)\\|%\\)")
+                    (38 . ".\\(?:\\(?:&&\\)\\|&\\)")
+                    (42 . ".\\(?:\\(?:\\*\\*/\\)\\|\\(?:\\*[*/]\\)\\|[*/>]\\)")
+                    (43 . ".\\(?:\\(?:\\+\\+\\)\\|[+>]\\)")
+                    (45 . ".\\(?:\\(?:-[>-]\\|<<\\|>>\\)\\|[<>}~-]\\)")
+                    (46 . ".\\(?:\\(?:\\.[.<]\\)\\|[.=-]\\)")
+                    (47 . ".\\(?:\\(?:\\*\\*\\|//\\|==\\)\\|[*/=>]\\)")
+                    (48 . ".\\(?:x[a-zA-Z]\\)")
+                    (58 . ".\\(?:::\\|[:=]\\)")
+                    (59 . ".\\(?:;;\\|;\\)")
+                    (60 . ".\\(?:\\(?:!--\\)\\|\\(?:~~\\|->\\|\\$>\\|\\*>\\|\\+>\\|--\\|<[<=-]\\|=[<=>]\\||>\\)\\|[*$+~/<=>|-]\\)")
+                    (61 . ".\\(?:\\(?:/=\\|:=\\|<<\\|=[=>]\\|>>\\)\\|[<=>~]\\)")
+                    (62 . ".\\(?:\\(?:=>\\|>[=>-]\\)\\|[=>-]\\)")
+                    (63 . ".\\(?:\\(\\?\\?\\)\\|[:=?]\\)")
+                    (91 . ".\\(?:]\\)")
+                    (92 . ".\\(?:\\(?:\\\\\\\\\\)\\|\\\\\\)")
+                    (94 . ".\\(?:=\\)")
+                    (119 . ".\\(?:ww\\)")
+                    (123 . ".\\(?:-\\)")
+                    (124 . ".\\(?:\\(?:|[=|]\\)\\|[=>|]\\)")
+                    (126 . ".\\(?:~>\\|~~\\|[>=@~-]\\)")
+                    )
+                  ))
+       (dolist (char-regexp alist)
+         (set-char-table-range composition-function-table (car char-regexp)
+                               `([,(cdr char-regexp) 0 font-shape-gstring])))))
+ #+END_SRC
+*** Line Wrapping
+
+ When lines are too long, they will be soft-wrapped using =visual-line-mode=.
+ Since this mode ignores indentation, we use =adaptive-wrap= to correct it.
+
+ #+BEGIN_SRC emacs-lisp
+   (use-package adaptive-wrap
+     :ensure t
+     :commands adaptive-wrap-prefix-mode
+     :hook
+     ('visual-line-mode . 'adaptive-wrap-prefix-mode))
+
+   (global-visual-line-mode 1)
+ #+END_SRC
+*** Stripe Buffer
+
+ [[https://github.com/sabof/stripe-buffer/raw/master/screenshot.png]] ([[https://github.com/sabof/stripe-buffer/raw/master/screenshot.png][source]])
+
+ [[https://github.com/sabof/stripe-buffer][Stripe Buffer]] makes it vastly easier to read tables and dired buffers. We apply this [[https://github.com/sabof/stripe-buffer/pull/14][patch]] for performance.
+
+ #+BEGIN_SRC emacs-lisp
+ (use-package stripe-buffer
+   :ensure t
+
+   :config
+   (add-hook 'dired-mode-hook 'turn-on-stripe-buffer-mode)
+   (add-hook 'org-mode-hook 'turn-on-stripe-table-mode))
+ ;            (set-face-attribute 'stripe-highlight nil :background "#eee8d5")))
+ #+END_SRC
+
+** Interaction with Text
+
+*** Editing Keybindings
+
+ I dislike the inconsistency between =C-w= in Emacs and bash.  Set =C-w= to
+ behave like bash, killing backward to the beginning of a word.  Also make =C-k=
+ kill the region, if active---otherwise the line is killed, as in the default
+ behaviour.  Note that some modes will have their own variants of =kill-line=
+ mapped to =C-k=, and those modes should call =me/bind-kill-region-or-line= in
+ their configuration.
+
+ #+BEGIN_SRC emacs-lisp
+   (defmacro me/bind-kill-region-or-line (key-map kill-line kill-region)
+     "Define and bind a function that kills the region, if active, or the line.
+   The defined function will interactively call 'KILL-REGION' when
+   the region is currently active, or 'KILL-LINE' otherwise.  It
+   will also be bound to 'C-k' in the given 'KEY-MAP'."
+     (let ((kill-region-or-line
+            (intern (format "%s-or-%s" kill-region kill-line))))
+       `(progn
+          (defun ,kill-region-or-line ()
+            ,(format
+              "Kill the region if active, otherwise kill the current line.
+   See also '%s' and '%s'."
+              kill-region
+              kill-line)
+            (interactive)
+            (if (region-active-p)
+                (call-interactively ',kill-region)
+              (call-interactively ',kill-line)))
+          (define-key ,key-map (kbd "C-k") ',kill-region-or-line))))
+
+   (global-set-key (kbd "C-w") 'backward-kill-word)
+   (me/bind-kill-region-or-line global-map kill-line kill-region)
+ #+END_SRC
+
+*** Undo/Redo
+ Undoing and redoing in Emacs is inconsistent with almost every other graphical
+ program.  Set =C-z= to undo and =C-S-z= to redo.  Also use the =undo-tree= mode
+ to have better handling of the undo history.
+
+ #+BEGIN_SRC emacs-lisp
+   (use-package undo-tree
+     :demand t :ensure t
+     :delight undo-tree-mode nil
+     :commands global-undo-tree-mode
+     :bind
+     (:map undo-tree-map
+      ("C-_" . nil)
+      ("C-/" . nil)
+      ("C-?" . nil)
+      ("M-_" . nil)
+      ("C-z" . undo-tree-undo)
+      ("C-S-z" . undo-tree-redo))
+     :config
+     (global-undo-tree-mode 1))
+ #+END_SRC
+
+*** Smart Handling of Parentheses
+
+ The [[https://github.com/Fuco1/smartparens][=smartparens=]] package makes it easier to deal with parentheses and
+ delimiters in general.  It will automatically insert the matching pair (e.g.,
+ when you type ='('=, it will insert =')'=), wrap the region inside parentheses,
+ among others.  Use the command =sp-cheat-sheet= to see the available commands
+ with examples.
+
+
+ #+BEGIN_SRC emacs-lisp
+   (use-package smartparens-config
+     :ensure smartparens   ; The package name differs from the provided feature
+     :commands smartparens-mode)
+ #+END_SRC
+
+ The automatic use of =smartparens= should be ensured by setting up hooks for the
+ appropriate modes, under the appropriate entry of the [[Languages][Languages section]].
+
+ The =expand-region= package allows the region to be expanded according to delimiters.
+
+ #+BEGIN_SRC emacs-lisp
+     (use-package expand-region
+       :ensure t
+       :bind
+       ("C-=" . er/expand-region))
+ #+END_SRC
+
+
+ The =rainbow-delimiters= package makes parentheses and brackets colorful, so it
+ is easier to find the matching ones.
+
+ #+BEGIN_SRC emacs-lisp
+   (use-package rainbow-delimiters
+     :ensure t :defer t)
+ #+END_SRC
+*** Removing Trailing Whitespace
+
+ By default, trailing whitespace is removed whenever a file is saved.  This can
+ be avoided by setting the file-local variable
+ =delete-trailing-whitespace-on-save= to =nil=.
+
+ #+BEGIN_SRC emacs-lisp
+   (defvar delete-trailing-whitespace-on-save t
+     "When non-nil, trailing whitespace is deleted before saving the file.")
+
+   (make-variable-buffer-local 'delete-trailing-whitespace-on-save)
+
+   (defun me/delete-trailing-whitespace-before-save ()
+     "Remove trailing whitespace if 'remove-trailing-whitespace-on-save' is non-nil."
+     (when delete-trailing-whitespace-on-save
+       (delete-trailing-whitespace)))
+
+   (add-hook 'before-save-hook 'me/delete-trailing-whitespace-before-save)
+ #+END_SRC
+
+** Interaction with Emacs
+*** Fuzzy Completion
+
+ Auto-completion at point.  Display a small pop-in containing the candidates.
+ Use fuzzy matching provided by the =flx= package.
+
+ #+BEGIN_QUOTE
+ Company is a text completion framework for Emacs. The name stands for "complete
+ anything". It uses pluggable back-ends and front-ends to retrieve and display
+ completion candidates.
+
+ [[http://company-mode.github.io/][Dmitry Gutov]]
+ #+END_QUOTE
+
+ #+BEGIN_SRC emacs-lisp
+   (use-package company
+     :ensure t
+     :delight company-mode nil
+     :commands global-company-mode
+     :config
+     (setq-default
+      company-idle-delay .2
+      company-minimum-prefix-length 1
+      company-require-match nil
+      company-tooltip-align-annotations t))
+
+   (use-package company-flx
+     :ensure t
+     :after company flx
+     :delight company-flx-mode nil
+     :commands company-flx-mode)
+
+   (global-company-mode 1)
+   (company-flx-mode 1)
+ #+END_SRC
+*** Better Completion and Search
+
+ Having a good completion mechanism can make life a lot easier.  The [[https://oremacs.com/swiper][=ivy=]]
+ package provides such a mechanism, which we couple with the fuzzy matching
+ provided by =flx=.
+
+ #+BEGIN_QUOTE
+ [[https://github.com/abo-abo/swiper/blob/master/README.md#ivy][abo-abo]]
+
+ Ivy is a generic completion mechanism for Emacs. While it operates similarly to
+ other completion schemes such as icomplete-mode, Ivy aims to be more efficient,
+ smaller, simpler, and smoother to use yet highly customizable.
+ #+END_QUOTE
+
+ When running =ivy-mode=, pressing =<return>= will use the currently selected
+ candidate, while =C-<return>= will use the current input instead of the current
+ candidate.
+
+ #+BEGIN_SRC emacs-lisp
+   (use-package flx :ensure t)
+
+   (use-package ivy
+     :ensure t
+     :delight ivy-mode nil
+     :commands ivy-mode ivy-resume ivy-immediate-done
+     :config
+     (ivy-mode 1)
+     (setq ivy-count-format "(%d/%d) ")
+     (setq ivy-re-builders-alist
+           '((swiper . ivy--regex-plus)
+             (t . ivy--regex-fuzzy)))
+     :custom-face
+     (ivy-minibuffer-match-face-2 ((t (:background "#777777" :weight bold))))
+     (ivy-minibuffer-match-face-3 ((t (:background "#777777" :weight bold))))
+     (ivy-minibuffer-match-face-4 ((t (:background "#777777" :weight bold))))
+     :bind
+     (("C-c C-r" . 'ivy-resume)
+      :map ivy-minibuffer-map
+      ("C-<return>" . 'ivy-immediate-done)))
+ #+END_SRC
+
+ The =counsel= package provides ivy-based alternatives to some commonly used
+ builtin functionality, and =swiper= an alternative search command.
+
+ #+BEGIN_SRC emacs-lisp
+   (use-package counsel
+     :ensure t
+     :bind
+     (("M-x" . 'counsel-M-x)
+      ("C-x C-f" . 'counsel-find-file)
+      ("C-x C-S-f" . 'counsel-recentf)
+      ("<f1> f" . 'counsel-describe-function)
+      ("<f1> v" . 'counsel-describe-variable)
+      ("<f1> l" . 'counsel-find-library)
+      ("<f2> i" . 'counsel-info-lookup-symbol)
+      ("C-c u" . 'counsel-unicode-char)))
+
+   (use-package swiper
+     :ensure t
+     :bind
+     ("C-s" . 'swiper))
+ #+END_SRC
+*** Better Window Navigation
+
+ I like to navigate between windows with =C-x <arrow>=.
+
+ #+BEGIN_SRC emacs-lisp
+   (global-set-key (kbd "C-x <left>") 'windmove-left)
+   (global-set-key (kbd "C-x <right>") 'windmove-right)
+   (global-set-key (kbd "C-x <down>") 'windmove-down)
+   (global-set-key (kbd "C-x <up>") 'windmove-up)
+ #+END_SRC
+
+ I also disable the usual window navigation so I get used to arrows.
+
+ #+BEGIN_SRC emacs-lisp
+   (global-set-key (kbd "C-x o") nil)
+ #+END_SRC
+*** Recursive Minibuffers
+
+    It should be possible to invoke mini minibuffer-based commands from within
+    the minibuffer, keeping a stack of minibuffers.
+
+ #+BEGIN_SRC emacs-lisp
+   (setq enable-recursive-minibuffers t)
+ #+END_SRC
+
+
+
+*** Autosaving
+
+ I may want some files to be autosaved with their existing names, instead of the
+ default emacs behaviour of autosaving a "copy".  We provide a minor mode for that.
+
+ #+BEGIN_SRC emacs-lisp
+   (defun me/auto-save-to-actual-file ()
+     (unless (and (stringp buffer-file-name)
+                  (file-exists-p buffer-file-name))
+       (error "Can only auto-save to the actual file if the buffer corresponds to an existing file."))
+     (setq buffer-auto-save-file-name buffer-file-name))
+
+   (define-minor-mode auto-save-file-mode
+     "Auto-save the file with its current name, and also auto-revert."
+     :init-value nil
+     :lighter "ASav"
+     (me/auto-save-to-actual-file)
+     (auto-save-mode (if auto-save-file-mode +1 -1))
+     (auto-revert-mode (if auto-save-file-mode +1 -1))
+     (add-hook 'after-save-hook #'me/auto-save-to-actual-file t t))
+ #+END_SRC
+
+** Better Defaults
 
 Here are some options that I consider better defaults.
 
@@ -340,273 +621,6 @@ Garbage-collect on focus-out, Emacs /should/ feel snappier.
 
 #+BEGIN_SRC emacs-lisp
   (add-hook 'focus-out-hook #'garbage-collect)
-#+END_SRC
-
-** Editing Keybindings
-
-I dislike the inconsistency between =C-w= in Emacs and bash.  Set =C-w= to
-behave like bash, killing backward to the beginning of a word.  Also make =C-k=
-kill the region, if active---otherwise the line is killed, as in the default
-behaviour.  Note that some modes will have their own variants of =kill-line=
-mapped to =C-k=, and those modes should call =me/bind-kill-region-or-line= in
-their configuration.
-
-#+BEGIN_SRC emacs-lisp
-  (defmacro me/bind-kill-region-or-line (key-map kill-line kill-region)
-    "Define and bind a function that kills the region, if active, or the line.
-  The defined function will interactively call 'KILL-REGION' when
-  the region is currently active, or 'KILL-LINE' otherwise.  It
-  will also be bound to 'C-k' in the given 'KEY-MAP'."
-    (let ((kill-region-or-line
-           (intern (format "%s-or-%s" kill-region kill-line))))
-      `(progn
-         (defun ,kill-region-or-line ()
-           ,(format
-             "Kill the region if active, otherwise kill the current line.
-  See also '%s' and '%s'."
-             kill-region
-             kill-line)
-           (interactive)
-           (if (region-active-p)
-               (call-interactively ',kill-region)
-             (call-interactively ',kill-line)))
-         (define-key ,key-map (kbd "C-k") ',kill-region-or-line))))
-
-  (global-set-key (kbd "C-w") 'backward-kill-word)
-  (me/bind-kill-region-or-line global-map kill-line kill-region)
-#+END_SRC
-
-Undoing and redoing in Emacs is inconsistent with almost every other graphical
-program.  Set =C-z= to undo and =C-S-z= to redo.  Also use the =undo-tree= mode
-to have better handling of the undo history.
-
-#+BEGIN_SRC emacs-lisp
-  (use-package undo-tree
-    :demand t :ensure t
-    :delight undo-tree-mode nil
-    :commands global-undo-tree-mode
-    :bind
-    (:map undo-tree-map
-     ("C-_" . nil)
-     ("C-/" . nil)
-     ("C-?" . nil)
-     ("M-_" . nil)
-     ("C-z" . undo-tree-undo)
-     ("C-S-z" . undo-tree-redo))
-    :config
-    (global-undo-tree-mode 1))
-#+END_SRC
-
-** Better Completion and Search
-
-Having a good completion mechanism can make life a lot easier.  The [[https://oremacs.com/swiper][=ivy=]]
-package provides such a mechanism, which we couple with the fuzzy matching
-provided by =flx=.
-
-#+BEGIN_QUOTE
-[[https://github.com/abo-abo/swiper/blob/master/README.md#ivy][abo-abo]]
-
-Ivy is a generic completion mechanism for Emacs. While it operates similarly to
-other completion schemes such as icomplete-mode, Ivy aims to be more efficient,
-smaller, simpler, and smoother to use yet highly customizable.
-#+END_QUOTE
-
-When running =ivy-mode=, pressing =<return>= will use the currently selected
-candidate, while =C-<return>= will use the current input instead of the current
-candidate.
-
-#+BEGIN_SRC emacs-lisp
-  (use-package flx :ensure t)
-
-  (use-package ivy
-    :ensure t
-    :delight ivy-mode nil
-    :commands ivy-mode ivy-resume ivy-immediate-done
-    :config
-    (ivy-mode 1)
-    (setq ivy-count-format "(%d/%d) ")
-    (setq ivy-re-builders-alist
-          '((swiper . ivy--regex-plus)
-            (t . ivy--regex-fuzzy)))
-    :custom-face
-    (ivy-minibuffer-match-face-2 ((t (:background "#777777" :weight bold))))
-    (ivy-minibuffer-match-face-3 ((t (:background "#777777" :weight bold))))
-    (ivy-minibuffer-match-face-4 ((t (:background "#777777" :weight bold))))
-    :bind
-    (("C-c C-r" . 'ivy-resume)
-     :map ivy-minibuffer-map
-     ("C-<return>" . 'ivy-immediate-done)))
-#+END_SRC
-
-The =counsel= package provides ivy-based alternatives to some commonly used
-builtin functionality, and =swiper= an alternative search command.
-
-#+BEGIN_SRC emacs-lisp
-  (use-package counsel
-    :ensure t
-    :bind
-    (("M-x" . 'counsel-M-x)
-     ("C-x C-f" . 'counsel-find-file)
-     ("C-x C-S-f" . 'counsel-recentf)
-     ("<f1> f" . 'counsel-describe-function)
-     ("<f1> v" . 'counsel-describe-variable)
-     ("<f1> l" . 'counsel-find-library)
-     ("<f2> i" . 'counsel-info-lookup-symbol)
-     ("C-c u" . 'counsel-unicode-char)))
-
-  (use-package swiper
-    :ensure t
-    :bind
-    ("C-s" . 'swiper))
-#+END_SRC
-
-** Better Window Navigation
-
-I like to navigate between windows with =C-x <arrow>=.
-
-#+BEGIN_SRC emacs-lisp
-  (global-set-key (kbd "C-x <left>") 'windmove-left)
-  (global-set-key (kbd "C-x <right>") 'windmove-right)
-  (global-set-key (kbd "C-x <down>") 'windmove-down)
-  (global-set-key (kbd "C-x <up>") 'windmove-up)
-#+END_SRC
-
-I also disable the usual window navigation so I get used to arrows.
-
-#+BEGIN_SRC emacs-lisp
-  (global-set-key (kbd "C-x o") nil)
-#+END_SRC
-
-** Auto-Completion
-
-Auto-completion at point.  Display a small pop-in containing the candidates.
-Use fuzzy matching provided by the =flx= package.
-
-#+BEGIN_QUOTE
-Company is a text completion framework for Emacs. The name stands for "complete
-anything". It uses pluggable back-ends and front-ends to retrieve and display
-completion candidates.
-
-[[http://company-mode.github.io/][Dmitry Gutov]]
-#+END_QUOTE
-
-#+BEGIN_SRC emacs-lisp
-  (use-package company
-    :ensure t
-    :delight company-mode nil
-    :commands global-company-mode
-    :config
-    (setq-default
-     company-idle-delay .2
-     company-minimum-prefix-length 1
-     company-require-match nil
-     company-tooltip-align-annotations t))
-
-  (use-package company-flx
-    :ensure t
-    :after company flx
-    :delight company-flx-mode nil
-    :commands company-flx-mode)
-
-  (global-company-mode 1)
-  (company-flx-mode 1)
-#+END_SRC
-
-** Recursive Minibuffers
-
-   It should be possible to invoke mini minibuffer-based commands from within
-   the minibuffer, keeping a stack of minibuffers.
-
-#+BEGIN_SRC emacs-lisp
-  (setq enable-recursive-minibuffers t)
-#+END_SRC
-
-** Line Wrapping
-
-When lines are too long, they will be soft-wrapped using =visual-line-mode=.
-Since this mode ignores indentation, we use =adaptive-wrap= to correct it.
-
-#+BEGIN_SRC emacs-lisp
-  (use-package adaptive-wrap
-    :ensure t
-    :commands adaptive-wrap-prefix-mode
-    :hook
-    ('visual-line-mode . 'adaptive-wrap-prefix-mode))
-
-  (global-visual-line-mode 1)
-#+END_SRC
-
-** Removing Trailing Whitespace
-
-By default, trailing whitespace is removed whenever a file is saved.  This can
-be avoided by setting the file-local variable
-=delete-trailing-whitespace-on-save= to =nil=.
-
-#+BEGIN_SRC emacs-lisp
-  (defvar delete-trailing-whitespace-on-save t
-    "When non-nil, trailing whitespace is deleted before saving the file.")
-
-  (make-variable-buffer-local 'delete-trailing-whitespace-on-save)
-
-  (defun me/delete-trailing-whitespace-before-save ()
-    "Remove trailing whitespace if 'remove-trailing-whitespace-on-save' is non-nil."
-    (when delete-trailing-whitespace-on-save
-      (delete-trailing-whitespace)))
-
-  (add-hook 'before-save-hook 'me/delete-trailing-whitespace-before-save)
-#+END_SRC
-
-** Smart Handling of Parentheses
-
-The [[https://github.com/Fuco1/smartparens][=smartparens=]] package makes it easier to deal with parentheses and
-delimiters in general.  It will automatically insert the matching pair (e.g.,
-when you type ='('=, it will insert =')'=), wrap the region inside parentheses,
-among others.  Use the command =sp-cheat-sheet= to see the available commands
-with examples.
-
-
-#+BEGIN_SRC emacs-lisp
-  (use-package smartparens-config
-    :ensure smartparens   ; The package name differs from the provided feature
-    :commands smartparens-mode)
-#+END_SRC
-
-The automatic use of =smartparens= should be ensured by setting up hooks for the
-appropriate modes, under the appropriate entry of the [[Languages][Languages section]].
-
-The =expand-region= package allows the region to be expanded according to delimiters.
-
-#+BEGIN_SRC emacs-lisp
-    (use-package expand-region
-      :ensure t
-      :bind
-      ("C-=" . er/expand-region))
-#+END_SRC
-
-
-The =rainbow-delimiters= package makes parentheses and brackets colorful, so it
-is easier to find the matching ones.
-
-#+BEGIN_SRC emacs-lisp
-  (use-package rainbow-delimiters
-    :ensure t :defer t)
-#+END_SRC
-
-
-** Stripe Buffer
-
-[[https://github.com/sabof/stripe-buffer/raw/master/screenshot.png]] ([[https://github.com/sabof/stripe-buffer/raw/master/screenshot.png][source]])
-
-[[https://github.com/sabof/stripe-buffer][Stripe Buffer]] makes it vastly easier to read tables and dired buffers. We apply this [[https://github.com/sabof/stripe-buffer/pull/14][patch]] for performance.
-
-#+BEGIN_SRC emacs-lisp
-(use-package stripe-buffer
-  :ensure t
-
-  :config
-  (add-hook 'dired-mode-hook 'turn-on-stripe-buffer-mode)
-  (add-hook 'org-mode-hook 'turn-on-stripe-table-mode))
-;            (set-face-attribute 'stripe-highlight nil :background "#eee8d5")))
 #+END_SRC
 
 
@@ -1200,26 +1214,4 @@ before other files, besides a couple other settings.
      dired-dwim-target t                          ; Intelligently guess targets for copy/rename
      dired-hide-details-hide-symlink-targets nil  ; Never hide symlink targets
      dired-listing-switches "-alh --group-directories-first"))
-#+END_SRC
-
-** Autosaving
-
-I may want some files to be autosaved with their existing names, instead of the
-default emacs behaviour of autosaving a "copy".  We provide a minor mode for that.
-
-#+BEGIN_SRC emacs-lisp
-  (defun me/auto-save-to-actual-file ()
-    (unless (and (stringp buffer-file-name)
-                 (file-exists-p buffer-file-name))
-      (error "Can only auto-save to the actual file if the buffer corresponds to an existing file."))
-    (setq buffer-auto-save-file-name buffer-file-name))
-
-  (define-minor-mode auto-save-file-mode
-    "Auto-save the file with its current name, and also auto-revert."
-    :init-value nil
-    :lighter "ASav"
-    (me/auto-save-to-actual-file)
-    (auto-save-mode (if auto-save-file-mode +1 -1))
-    (auto-revert-mode (if auto-save-file-mode +1 -1))
-    (add-hook 'after-save-hook #'me/auto-save-to-actual-file t t))
 #+END_SRC

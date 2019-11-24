@@ -25,6 +25,7 @@
   - [[#emacs-lisp][Emacs Lisp]]
 - [[#utilities][Utilities]]
   - [[#directory-browser][Directory Browser]]
+  - [[#version-control-git][Version Control (Git)]]
 
 * Credits
 
@@ -1214,4 +1215,34 @@ before other files, besides a couple other settings.
      dired-dwim-target t                          ; Intelligently guess targets for copy/rename
      dired-hide-details-hide-symlink-targets nil  ; Never hide symlink targets
      dired-listing-switches "-alh --group-directories-first"))
+#+END_SRC
+
+** Version Control (Git)
+
+[[https://magit.vc/][Magit]] provides git facilities directily withing Emacs.  It is honestly the best
+git frontend I have ever used.
+
+#+BEGIN_QUOTE
+[[https://github.com/magit/magit][Jonas Bernoulli]]
+
+Magit is an interface to the version control system [[https://git-scm.com/][Git]], implemented as an [[https://www.gnu.org/software/emacs][Emacs]]
+package. Magit aspires to be a complete Git porcelain. While we cannot (yet)
+claim that Magit wraps and improves upon each and every Git command, it is
+complete enough to allow even experienced Git users to perform almost all of
+their daily version control tasks directly from within Emacs. While many fine
+Git clients exist, only Magit and Git itself deserve to be called porcelains.
+[[https://magit.vc/about.html][(more)]]
+#+END_QUOTE
+
+The magit status buffer can be opened with =C-x g=.  Most of the functionality
+of magit is available from there, as documented in the [[https://magit.vc/manual/magit.html#Getting-Started][magit manual]].  We also
+ensure that =magit= does [[Better Completion and Search][better completion and search]] than the default.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package magit
+    :ensure t
+    :bind
+    ("C-x g" . 'magit-status)
+    :config
+    (setq magit-completing-read-function 'ivy-completing-read))
 #+END_SRC

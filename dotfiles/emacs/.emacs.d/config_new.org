@@ -803,65 +803,100 @@ stuff gets captured to process later.
 
 Besides the inbox, I may have a bunch of files containing projects, notes,
 tasks, etc.  These files must be known so we can compile lists (e.g., next
-actions, someday/maybes).  We keep lists of such files, so that we may share
-some of them between machines.  Such lists are emacs-lisp files which evaluate
-to a list of files, which may be either the relevant =.org= files or further
-=.el= files that are recursively traversed.  All paths in such an elisp file are
-resolve relative the the elisp file's parent directory.
+actions, someday/maybes).  My management of these files should satisfy the
+following requirements:
+
+  - The lists of relevant files should be easy to back up and share between
+    computers
+
+  - It should be possible to switch between different lists of files so that I
+    have separate systems for different parts of my life (e.g., work vs. personal).
+
+  - The lists should be composable/hierarchical so that:
+
+    - We avoid one giant and hard-to-manage list
+
+    - Lists of certain subtopics can be kept close to the relevant files
+      (e.g. list of all upcoming trips in a directory with files for all the
+      trips I have done/will do).
+
+    - Certain lists can be shared between my separate GTD systems (e.g. org-mode
+      config is relevant both for work and for my personal life)
+
+Thus, my system is based on a "tree of files": leaves are =.org= files, and the
+internal nodes are either =.lst= or =.elst= files.
+  - =.lst= files are simple lists containing one file per line
+  - =.elst= files contain emacs-lisp code that evaluates a list of files
+  - Files are recursively traversed to generate a complete list of relevant files
+  - Entries of a list are relative to the containing directory of the list
 
 #+BEGIN_SRC emacs-lisp
-  (defcustom project-list-files nil
-    "Paths to elisp files containing lists of project files."
+  (add-to-list 'auto-mode-alist '("\\.elst\\'" . emacs-lisp-mode))
+#+END_SRC
+
+Finally, the customizable variable =project-list-files= contains the possible
+root files for my trees of project files.  The first entry is used by default,
+but you may switch between them with the command =switch-project-list=.
+
+#+BEGIN_SRC emacs-lisp
+  (defcustom gtd-project-list-roots nil
+    "Paths to the roots of the different project file lists."
     :type '(list file)
     :group 'gtd)
 
-  (defun me/read-project-list-file (project-list-file)
-    (let (
-          (root-dir (file-truename (file-name-directory project-list-file)))
-          (project-list
-           (condition-case err
-               (with-temp-buffer
-                 (insert-file-contents project-list-file)
-                 (eval (read (current-buffer))))
-             (error
-              (message "Failed reading project list file '%s':\n %s" project-list-file (error-message-string err))
-              nil))))
-      (mapcan (lambda (path) (me/resolve-project-or-list-file path root-dir)) project-list)))
+  (defvar gtd-project-list-root (and gtd-project-list-roots (car gtd-project-list-roots))
+    "Path to the current root of the project file lists")
 
-  (defun me/resolve-project-or-list-file (project-or-list-file root-dir)
+  (defun gtd-switch-project-root (project-root)
+    (interactive
+     (list (ivy-read "Project root: " gtd-project-list-roots)))
+    (setq gtd-project-list-root project-root)
+    (gtd-reload-project-list))
+
+  (defun gtd-reload-project-list ()
+    "Reload list of project files.
+
+  Load them from the current project-list-root and add set
+  corresponding project files to org-refile-targets and
+  org-agenda-files."
+    (interactive)
+    (progn
+      (setq org-agenda-files
+            (gtd/resolve-project-list-file gtd-project-list-root))))
+
+  (defun gtd/resolve-project-files (project-or-list-file &optional root-dir)
+    "Given an org, lst or elst file, resolve it into a list of org files."
     (let* (
            (file (expand-file-name project-or-list-file root-dir))
            (extension (file-name-extension file)))
       (cond
        ((string= extension "org") (list file))
-       ((string= extension "el") (me/read-project-list-file file))
+       ((string= extension "lst") (gtd/resolve-project-list-file file))
+       ((string= extension "elst") (gtd/resolve-project-list-file file))
        (t nil))))
 
-  (defun me/load-project-list-file (project-list-file)
-    (let ((project-list (me/read-project-list-file project-list-file)))
-      (setq org-agenda-files (append org-agenda-files project-list))))
+  (defun gtd/resolve-project-list-file (list-file)
+    (let ((root-dir (file-truename (file-name-directory list-file))))
+      (mapcan (lambda (file)
+                (gtd/resolve-project-files file root-dir))
+              (gtd/read-project-list-file list-file))))
 
-  (defun load-project-list-files (&optional list-files)
-    "Load project list files.
+  (defun gtd/read-project-list-file (file)
+    (condition-case err
+        (with-temp-buffer
+          (insert-file-contents file)
+          (cond
+           ((string= (file-name-extension file) "lst")
+            (split-string (buffer-string) "\n" t))
+           ((string= (file-name-extension file) "elst")
+            (eval (read (current-buffer))))))
+      (error
+       (message "Failed reading project list file '%s:\n%s"
+                file
+                (error-message-string err))
+       nil)))
 
-  Load them and add the corresponding project files to
-  org-refile-targets and org-agenda-files (see custom variable
-  PROJECT-LIST-FILES)"
-    (interactive)
-    (mapcar #'me/load-project-list-file (or list-files project-list-files)))
-
-  (defun reload-project-list-files (&optional list-files)
-    "Reset and reload project list files.
-
-  Load them and add set corresponding project files to
-  org-refile-targets and org-agenda-files (see custom variable
-  PROJECT-LIST-FILES)"
-    (interactive)
-    (progn
-      (setq org-agenda-files nil)
-      (load-project-list-files list-files)))
-
-  (reload-project-list-files)
+  (gtd-reload-project-list)
 #+END_SRC
 
 

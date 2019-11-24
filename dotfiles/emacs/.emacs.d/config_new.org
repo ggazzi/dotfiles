@@ -26,6 +26,7 @@
 - [[#utilities][Utilities]]
   - [[#directory-browser][Directory Browser]]
   - [[#version-control-git][Version Control (Git)]]
+  - [[#spell-and-grammar-checking][Spell and Grammar Checking]]
 
 * Credits
 
@@ -1245,4 +1246,40 @@ ensure that =magit= does [[Better Completion and Search][better completion and s
     ("C-x g" . 'magit-status)
     :config
     (setq magit-completing-read-function 'ivy-completing-read))
+#+END_SRC
+
+** Spell and Grammar Checking
+
+Commands related to spell and grammar checking are prefixed with =C-S-l=.
+
+The underlying spell checker is preferably Aspell, but alternatively Hunspell.
+Note that Aspell personal dictionaries are stored in =~/.aspell.LANG.pws=, where
+=LANG= is the two-letter code.  I use British English most of the time.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package ispell
+    :config
+    (cond
+     ((executable-find "aspell")
+      (setq ispell-program-name "aspell"))
+     ((executable-find "hunspell")
+      (setq ispell-program-name "hunspell")))
+    (setq ispell-dictionary "en_GB")
+    :bind
+    (("C-S-l b" . 'ispell-buffer)
+     ("C-S-l d" . 'ispell-change-dictionary)
+     ("C-S-l r" . 'ispell-region)
+     ("C-S-l w" . 'ispell-word)))
+#+END_SRC
+
+The =flyspell-mode= will highlight misspelled words.  Then =C-S-l c= can be used
+to correct them.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package flyspell
+    :ensure t
+    :bind
+    (:map flyspell-mode-map
+          ("C-S-l c" . 'ispell-word))
+    :hook (text-mode-hook . flyspell-mode))
 #+END_SRC

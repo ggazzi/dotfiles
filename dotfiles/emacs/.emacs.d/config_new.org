@@ -302,7 +302,7 @@ Some UI elements are rather invasive and require a mouse.  Disable them.
  When lines are too long, they will be soft-wrapped using =visual-line-mode=.
  Since this mode ignores indentation, we use =adaptive-wrap= to correct it.
 
- #+BEGIN_SRC emacs-lisp
+ #+BEGIN_SRC emacs-lisp :tangle no
    (use-package adaptive-wrap
      :ensure t
      :commands adaptive-wrap-prefix-mode
@@ -672,6 +672,7 @@ sure buffer names are surrounded by asterisks.  We also correct the binding of
     :custom
     (org-agenda-use-time-grid nil)     ; Simplify the look of agendas
     (org-log-done 'time)               ; Record completion time for tasks
+    (org-log-reschedule 'time)         ; Record time when task was rescheduled
     (org-log-into-drawer "LOGBOOK")    ; Write the log into a drawer
     (org-hide-leading-stars t)         ; Only show a single star for each org heading
     (org-return-follows-link t)        ; Use <return> to follow links
@@ -841,7 +842,7 @@ but you may switch between them with the command =switch-project-list=.
 #+BEGIN_SRC emacs-lisp
   (defcustom gtd-project-list-roots nil
     "Paths to the roots of the different project file lists."
-    :type '(list file)
+    :type '(repeat file)
     :group 'gtd)
 
   (defvar gtd-project-list-root (and gtd-project-list-roots (car gtd-project-list-roots))
@@ -910,6 +911,9 @@ Actions/Tasks may be in one of the following states.
   - =DONE=: completed succesfully
   - =CANCELLED=: no longer relevant
 
+I use pretty unicode icons before the (shortened) keyword to improve readability.
+There is also a command to migrate from the keywords without icons.
+
 Changes to these states will often be logged, either with a timestamp and a note
 (states with "@") or with just a timestamp (entries with "/!").
 
@@ -929,6 +933,26 @@ Changes to these states will often be logged, either with a timestamp and a note
            "|"
            ,(concat org/task-done "(d!)")
            ,(concat org/task-cancelled "(c!)"))))
+
+  (defun org-add-task-icons ()
+    (interactive)
+    (save-excursion
+      (mapcar
+       (lambda (task-status)
+         (let ((with-icon (car task-status)))
+           (mapcar (lambda (without-icon)
+                     (progn
+                       (goto-char (point-min))
+                       (let ((from-str (concat "* " without-icon " "))
+                             (to-str (concat "* " with-icon " ")))
+                         (while (search-forward from-str nil t)
+                           (replace-match to-str nil t)))))
+                   (cdr task-status))))
+       `((,org/task-todo . ("TODO"))
+         (,org/task-next . ("NEXT"))
+         (,org/task-waiting . ("WAITING" "WAIT"))
+         (,org/task-done . ("DONE"))
+         (,org/task-cancelled . ("CANCELLED" "CANC"))))))
 #+END_SRC
 
 When filing tasks and other notes, they can be annotated with tags,
@@ -938,6 +962,17 @@ which may denote a few different things.
  - People involved in the task, like =:Dad:= or =:Sabine:=
  - GTD contexts starting with an =@=, such as =@home=, =@office=,
    =@phone=, =@email=, =@errands=, =@laptop=.
+
+Moreover, tasks are associated to priorities.  I use three levels:
+ - A: Nice if done today
+ - B: Nice if done this week
+ - C (default): Other tasks
+
+#+BEGIN_SRC emacs-lisp
+  (setq org-highest-priority ?A
+        org-lowest-priority ?C
+        org-default-priority ?C)
+#+END_SRC
 
 *** Projects
 

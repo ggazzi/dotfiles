@@ -861,9 +861,9 @@ but you may switch between them with the command =switch-project-list=.
   corresponding project files to org-refile-targets and
   org-agenda-files."
     (interactive)
-    (progn
-      (setq org-agenda-files
-            (gtd/resolve-project-list-file gtd-project-list-root))))
+    (if gtd-project-list-root
+        (setq org-agenda-files
+              (gtd/resolve-project-list-file gtd-project-list-root))))
 
   (defun gtd/resolve-project-files (project-or-list-file &optional root-dir)
     "Given an org, lst or elst file, resolve it into a list of org files."

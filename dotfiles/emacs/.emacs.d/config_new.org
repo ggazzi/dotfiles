@@ -998,7 +998,7 @@ Someday/Maybe items may be scattered around my files, stored with the relevant
 context information.  In order to indentify them, we use a tag.
 
 #+BEGIN_SRC emacs-lisp
-  (add-to-list 'org-tag-alist '("SOMEDAY/MAYBE" . ?S))
+  (add-to-list 'org-tag-alist '("SOMEDAY_MAYBE" . ?S))
 #+END_SRC
 
 

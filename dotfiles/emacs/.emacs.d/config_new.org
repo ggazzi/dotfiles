@@ -1,13 +1,14 @@
 #+TITLE: Emacs Configuration
 #+AUTHOR: Guilherme Azzi
 
-# Export all elisp snippets inside this file:
-#+PROPERTY: header-args:emacs-lisp :tangle yes
+# Export all elisp snippets inside this file, using lexical binding:
+#+PROPERTY: header-args:emacs-lisp :tangle yes :lexical t
 
 
 * Table of Contents :TOC:
 - [[#credits][Credits]]
 - [[#initial-setup-and-compilation][Initial Setup and Compilation]]
+  - [[#lexical-binding][Lexical Binding]]
   - [[#packaging-system][Packaging System]]
   - [[#the-use-package-macro][The =use-package= Macro]]
   - [[#compiling-the-configuration][Compiling the Configuration]]
@@ -39,6 +40,15 @@ This configuration is heavily based on the work of others, in particular the fol
 
 
 * Initial Setup and Compilation
+
+** Lexical Binding
+
+We begin by ensuring that closures exist and variable binding makes sense.
+
+#+BEGIN_SRC emacs-lisp
+;;; -*- lexical-binding: t -*-
+#+END_SRC
+
 ** Packaging System
 
 We initialize the packaging system, adding some common package

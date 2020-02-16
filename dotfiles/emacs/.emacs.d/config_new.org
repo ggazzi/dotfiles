@@ -1279,15 +1279,127 @@ perspectives.  The corresponding agenda contains:
 
 
 
-
 ** GTD Integration with Google Tasks                                   :PROJ:
 
-*** ⯮ NEXT Implement MVP Synchronisation with Google Tasks
+   When I am on the go, I want to have access to the lists of tasks for the relevant
+   contexts, such as errands, phone and tablet.  In order to allow for this, I push these
+   lists to Google Tasks.
+
+   Since a two-way synchronisation is way too hard and not actually necessary, I
+   always replace the entire list when pushing new items.  In order not to lose
+   any relevant information, I also write to the inbox file a list of changed
+   items since the last time tasks were pushed,
+
+   The bulk of the implementation is done in Python, which has a good library
+   for dealing with Google's APIs.
+
+#+BEGIN_SRC emacs-lisp :lexical t
+  (setq lexical-binding t)
+
+  (defgroup google-tasks-sync nil
+    "Pushing of certain task lists into Google Tasks"
+    :group 'gtd)
+
+  (defcustom gtd-gtasks-save-to-inbox t
+    "Write to inbox file the tasks that were changed since the last push"
+    :type 'boolean
+    :group 'google-tasks-sync)
+
+  (defun gtd-sync-to-google-tasks ()
+    (interactive)
+    (gtd-google-tasks/sync "@errands"))
+
+  (defun gtd-google-tasks/sync (tag)
+    (make-process
+     :name "gtd-push-to-google-tasks"
+     :buffer "*gtd-push-to-google-tasks*"
+     :command (list "~/.emacs.d/scripts/sync_google_tasks.py"
+                    (gtd-google-tasks/prepare-tasks tag))
+     :filter (lambda (proc string) (gtd-google-tasks/process-filter proc string tag '("")))
+     :stderr "*gtd-push-to-google-tasks*"))
+
+  (defun gtd-google-tasks/process-filter (proc string tag acc)
+    (let ((lines (split-string string "\n")))
+      ; Append the previous nonterminated line
+      (when (car acc) (setcar lines (concat (car acc) (car lines))))
+      ; Remove the last, nonterminated line and store it
+      (let ((tail (last lines)))
+        (setcar acc (car tail))
+        (setcar tail nil))
+      ; Process each of the lines
+      (mapc (lambda (line)
+              (when line
+                (gtd-google-tasks/append-to-process-buffer proc line)
+                (when gtd-gtasks-save-to-inbox
+                  (gtd-google-tasks/import-task line tag))))
+            lines)))
+
+  (defun gtd-google-tasks/append-to-process-buffer (proc line)
+    (when (buffer-live-p (process-buffer proc))
+      (with-current-buffer (process-buffer proc)
+        (let ((moving (= (point) (process-mark proc))))
+          (save-excursion
+            (goto-char (process-mark proc))
+            (insert line)
+            (set-marker (process-mark proc) (point)))
+          (if moving (goto-char (process-mark proc)))))))
+
+  (defun gtd-google-tasks/import-task (line tag)
+    (let* ((json-object-type 'plist)
+           (item (json-read-from-string line)))
+      (save-excursion
+        (funcall 'org-capture nil
+                 (if (string= (plist-get item :status) "done") "gd" "gt"))
+        (insert (plist-get item :title))
+        (org-set-tags-to tag)
+        (org-capture-finalize))))
+
+  (setq org-capture-templates
+        (let* ((templates
+                `(("g" "Templates for importing from Google Tasks")
+                  ("gt" "Item from Google Tasks [TODO]" entry
+                   (file+headline gtd-inbox-file "Google Tasks")
+                   ,(concat "* " org/task-todo " %?\n  %i"))
+                  ("gd" "Item from Google Tasks [DONE]" entry
+                   (file+headline gtd-inbox-file "Google Tasks")
+                   ,(concat "* " org/task-done " %?\n  %i"))))
+               (keys (mapcar 'car templates)))
+          (append (mapcan (lambda (template)
+                            (unless (member (car template) keys)
+                              (list template)))
+                          org-capture-templates)
+                  templates)))
+
+  (defun gtd-google-tasks/prepare-tasks (tag)
+    (let ((query `(and (todo ,org/task-next) (tags ,tag))))
+      (gtd-google-tasks/encode-tasks
+       (org-ql-select org-agenda-files query :action 'element))))
+
+  (defun gtd-google-tasks/json-assemble-list (items)
+    (concat "[" (string-join items ",") "]"))
+
+  (defun gtd-google-tasks/encode-tasks (tasks)
+    (gtd-google-tasks/json-assemble-list (mapcan 'gtd-google-tasks/encode-task tasks)))
+
+  (defun gtd-google-tasks/encode-task (task)
+    (when (eq (car task) 'headline)
+      (list (json-encode-plist
+             `(:title
+               ,(car (plist-get (cadr task) :title))
+               :status
+               ,(plist-get (cadr task) :todo-type))))))
+
+#+END_SRC
+
+*** ✔ DONE Implement MVP Synchronisation with Google Tasks
+    CLOSED: [2020-02-16 So 20:39]
     :LOGBOOK:
+    - State "✔ DONE"     from "⯮ NEXT"     [2020-02-16 So 20:39]
     - State "⯮ NEXT"     from              [2020-02-16 So 15:18]
     :END:
     - Synchronize list of next actions within the errands
     - Hardcoded tag and task list name
+    - Handle only titles (no longer text, no dates)
     - Manual Emacs command for synchronising
     - On synchronisation:
       - Save all changed items since last synchronisation to the inbox
@@ -1295,8 +1407,9 @@ perspectives.  The corresponding agenda contains:
       - Insert all tasks from Emacs into Google Tasks
 
 
-*** ☛ TODO Make synchronisation with Google Tasks automatic
+*** ⯮ NEXT Make synchronisation with Google Tasks automatic
     :LOGBOOK:
+    - State "⯮ NEXT"     from "☛ TODO"     [2020-02-16 So 20:40]
     - State "☛ TODO"     from              [2020-02-16 So 15:23]
     :END:
     - Synchronise when agenda is computed for the first time (asynchronous?)
@@ -1304,6 +1417,10 @@ perspectives.  The corresponding agenda contains:
     - Configurable boolean flag to control synchronisation, default=false
 
 
+*** ☛ TODO Move Google's auth token to the secrets file
+    :LOGBOOK:
+    - State "☛ TODO"     from              [2020-02-16 So 15:44]
+    :END:
 *** ☛ TODO Add support for due dates on GTD<->Google Tasks
     :LOGBOOK:
     - State "☛ TODO"     from              [2020-02-16 So 15:20]

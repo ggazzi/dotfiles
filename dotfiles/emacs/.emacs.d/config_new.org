@@ -106,37 +106,57 @@ must be compiled to an elisp file.  This compilation should be done whenever
 this file is saved, which we guarantee using an =after-save-hook=.
 
 #+BEGIN_SRC emacs-lisp
-  (defvar me/config-org-file
-    (expand-file-name "config.org" user-emacs-directory)
-    "Org file containing the emacs configuration.")
+  (defgroup org-config nil
+    "Autocompiled configuration written in org-mode."
+    :group 'emacs)
 
-  (defvar me/config-elisp-file
+  (defcustom config-org-file
+    (expand-file-name "config.org" user-emacs-directory)
+    "Org file containing the emacs configuration."
+    :type 'file
+    :group 'org-config)
+
+  (defcustom config-elisp-file
     (expand-file-name "config.el" user-emacs-directory)
     "Location where the compiled emacs configuration should be written.
 
   This file will receive the elisp code extracted from
-  'me/config-org-file' and should be loaded on startup.")
+  'config-org-file' and should be loaded on startup."
+    :type 'file
+    :group 'org-config)
+
+  (defcustom compile-config-on-save t
+    "Automatically recompile the config file when it is saved."
+    :type 'boolean
+    :group 'org-config)
+
+  (defcustom reload-config-on-save t
+    "Automatically reload the config file when it is saved, if it is also recompiled."
+    :type 'boolean
+    :group 'org-config)
 
   (defun me/compile-tangled-config (compiled-file)
-    "Move the 'COMPILED-FILE' to 'me/config-elisp-file' and ensure
+    "Move the 'COMPILED-FILE' to 'config-elisp-file' and ensure
   it is byte-compiled."
-    (unless (equal compiled-file me/config-org-file)
-      (rename-file compiled-file me/config-elisp-file t))
-    (byte-compile-file me/config-elisp-file))
+    (unless (equal compiled-file config-org-file)
+      (rename-file compiled-file config-elisp-file t))
+    (byte-compile-file config-elisp-file))
 
   (defun me/compile-config-from-org-on-save ()
-    "If the current buffer has 'me/config-org-file' open, compile
-  the tangled elisp in the file, save it to 'me/config-elisp-file'
+    "If the current buffer has 'config-org-file' open, compile
+  the tangled elisp in the file, save it to 'config-elisp-file'
   and load it."
     (when (equal (file-truename (buffer-file-name))
-                 (file-truename me/config-org-file))
+                 (file-truename config-org-file))
       ;; Avoid running hooks when tangling
       (let ((prog-mode-hook nil))
-        (message "Compiling saved emacs config...")
-        (me/compile-tangled-config
-         (car (org-babel-tangle nil me/config-elisp-file "emacs-lisp")))
-        (message "Reloading saved emacs config...")
-        (load-file me/config-elisp-file))))
+        (when compile-config-on-save
+          (message "Compiling saved emacs config...")
+          (me/compile-tangled-config
+           (car (org-babel-tangle nil config-elisp-file "emacs-lisp")))
+          (when reload-config-on-save
+            (message "Reloading saved emacs config...")
+            (load-file config-elisp-file))))))
 
   (add-hook 'after-save-hook 'me/compile-config-from-org-on-save)
 #+END_SRC
@@ -145,18 +165,18 @@ We also provide shortcut commands for reloading the config.
 
 #+BEGIN_SRC emacs-lisp
   (defun compile-config ()
-    "Recompile the config from 'me/config-org-file' into 'me/config-elisp-file'"
+    "Recompile the config from 'config-org-file' into 'config-elisp-file'"
     (interactive)
     (me/compile-tangled-config
-     (car (org-babel-tangle-file me/config-org-file me/config-elisp-file "emacs-lisp"))))
+     (car (org-babel-tangle-file config-org-file config-elisp-file "emacs-lisp"))))
 
   (defun reload-config ()
-    "Reload the config from 'me/config-org-file'"
+    "Reload the config from 'config-org-file'"
     (interactive)
-    (load-file me/config-elisp-file))
+    (load-file config-elisp-file))
 
   (defun compile-and-reload-config ()
-    "Recompile and reload the config from 'me/config-org-file'"
+    "Recompile and reload the config from 'config-org-file'"
     (interactive)
     (compile-config)
     (reload-config))
@@ -191,13 +211,13 @@ Note that the file will be loaded /after/ the complete configuration.
 
 #+BEGIN_SRC emacs-lisp
   (defun me/load-secrets (loaded-file-name)
-    (when (eq loaded-file-name me/config-elisp-file)
+    (when (eq loaded-file-name config-elisp-file)
       (let ((secret-el (expand-file-name ".secret.el" user-emacs-directory)))
         (when (file-exists-p secret-el)
           (load secret-el)
           (message "Loaded .secret.el")))))
 
-  (run-at-time "1 millisec" nil 'me/load-secrets me/config-elisp-file)
+  (run-at-time "1 millisec" nil 'me/load-secrets config-elisp-file)
   (add-hook 'after-load-functions 'me/load-secrets)
 #+END_SRC
 

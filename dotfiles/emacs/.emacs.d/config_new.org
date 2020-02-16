@@ -21,6 +21,7 @@
 - [[#org-mode-and-getting-things-done][Org Mode and Getting Things Done]]
   - [[#org-mode][Org Mode]]
   - [[#getting-things-done][Getting Things Done]]
+  - [[#gtd-integration-with-google-tasks][GTD Integration with Google Tasks]]
 - [[#languages][Languages]]
   - [[#emacs-lisp][Emacs Lisp]]
 - [[#utilities][Utilities]]
@@ -1246,6 +1247,42 @@ perspectives.  The corresponding agenda contains:
                                     ((org-ql-block-header "Someday/Maybe")))))
 #+END_SRC
 
+
+
+
+** GTD Integration with Google Tasks                                   :PROJ:
+
+*** ⯮ NEXT Implement MVP Synchronisation with Google Tasks
+    :LOGBOOK:
+    - State "⯮ NEXT"     from              [2020-02-16 So 15:18]
+    :END:
+    - Synchronize list of next actions within the errands
+    - Hardcoded tag and task list name
+    - Manual Emacs command for synchronising
+    - On synchronisation:
+      - Save all changed items since last synchronisation to the inbox
+      - Remove all tasks from Google Tasks
+      - Insert all tasks from Emacs into Google Tasks
+
+
+*** ☛ TODO Make synchronisation with Google Tasks automatic
+    :LOGBOOK:
+    - State "☛ TODO"     from              [2020-02-16 So 15:23]
+    :END:
+    - Synchronise when agenda is computed for the first time (asynchronous?)
+    - Synchronise when org file is saved (asynchronous?)
+    - Configurable boolean flag to control synchronisation, default=false
+
+
+*** ☛ TODO Add support for due dates on GTD<->Google Tasks
+    :LOGBOOK:
+    - State "☛ TODO"     from              [2020-02-16 So 15:20]
+    :END:
+
+*** ☛ TODO Synchronise TODOs with due dates on GTD<->Google Tasks
+    :LOGBOOK:
+    - State "☛ TODO"     from              [2020-02-16 So 15:20]
+    :END:
 
 
 * Languages

@@ -1327,18 +1327,29 @@ perspectives.  The corresponding agenda contains:
     :type 'boolean
     :group 'google-tasks-sync)
 
+  (defcustom gtd-gtasks-synced-tags '(("@errands" . "Errands"))
+    "List of (tag . tasklist) pairs for synchronisation with Google Tasks."
+    :type '(repeat (cons string string))
+    :group 'google-tasks-sync)
+
   (defun gtd-sync-to-google-tasks ()
     (interactive)
-    (gtd-google-tasks/sync "@errands"))
+    (mapc (lambda (item)
+            (gtd-google-tasks/sync (car item) (cdr item)))
+          gtd-gtasks-synced-tags))
 
-  (defun gtd-google-tasks/sync (tag)
-    (make-process
-     :name "gtd-push-to-google-tasks"
-     :buffer "*gtd-push-to-google-tasks*"
-     :command (list "~/.emacs.d/scripts/sync_google_tasks.py"
-                    (gtd-google-tasks/prepare-tasks tag))
-     :filter (lambda (proc string) (gtd-google-tasks/process-filter proc string tag '("")))
-     :stderr "*gtd-push-to-google-tasks*"))
+  (defun gtd-google-tasks/sync (tag tasklist)
+    (let ((proc
+           (make-process
+            :name "gtd-push-to-google-tasks"
+            :buffer "*gtd-push-to-google-tasks*"
+            :command (list "~/.emacs.d/scripts/sync_google_tasks.py"
+                           tasklist
+                           (gtd-google-tasks/prepare-tasks tag))
+            :filter (lambda (proc string) (gtd-google-tasks/process-filter proc string tag '("")))
+            :stderr "*gtd-push-to-google-tasks*")))
+      (gtd-google-tasks/append-to-process-buffer
+       proc "Pushing tag " tag " to tasklist '" tasklist "'")))
 
   (defun gtd-google-tasks/process-filter (proc string tag acc)
     (let ((lines (split-string string "\n")))
@@ -1356,13 +1367,14 @@ perspectives.  The corresponding agenda contains:
                   (gtd-google-tasks/import-task line tag))))
             lines)))
 
-  (defun gtd-google-tasks/append-to-process-buffer (proc line)
+  (defun gtd-google-tasks/append-to-process-buffer (proc &rest line)
     (when (buffer-live-p (process-buffer proc))
       (with-current-buffer (process-buffer proc)
         (let ((moving (= (point) (process-mark proc))))
           (save-excursion
             (goto-char (process-mark proc))
-            (insert line)
+            (apply 'insert line)
+            (insert "\n")
             (set-marker (process-mark proc) (point)))
           (if moving (goto-char (process-mark proc)))))))
 
@@ -1392,10 +1404,12 @@ perspectives.  The corresponding agenda contains:
                           org-capture-templates)
                   templates)))
 
+  (defvar gtd-google-tasks/log-buffer-name "*gtd-push-to-google-tasks*")
+
   (defun gtd-google-tasks/prepare-tasks (tag)
     (let ((query `(and (todo ,org/task-next) (tags ,tag))))
       (gtd-google-tasks/encode-tasks
-       (org-ql-select org-agenda-files query :action 'element))))
+       (org-ql-select org-agenda-files query :action 'element :sort '(priority deadline scheduled)))))
 
   (defun gtd-google-tasks/json-assemble-list (items)
     (concat "[" (string-join items ",") "]"))
@@ -1429,8 +1443,15 @@ perspectives.  The corresponding agenda contains:
       - Insert all tasks from Emacs into Google Tasks
 
 
-*** ⯮ NEXT Make synchronisation with Google Tasks automatic
+*** ✔ DONE [#A] Allow synchronisation with multiple tags/task lists
+    CLOSED: [2020-03-08 So 21:26]
     :LOGBOOK:
+    - State "✔ DONE"     from "⯮ NEXT"     [2020-03-08 So 21:26]
+    - State "⯮ NEXT"     from              [2020-03-08 So 19:51]
+    :END:
+*** ☛ TODO [#B] Make synchronisation with Google Tasks automatic
+    :LOGBOOK:
+    - State "☛ TODO"     from "⯮ NEXT"     [2020-03-08 So 19:52]
     - State "⯮ NEXT"     from "☛ TODO"     [2020-02-16 So 20:40]
     - State "☛ TODO"     from              [2020-02-16 So 15:23]
     :END:

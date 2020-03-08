@@ -42,24 +42,23 @@ class Task:
   @classmethod
   def from_google(cls, item):
     return cls(
-      title=item['title'], notes=item.get('notes'), 
+      title=item['title'], notes=item.get('notes'),
       completed = item['status'] == 'completed',
       updated = datetime.fromisoformat(TIMEZONE_RE.sub('+00:00', item['updated']))
     )
-  def to_google(self, position=None):
+  def to_google(self):
     return {
-      "title": self.title, "notes": self.notes, "position": position,
+      "title": self.title, "notes": self.notes,
       "status": 'completed' if self.completed else 'needsAction',
-      "updated": (self.updated if self.updated else datetime.now()).astimezone().isoformat()  
+      "updated": (self.updated if self.updated else datetime.now()).astimezone().isoformat()
     }
-
-TASKLIST = 'Errands'
 
 def main():
   """Shows basic usage of the Tasks API.
   Prints the title and ID of the first 10 task lists.
   """
   parser = argparse.ArgumentParser()
+  parser.add_argument("tasklist")
   parser.add_argument('tasks')
 
   args = parser.parse_args()
@@ -69,7 +68,7 @@ def main():
   service = build('tasks', 'v1', credentials=creds)
 
   tasklists = get_tasklists(service)
-  ensure_tasklist(service, TASKLIST, tasklists)
+  ensure_tasklist(service, args.tasklist, tasklists)
 
   last_time = None
   last_time_file = LOCAL_DATA_DIR / 'last_sync_time'
@@ -77,7 +76,7 @@ def main():
     with open(last_time_file, 'r') as file:
       last_time = datetime.fromisoformat(file.readline().strip()).astimezone()
 
-  changed = update_tasklist(service, tasklists[TASKLIST], tasks, since=last_time)
+  changed = update_tasklist(service, tasklists[args.tasklist], tasks, since=last_time)
   for task in changed:
     print(json.dumps(task.to_emacs()))
 
@@ -110,9 +109,10 @@ def update_tasklist(service, tasklist_id, new_tasks: List[Task], since: datetime
     if since is None or task.updated > since:
       yield task
     service.tasks().delete(tasklist=tasklist_id, task=item['id']).execute()
-  
+
+  previous = None
   for i, task in enumerate(new_tasks):
-    service.tasks().insert(tasklist=tasklist_id, body=task.updated_now().to_google(position=str(i))).execute()
+    previous = service.tasks().insert(tasklist=tasklist_id, body=task.updated_now().to_google(), previous=previous["id"] if previous else None).execute()
     pass
 
 def load_credentials():
@@ -137,7 +137,7 @@ def load_credentials():
       # Save the credentials for the next run
       with open(token_file, 'wb') as token:
           pickle.dump(creds, token)
-  
+
   return creds
 
 

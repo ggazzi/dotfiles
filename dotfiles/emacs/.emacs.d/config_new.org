@@ -894,22 +894,44 @@ but you may switch between them with the command =switch-project-list=.
     (interactive)
     (if gtd-project-list-root
         (setq org-agenda-files
-              (gtd/resolve-project-list-file gtd-project-list-root))))
+              (gtd/flatten-project-file-tree (gtd/resolve-project-files gtd-project-list-root)))))
+
+  (defun gtd-project-file-tree ()
+    "Print a tree of GTD project files to a particular buffer"
+    (interactive)
+    (if gtd-project-list-root
+        (progn
+          (switch-to-buffer (get-buffer-create "*gtd-project-file-tree*"))
+          (erase-buffer)
+          (org-mode)
+          (gtd/print-project-file-tree (gtd/resolve-project-files gtd-project-list-root)))
+      (message "No GTD project root!")))
+
+  (defun gtd/print-project-file-tree (node &optional indent)
+    (insert (or indent "") "- [[file:" (cdar node) "][" (caar node) "]]\n")
+    (let ((new-indent (concat "  " (or indent ""))))
+      (mapc (lambda (child) (gtd/print-project-file-tree child new-indent)) (cdr node))))
+
+  (defun gtd/flatten-project-file-tree (node)
+    (if (null (cdr node))
+        (list (cdar node))
+      (mapcan 'gtd/flatten-project-file-tree (cdr node))))
+
 
   (defun gtd/resolve-project-files (project-or-list-file &optional root-dir)
-    "Given an org, lst or elst file, resolve it into a list of org files."
+    "Given an org, lst or elst file, resolve it into a tree of org files."
     (let* (
-           (file (expand-file-name project-or-list-file root-dir))
+           (file (file-truename (expand-file-name project-or-list-file root-dir)))
            (extension (file-name-extension file)))
-      (cond
-       ((string= extension "org") (list file))
-       ((string= extension "lst") (gtd/resolve-project-list-file file))
-       ((string= extension "elst") (gtd/resolve-project-list-file file))
-       (t nil))))
+      (cons (cons project-or-list-file file)
+            (cond
+             ((string= extension "lst") (gtd/resolve-project-list-file file))
+             ((string= extension "elst") (gtd/resolve-project-list-file file))
+             (t nil)))))
 
   (defun gtd/resolve-project-list-file (list-file)
     (let ((root-dir (file-truename (file-name-directory list-file))))
-      (mapcan (lambda (file)
+      (mapcar (lambda (file)
                 (gtd/resolve-project-files file root-dir))
               (gtd/read-project-list-file list-file))))
 

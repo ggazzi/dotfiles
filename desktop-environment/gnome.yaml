@@ -1,7 +1,0 @@
-config-root: ./config/
-dconf-dirs:
-  - [gnome-shell, /org/gnome/shell/]
-  - [gnome-desktop, /org/gnome/desktop/]
-  - [gnome-settings-media-keys, /org/gnome/settings-daemon/plugins/media-keys/]
-  - [gnome-settings-color, /org/gnome/settings-daemon/plugins/color/]
-  - [nautilus, /org/gnome/nautilus/]

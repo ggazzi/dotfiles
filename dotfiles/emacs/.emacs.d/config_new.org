@@ -24,6 +24,7 @@
   - [[#getting-things-done][Getting Things Done]]
   - [[#gtd-integration-with-google-tasks][GTD Integration with Google Tasks]]
 - [[#languages][Languages]]
+  - [[#plantuml][PlantUML]]
   - [[#emacs-lisp][Emacs Lisp]]
 - [[#utilities][Utilities]]
   - [[#directory-browser][Directory Browser]]
@@ -1476,6 +1477,34 @@ perspectives.  The corresponding agenda contains:
 
 
 * Languages
+
+** PlantUML
+
+Useful for drawing several kinds of diagrams.
+
+#+begin_src emacs-lisp
+  (use-package plantuml-mode :ensure t)
+#+end_src
+
+A simple example.
+Note that we use a dark background to match emacs.
+
+#+begin_src plantuml
+  @startgantt
+  project starts 2020-09-09
+
+  [set up] lasts 5 days
+  then [lit review] lasts 14 days
+  then [identify problem] lasts 1 week
+
+  [paper with Leo] starts at 2020-10-5 and lasts 14 days
+
+  [approach for inference] starts at 2020-10-26 and lasts 7 days
+  [prepare presentation] starts at 2020-11-02 and ends at 2020-11-12
+
+  @endgantt
+#+end_src
+
 
 ** Emacs Lisp
 

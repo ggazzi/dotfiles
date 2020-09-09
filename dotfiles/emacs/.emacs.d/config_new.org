@@ -1028,6 +1028,14 @@ Moreover, tasks are associated to priorities.  I use three levels:
         org-default-priority ?C)
 #+END_SRC
 
+Besides priorities, I can use time estimates.
+In order to keep things simple, I should do a rough estimate with one of the allowed values.
+
+#+BEGIN_SRC emacs-lisp
+  (add-to-list 'org-global-properties
+               '("Effort_ALL" . "0:10 0:30 1:00 2:00 4:00 8:00 16:00"))
+#+END_SRC
+
 *** Projects
 
 Tasks should be grouped into projects, which may be finished or
@@ -1159,7 +1167,7 @@ among the many agenda views.
 
   (setq org-agenda-dim-blocked-tasks t
         org-agenda-skip-deadline-prewarning-if-scheduled t
-        org-agenda-ignore-properties '(effort appt)
+        org-agenda-ignore-properties '(appt)
         org-agenda-window-setup 'current-window
         org-agenda-compact-blocks nil
         org-agenda-block-separator ""   ; Remove the ugly separator between blocks, we'll set an overlined face

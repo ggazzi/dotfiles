@@ -1226,12 +1226,18 @@ by priority.
 #+BEGIN_SRC emacs-lisp
   (me/define-agenda "n" "Next Actions"
                     `((agenda "" ((org-agenda-span 1) (org-deadline-warning-days 7)))
+
                       (org-ql-block '(and (todo ,org/task-next) (priority "A"))
                                     ((org-ql-block-header "Most Important/Urgent Actions for Today")))
+
                       (org-ql-block '(and (todo ,org/task-next) (priority "B"))
                                     ((org-ql-block-header "Next Actions for the Week")))
+
                       (org-ql-block '(and (todo ,org/task-next) (or (priority < "B") (not (priority))))
-                                    ((org-ql-block-header "Next Actions")))))
+                                    ((org-ql-block-header "Next Actions")))
+
+                      (org-ql-block '(todo ,org/task-waiting)
+                                    ((org-ql-block-header "Waiting For")))))
 #+END_SRC
 
 ****** Daily Review

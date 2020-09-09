@@ -24,7 +24,7 @@ PATH=$HOME/.local/bin:$PATH
 shopt -s globstar
 
 # Useful aliases
-alias open="gio open"
+alias open="xdg-open"
 
 
 # Source everything from ~/.bashrc.d

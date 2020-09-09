@@ -1,3 +1,0 @@
-post_install () {
-    cabal new-install --global yeganesh
-}

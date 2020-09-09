@@ -1,6 +1,6 @@
 # Author: Guilherme Azzi <ggazzi@inf.ufrgs.br>
 
-pkgname=run
+pkgname=simple-run
 pkgver=0.3
 pkgrel=1
 pkgdesc="A simple script for running programs in the background."

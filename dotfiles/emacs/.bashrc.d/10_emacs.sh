@@ -1,5 +1,5 @@
 #!/bin/bash
 
-EDITOR="emacs -nw"
-VISUAL="$EDITOR"
-PATH="$PATH:~/.emacs.d/bin"
+export EDITOR="emacs -nw"
+export VISUAL="$EDITOR"
+export PATH="$PATH:~/.emacs.d/bin"

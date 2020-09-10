@@ -67,28 +67,28 @@
       '(("d" "default" plain (function org-roam--capture-get-point)
          "%?"
          :file-name "Inbox/%<%Y%m%d%H%M%S>-${slug}"
-         :head "#+title: ${title}\n"
+         :head "#+title: ${title}\n#+category:\n"
          :unnarrowed t)
         ("f" "forschung" plain (function org-roam--capture-get-point)
          "%?"
          :file-name "Forschung/%<%Y%m%d%H%M%S>-${slug}"
-         :head "#+title: ${title}\n"
+         :head "#+title: ${title}\n#+category: Forschung\n"
          :unnarrowed t)
         ("l" "lehre" plain (function org-roam--capture-get-point)
          "%?"
          :file-name "Lehre/%<%Y%m%d%H%M%S>-${slug}"
-         :head "#+title: ${title}\n"
+         :head "#+title: ${title}\n#+category: Lehre\n"
          :unnarrowed t)
         ("o" "Orga" plain (function org-roam--capture-get-point)
          "%?"
          :file-name "Orga/%<%Y%m%d%H%M%S>-${slug}"
-         :head "#+title: ${title}\n"
+         :head "#+title: ${title}\n#+category: Orga\n"
          :unnarrowed t))
       org-roam-dailies-capture-templates
       '(("d" "default" plain (function org-roam--capture-get-point)
          "%?"
          :file-name "Dailies/%<%Y-%m-%d>"
-         :head "#+title: %<%Y-%m-%d>\n"
+         :head "#+title: %<%Y-%m-%d>\n#+category:\n"
          :unnarrowed t)))
 
 

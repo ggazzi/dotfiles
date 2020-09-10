@@ -99,6 +99,7 @@
  fill-column 90                                   ; Set width for automatic line breaks
  indent-tabs-mode nil                             ; Stop using tabs to indent
  scroll-margin 10                                 ; Always leave some lines between cursor and top/bottom of the view
+ sentence-end-double-space t                      ; Use two spaces after the dot when a sentence has ended
  tab-width 4)                                     ; Set width for tabs
 
 (global-subword-mode 1)                          ; Split subwords when moving
@@ -165,8 +166,11 @@
     (alternate-keybindings/bind-kill-region-or-line org-mode-map org-kill-line kill-region))
 
 
-;; I don't want to use C-c C-c on org-mode code blocks
-(after! org (undefine-key! org-src-mode-map "C-c C-c"))
+;; Some changes to org-mode keybindings
+(after! org
+  (undefine-key! org-src-mode-map "C-c C-c")
+  (map! :map org-mode-map
+        "M-S-<return>" #'org-insert-subheading))
 
 
 ;; I want easier keymaps for my Zettelkasten

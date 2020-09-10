@@ -59,12 +59,38 @@
 (setq! gtd/project-list-roots
        '("~/tubCloud/GTD/work-projects.lst"
          "~/Dropbox/gtd/personal-projects.lst")
-       org-roam-directory "~/Dokumente/Zettelkasten")
+       org-roam-directory "~/Dokumente/Zettelkasten"
+       org-roam-tag-sources '(prop all-directories)
+       org-roam-tag-sort t)
 
+(setq org-roam-capture-templates
+      '(("d" "default" plain (function org-roam--capture-get-point)
+         "%?"
+         :file-name "Inbox/%<%Y%m%d%H%M%S>-${slug}"
+         :head "#+title: ${title}\n"
+         :unnarrowed t)
+        ("f" "forschung" plain (function org-roam--capture-get-point)
+         "%?"
+         :file-name "Forschung/%<%Y%m%d%H%M%S>-${slug}"
+         :head "#+title: ${title}\n"
+         :unnarrowed t)
+        ("l" "lehre" plain (function org-roam--capture-get-point)
+         "%?"
+         :file-name "Lehre/%<%Y%m%d%H%M%S>-${slug}"
+         :head "#+title: ${title}\n"
+         :unnarrowed t)
+        ("o" "Orga" plain (function org-roam--capture-get-point)
+         "%?"
+         :file-name "Orga/%<%Y%m%d%H%M%S>-${slug}"
+         :head "#+title: ${title}\n"
+         :unnarrowed t))
+      org-roam-dailies-capture-templates
+      '(("d" "default" plain (function org-roam--capture-get-point)
+         "%?"
+         :file-name "Dailies/%<%Y-%m-%d>"
+         :head "#+title: %<%Y-%m-%d>\n"
+         :unnarrowed t)))
 
-
-;; Some important paths
-(setq! plantuml-default-exec-mode 'executable)
 
 ;; Some defaults I like better
 

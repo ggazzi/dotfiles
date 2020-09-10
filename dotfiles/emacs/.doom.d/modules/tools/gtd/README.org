@@ -1,0 +1,233 @@
+#+TITLE: tools/gtd
+* Table of Contents :TOC:
+- [[#description][Description]]
+- [[#getting-things-done][Getting Things Done]]
+  - [[#relevant-files][Relevant Files]]
+  - [[#actionstasks][Actions/Tasks]]
+  - [[#projects][Projects]]
+  - [[#somedaymaybe][Someday/Maybe]]
+  - [[#agenda-views][Agenda Views]]
+  - [[#steps][Steps]]
+
+* Description
+
+This module implements a GTD-like system on top of =org-mode=, inspired by several
+workflows suggested [[https://orgmode.org/worg/org-gtd-etc.html][online]] and a [[https://www.youtube.com/watch?v=R4QSTDco_w8&index=11&list=PLVtKhBrRV_ZkPnBtt_TD1Cs9PJlU0IIdE][YouTube tutorial]].
+
+The part of the system implemented here in Emacs is a mixture of the next action list and
+the archive. The inbox is deliberately not handled.
+
+
+The most important features are:
+- A configurable and modular set of files that are scanned for the agendas
+- A set of agendas for next actions, daily and weekly reviews
+- A GTD-friendly set of TODO-states (potentially with pretty icons)
+- A set of tags for tracking projects and someday/maybes, integrated with the agendas
+
+* Getting Things Done
+
+** Relevant Files
+
+I may have a bunch of files containing projects, notes, tasks, etc. These files must be
+known so we can compile lists (e.g., next actions, someday/maybes). My management of these
+files should satisfy the following requirements:
+
+  - The lists of relevant files should be easy to back up and share between
+    computers
+
+  - It should be possible to switch between different lists of files so that I
+    have separate systems for different parts of my life (e.g., work vs. personal).
+
+  - The lists should be composable/hierarchical so that:
+
+    - We avoid one giant and hard-to-manage list
+
+    - Lists of certain subtopics can be kept close to the relevant files
+      (e.g. list of all upcoming trips in a directory with files for all the
+      trips I have done/will do).
+
+    - Certain lists can be shared between my separate GTD systems (e.g. org-mode
+      config is relevant both for work and for my personal life)
+
+Thus, my system is based on a "tree of files": leaves are =.org= files, and the
+internal nodes are either =.lst= or =.elst= files.
+  - =.lst= files are simple lists containing one file per line
+  - =.elst= files contain emacs-lisp code that evaluates a list of files
+  - Files are recursively traversed to generate a complete list of relevant files
+  - Entries of a list are relative to the containing directory of the list
+
+Finally, the variable =project-list-files= contains the possible root files for my trees
+of project files. The first entry is used by default, but you may switch between them with
+the command =switch-project-list=.
+
+** Actions/Tasks
+
+Actions/Tasks may be in one of the following states.
+  - =NEXT=: incomplete and should be done in the near future
+  - =TODO=: incomplete, but need not be done in the near future
+  - =WAITING=: incomplete, but there's nothing to be done for now
+  - =DONE=: completed succesfully
+  - =CANCELLED=: no longer relevant
+
+I use pretty unicode icons before the (shortened) keyword to improve readability.
+Changes to these states will be logged with a timestamp.
+
+There is also a command =gtd/add-task-icons= to migrate from the keywords without icons.
+
+
+(states with "@") or with just a timestamp (entries with "/!").
+
+When filing tasks and other notes, they can be annotated with tags,
+which may denote a few different things.
+
+ - Regular categories, like =:work:= or =:health:=
+ - People involved in the task, like =:Dad:= or =:Sabine:=
+ - GTD contexts starting with an =@=, such as =@home=, =@office=,
+   =@phone=, =@email=, =@errands=, =@laptop=.
+
+Moreover, tasks are associated to priorities.  I use three levels:
+ - A: Nice if done today
+ - B: Nice if done this week
+ - C (default): Other tasks
+
+Besides priorities, I can use time estimates.
+In order to keep things simple, I should do a rough estimate with one of the allowed values.
+
+
+** Projects
+
+Tasks should be grouped into projects, which may be finished or suspended/paused. These
+are signalled using the tags =PROJ=, =DONE_PROJ= and =PAUSED_PROJ=.
+
+** Someday/Maybe
+
+Someday/Maybe items may be scattered around my files, stored with the relevant context
+information. In order to indentify them, we use the tag =SOMEDAY_MAYBE=.
+
+** Agenda Views
+
+In order to access information about tasks, projects and someday/maybes, I use appropriate
+agenda views.
+
+I use =C-c a= to access the agenda dispatcher, which then allows me to choose
+among the many agenda views.
+
+*** Basic Config
+
+In the remainder of this section I will define several custom agenda views for
+my own workflow.
+
+#+BEGIN_SRC emacs-lisp
+  (defun me/define-agenda (key &rest args)
+    (progn
+      (setq org-agenda-custom-commands
+            (if (boundp 'org-agenda-custom-commands)
+                (seq-filter (lambda (comm) (not (string= (car comm) key))) org-agenda-custom-commands)
+              nil))
+      (add-to-list 'org-agenda-custom-commands (cons key args))))
+#+END_SRC
+
+It is often useful to see additional information about the entries of the
+agenda, such as time estimates.  This can be accessed using the column view,
+invoked with =C-c C-x C-c=.  The following block defines the columns shown in
+the agenda view.
+
+#+BEGIN_SRC emacs-lisp
+  (setq-default org-agenda-overriding-columns-format
+                "%CATEGORY %60ITEM %TODO %PRIORITY(PRI) %Effort{:} %CLOCKSUM(Time){:} %TAGS")
+#+END_SRC
+
+
+*** Next Actions
+
+This agenda view is meant for the constant daily use.  It displays the day
+agenda (tasks scheduled for today, deadlines for the next 7 days), next actions
+by priority.
+
+*** Daily Review
+
+At the end of the day I review the tasks I have done today as well as any pending issues, and plan my next day.
+The following lists are useful:
+  - Week agenda (tasks scheduled this week, deadlines up to 14 days)
+  - waiting for
+  - completed today
+  - next actions without context
+  - next actions in done/suspended projects
+  - goals for the week
+  - next actions by priority
+
+*** Weekly Review
+
+Once a week I should review not just tasks, but also projects and longer
+perspectives.  The corresponding agenda contains:
+
+  - Week agenda (tasks scheduled for each day, deadlines up to 14 days)
+  - Stuck projects
+  - Current projects
+  - Suspended projects
+  - Someday/Maybe
+
+** Steps
+*** Capture
+
+I am currently not implementing an inbox.
+
+You can add links to the captured entries with =C-c C-l=, which makes it easier
+to access related material.  If you are linking to something that was accessed
+inside Emacs, you can use =C-c l= to copy a link to its location, then =C-c C-l=
+to paste it.
+
+#+BEGIN_SRC emacs-lisp
+  (global-set-key (kbd "C-c l") 'org-store-link)
+#+END_SRC
+
+*** Clarify
+
+Every inbox should be periodically checked.  The meaning of each entry
+should be checked, and it should either be solved or moved to the
+appropriate place, according to the standard GTD workflow:
+
+#+CAPTION: Illustration of Standard GTD Workflow
+[[[[https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/GTDcanonical.png/1280px-GTDcanonical.png]]]]
+
+In order to easily move entries from the inbox to the appropriate place, we can
+[[https://orgmode.org/manual/Refile-and-copy.html#Refile-and-copy][refile]] entries with =C-c C-w=.  Refiling targets are the headings in the current
+file as well as all agenda files.  Moreover, we show the complete paths for
+refiling.
+
+#+BEGIN_SRC emacs-lisp
+  (setq org-refile-targets '((nil :maxlevel . 5)
+                             (org-agenda-files :maxlevel . 5))
+        org-outline-path-complete-in-steps nil
+        org-refile-use-outline-path t)
+#+END_SRC
+
+When filing tasks and notes, remember to tag them with the appropriate contexts,
+and create any necessary new projects.
+
+Tasks and notes can [[orgmode.org/manual/Deadlines-and-scheduling.html][be scheduled or have deadlines]], including
+repeating schedules and items.  You should avoid adding dates to
+anything that isn't an appointment, a hard deadline or a tickler
+entry.  The decision of what to do next should be taken based on the
+current context and next tasks, not based on artificial scheduling
+decisions made with possibly outdated information.
+
+*** Reflect
+
+The lists should be reviewed frequently, which help keeps the big picture of
+your life in your head.  Of course, reviewing every entry of every list is quite
+time consuming, and shouldn't be done all the time.  A good approach is
+reviewing all lists once a week---the so-called weekly review.  When deciding
+what to do next, you should first review your calendar/agenda to check
+appointments and deadlines, then check the =NEXT= actions, filtered by your
+current context.
+
+For day-to-day use of the GTD system, you should use both [[https://orgmode.org/manual/Sparse-trees.html][sparse trees]]
+and [[https://orgmode.org/manual/Agenda-views.html#Agenda-views][agenda views]].  Each Org document can be turned into a sparse tree
+with =C-c /=, which will use some dispatcher to show little, selected
+information about each item in the document.
+
+[[https://orgmode.org/manual/Agenda-views.html#Agenda-views][Agenda views]] provide a summarized overview of the calendar/agenda and
+pending tasks from multiple files.  [[orgmode.org/worg/org-tutorials/org-custom-agenda-commands.html][Custom agenda commands]] can be
+defined to, e.g., show only the next actions, filter them by context.
+

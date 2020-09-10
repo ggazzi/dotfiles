@@ -3,5 +3,6 @@
 # Install emacs
 sudo pacman -S emacs
 
-# Install spell checking software
-sudo pacman -S aspell aspell-de aspell-en aspell-pt
+# Install doom emacs
+git clone --depth 1 https://https://github.com/hlissner/doom-emacs ~/.emacs.d
+.emacs.d/bin/doom install

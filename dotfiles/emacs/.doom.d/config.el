@@ -167,3 +167,23 @@
 
 ;; I don't want to use C-c C-c on org-mode code blocks
 (after! org (undefine-key! org-src-mode-map "C-c C-c"))
+
+
+;; I want easier keymaps for my Zettelkasten
+(map! :after org
+      :map org-mode-map
+      :leader
+      :prefix ("z" . "zettelkasten/org-roam")
+      "I" #'org-roam-insert-immediate
+      "b" #'org-roam-switch-to-buffer
+      "c" #'org-roam-capture
+      "f" #'org-roam-find-file
+      "g" #'org-roam-graph
+      "i" #'org-roam-insert
+      "r" #'org-roam
+      "t" #'org-roam-dailies-today
+      (:prefix ("d" . "dailies")
+       "d" #'org-roam-dailies-date
+       "m" #'org-roam-dailies-tomorrow
+       "t" #'org-roam-dailies-today
+       "y" #'org-roam-dailies-yesterday))

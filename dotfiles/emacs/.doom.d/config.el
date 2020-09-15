@@ -61,7 +61,8 @@
          "~/Dropbox/gtd/personal-projects.lst")
        org-roam-directory "~/Dokumente/Zettelkasten"
        org-roam-tag-sources '(prop all-directories)
-       org-roam-tag-sort t)
+       org-roam-tag-sort t
+       org-roam-graph-executable "fdp")
 
 (setq org-roam-capture-templates
       '(("d" "default" plain (function org-roam--capture-get-point)

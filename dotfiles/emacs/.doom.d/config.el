@@ -27,9 +27,6 @@
 ;; `load-theme' function. This is the default:
 (setq doom-theme 'doom-one)
 
-;; If you use `org' and don't want your org files in the default location below,
-;; change `org-directory'. It must be set before org loads!
-(setq org-directory "~/org/")
 
 ;; This determines the style of line numbers in effect. If set to `nil', line
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
@@ -175,9 +172,7 @@
 
 
 ;; I want easier keymaps for my Zettelkasten
-(map! :after org
-      :map org-mode-map
-      :leader
+(map! :leader
       :prefix ("z" . "zettelkasten/org-roam")
       "I" #'org-roam-insert-immediate
       "b" #'org-roam-switch-to-buffer

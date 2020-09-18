@@ -62,17 +62,17 @@
        org-roam-graph-executable "fdp")
 
 (setq org-roam-capture-templates
-      '(("d" "default" plain (function org-roam--capture-get-point)
+      '(("i" "Inbox" plain (function org-roam--capture-get-point)
          "%?"
          :file-name "Inbox/%<%Y%m%d%H%M%S>-${slug}"
          :head "#+title: ${title}\n#+category:\n"
          :unnarrowed t)
-        ("f" "forschung" plain (function org-roam--capture-get-point)
+        ("f" "Forschung" plain (function org-roam--capture-get-point)
          "%?"
          :file-name "Forschung/%<%Y%m%d%H%M%S>-${slug}"
          :head "#+title: ${title}\n#+category: Forschung\n"
          :unnarrowed t)
-        ("l" "lehre" plain (function org-roam--capture-get-point)
+        ("l" "Lehre" plain (function org-roam--capture-get-point)
          "%?"
          :file-name "Lehre/%<%Y%m%d%H%M%S>-${slug}"
          :head "#+title: ${title}\n#+category: Lehre\n"
@@ -81,12 +81,17 @@
          "%?"
          :file-name "Orga/%<%Y%m%d%H%M%S>-${slug}"
          :head "#+title: ${title}\n#+category: Orga\n"
+         :unnarrowed t)
+        ("g" "General" plain (function org-roam--capture-get-point)
+         "%?"
+         :file-name "General/%<%Y%m%d%H%M%S>-${slug}"
+         :head "#+title: ${title}\n#+category: \n"
          :unnarrowed t))
       org-roam-dailies-capture-templates
       '(("d" "default" plain (function org-roam--capture-get-point)
          "%?"
          :file-name "Dailies/%<%Y-%m-%d>"
-         :head "#+title: %<%Y-%m-%d>\n#+category:\n"
+         :head "#+title: %<%Y-%m-%d>\n"
          :unnarrowed t)))
 
 

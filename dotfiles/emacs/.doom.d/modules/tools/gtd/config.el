@@ -198,6 +198,7 @@
         org-agenda-skip-deadline-prewarning-if-scheduled t
         org-agenda-ignore-properties '(appt)
         org-agenda-compact-blocks nil
+        org-agenda-start-day "+0d"
         org-agenda-block-separator ""   ; Remove the ugly separator between blocks, we'll set an overlined face
         )
   (custom-set-faces '(org-agenda-structure ((t (:overline t)))))
@@ -238,9 +239,6 @@
                     (org-ql-block '(closed :on today)
                                   ((org-ql-block-header "Completed Today")))
 
-                    (org-ql-block '(and (todo ,gtd/task-next) (not (tags)))
-                                  ((org-ql-block-header "Untagged Next Actions")))
-
                     (org-ql-block '(and (todo ,gtd/task-next) (tags "DONE_PROJ" "SUSPENDED_PROJ"))
                                   ((org-ql-block-header "Zombie Actions")))
 
@@ -257,7 +255,7 @@
                                   ((org-ql-block-header "Next Actions")))))
 
   (+define-agenda "w" "Weekly Review"
-                  `((agenda)
+                  `((agenda "" ((org-agenda-start-on-weekday 1)))
 
                     (org-ql-block '(and (tags-local "PROJ")
                                         (not (descendants (or (todo ,gtd/task-next ,gtd/task-waiting)

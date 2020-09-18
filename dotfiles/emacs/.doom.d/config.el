@@ -109,32 +109,32 @@
 
 
 ;; I like to navigate between windows with =C-x <arrow>'
-(global-set-key (kbd "C-x <left>") #'windmove-left)
-(global-set-key (kbd "C-x <right>") #'windmove-right)
-(global-set-key (kbd "C-x <down>") #'windmove-down)
-(global-set-key (kbd "C-x <up>") 'windmove-up)
-(global-set-key (kbd "C-x o") nil)
+(map! "C-x <left>" #'windmove-left
+      "C-x <right>" #'windmove-right
+      "C-x <down>" #'windmove-down
+      "C-x <up>" 'windmove-up
+      "C-x o" nil)
 
 ;; Use the "universal" shortcuts for undoing and redoing
-(after! undo-fu
-  (global-set-key (kbd "C-z") #'undo-fu-only-undo)
-  (global-set-key (kbd "C-_") nil)
-  (global-set-key (kbd "C-/") nil)
-  (global-set-key (kbd "C-S-z") #'undo-fu-only-redo)
-  (global-set-key (kbd "M-_") nil))
+(map! :after undo-fu
+      "C-z" #'undo-fu-only-undo
+      "C-_" nil
+      "C-/" nil
+      "C-S-z" #'undo-fu-only-redo
+      "M-_" nil)
 
 ;; Use swiper for the default search
-(after! swiper
-  (global-set-key (kbd "C-s") #'swiper))
+(map! :after swiper
+      "C-s" #'swiper)
 
 ;; Use ctrl+arrows to navigate the text
-(global-set-key (kbd "C-<left>") #'left-word)
-(global-set-key (kbd "C-<right>") #'right-word)
-(global-set-key (kbd "C-<up>") #'previous-logical-line)
-(global-set-key (kbd "C-<down>") #'next-logical-line)
+(map! "C-<left>" #'left-word
+      "C-<right>" #'right-word
+      "C-<up>" #'previous-logical-line
+      "C-<down>" #'next-logical-line)
 
-  (after! smartparens
-    (undefine-key! smartparens-mode-map "C-<left>" "C-<right>" "C-<up>" "C-<down>"))
+(after! smartparens
+  (undefine-key! smartparens-mode-map "C-<left>" "C-<right>" "C-<up>" "C-<down>"))
 
   ;; I dislike the inconsistency between =C-w= in Emacs and bash.  Set =C-w= to
   ;; behave like bash, killing backward to the beginning of a word.  Also make =C-k=
@@ -170,10 +170,11 @@
 
 
 ;; Some changes to org-mode keybindings
-(after! org
-  (undefine-key! org-src-mode-map "C-c C-c")
-  (map! :map org-mode-map
-        "M-S-<return>" #'org-insert-subheading))
+(map! :after org
+      :map org-mode-map
+      "M-S-<return>" #'org-insert-subheading
+      :map org-src-mode-map
+      "C-c C-c" nil)
 
 
 ;; I want easier keymaps for my Zettelkasten
@@ -185,6 +186,7 @@
       "f" #'org-roam-find-file
       "g" #'org-roam-graph
       "i" #'org-roam-insert
+      "l" #'org-roam-insert
       "r" #'org-roam
       "t" #'org-roam-dailies-today
       (:prefix ("d" . "dailies")

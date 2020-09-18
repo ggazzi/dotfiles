@@ -56,7 +56,9 @@
 (setq! gtd/project-list-roots
        '("~/tubCloud/GTD/work-projects.lst"
          "~/Dropbox/gtd/personal-projects.lst")
-       org-roam-directory "~/Dokumente/Zettelkasten"
+       deft-directory "~/Dokumente/Zettelkasten"
+       deft-recursive t
+       org-roam-directory deft-directory
        org-roam-tag-sources '(prop all-directories)
        org-roam-tag-sort t
        org-roam-graph-executable "fdp")
@@ -188,6 +190,7 @@
       "i" #'org-roam-insert
       "l" #'org-roam-insert
       "r" #'org-roam
+      "s" #'deft
       "t" #'org-roam-dailies-today
       (:prefix ("d" . "dailies")
        "d" #'org-roam-dailies-date

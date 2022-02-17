@@ -11,12 +11,6 @@ LANG=de_DE.UTF-8
 export EDITOR=vim
 export VISUAL=vim
 
-# Be more polite
-alias please=sudo
-
-# Colorize the prompt (requires the cuteprompt package)
-source /usr/share/bash-cuteprompt/cuteprompt-set.sh
-
 # Set up the path
 PATH=$HOME/.local/bin:$PATH
 
@@ -25,7 +19,6 @@ shopt -s globstar
 
 # Useful aliases
 alias open="xdg-open"
-
 
 # Source everything from ~/.bashrc.d
 if [ -d ~/.bashrc.d ]

@@ -19,6 +19,27 @@
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
 
+  nixpkgs.config.allowUnfree = true;
+  home.packages = with pkgs; [
+    stow
+
+    bash bash-completion shellcheck
+
+    gnome.gnome-tweak-tool
+    arc-theme arc-icon-theme
+    fira fira-mono fira-code fira-code-symbols
+
+    keepassxc
+    gitg
+    seafile-client 
+    tdesktop discord
+    minecraft steam
+  ];
+
+  programs.steam.enable = true;
+
+  fonts.fontconfig.enable = true;
+
   programs.git = {
     enable = true;
     userName = "Guilherme Grochau Azzi";
@@ -48,17 +69,5 @@
     };
   };
 
-  nixpkgs.config.allowUnfree = true;
 
-  home.packages = with pkgs; [
-    keepassxc 
-    tdesktop discord
-    minecraft
-
-    gitg
-    shellcheck
-
-    gnome.gnome-tweak-tool
-    arc-theme arc-icon-theme
-  ];
 }

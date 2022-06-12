@@ -39,7 +39,12 @@ in {
 
   config = mkIf (cfg.enable) {
     home.packages = cli_apps ++ (if systemCfg.desktop.enable then graphical_apps else []) ;
-  } // mkIf (systemCfg.desktop.enable) {
-    fonts.fontconfig.enable = true;
+
+    xdg.configFile."discord/settings.json".text = ''
+      { "SKIP_HOST_UPDATE": true }
+    '';
+    
+    fonts.fontconfig.enable = systemCfg.desktop.enable;
   };
+
 }

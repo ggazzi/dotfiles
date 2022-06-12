@@ -1,26 +1,18 @@
-# Guilherme's Linux Configuration
+# Guilherme's NixOS Configuration
 
-This repository contains my configuration files for NixOS, as well as utilities for setting it all up.
+This is my personal NixOS configuration based on a flake.
 
-The whole thing is based on two utilities: [Home Manager](https://github.com/nix-community/home-manager) and [GNU stow](https://www.gnu.org/software/stow/).
 
-- Home Manager is used mainly for specifying software that needs to be installed.
-It is also used for 
+It uses a set of custom Nix modules to abstract from NixOS and home-manager.
+This is heavily based on [Jordan Isaac's dotfiles](https://github.com/jordanisaacs/dotfiles), as well as his very helpful [tutorial](https://jdisaacs.com/blog/nixos-config/) on how to do this.
 
-## Dependencies
+## Updating
 
-- Bash
-- Git
-- [GNU stow](https://www.gnu.org/software/stow/)
-- [Home Manager](https://github.com/nix-community/home-manager).
+If the system configuration is changed, the system can be updated with the following command, run from this directory.
 
-Home Manager is used mainly for specifying software that needs to be installed.
-It is also used for configs that are simple, mostly static and well-supported.
-If I need to hack in the `nix` language to create files and such, for now I'd rather use `stow`.
-
-Most of the configuration consists of files that will be managed by `stow`.
-This means they will be symlinked instead of copied from this repository.
-I prefer it this way, it makes tinkering much simpler, since I can change configs in-place.
+```bash
+nixos-rebuild switch --flake '.#'
+```
 
 ## Installation
 

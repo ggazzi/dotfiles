@@ -10,8 +10,15 @@ This is heavily based on [Jordan Isaac's dotfiles](https://github.com/jordanisaa
 
 If the system configuration is changed, the system can be updated with the following command, run from this directory.
 
-```bash
+```sh
 nixos-rebuild switch --flake '.#'
+```
+
+For the user configuration, use the following command.
+It requires the `--impure` flag so it can read the system configuration from a file.
+
+```sh
+home-manager switch --flake "$PWD" --impure
 ```
 
 ## Installation

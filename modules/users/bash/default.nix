@@ -11,6 +11,7 @@ with builtins;
 
       bashrcExtra = ''
         ${readFile ./cuteprompt.sh}
+        ${readFile ./python-argcomplete.sh}
       '';
     };
 

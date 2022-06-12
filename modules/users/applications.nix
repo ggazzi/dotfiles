@@ -25,7 +25,6 @@ with lib; let
 
   cli_apps = with pkgs; [
     # CLI tools
-    bash-completion
     (python3.withPackages (p : with p; [virtualenv virtualenvwrapper]))
 
   ];

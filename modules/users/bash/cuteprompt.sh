@@ -1,4 +1,3 @@
-#!/usr/bin/env
 # Colorize prompt when colors are available
 
 has_colors()

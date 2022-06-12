@@ -1,6 +1,0 @@
-templates:
-  params:
-    author-email: gui.g.azzi@gmail.com
-    author-name: Guilherme Grochau Azzi
-    github-username: ggazzi
-system-ghc: false

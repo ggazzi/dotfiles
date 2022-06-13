@@ -4,6 +4,10 @@ with lib; let
   systemCfg = config.machineData.systemConfig;
 in {
 
+  imports = [
+    ./vscode
+  ];
+
   config = mkIf (cfg.enable && systemCfg.desktop.enable) {
     home.packages = with pkgs; [
       # Password manager
@@ -29,16 +33,6 @@ in {
       defaultApplications = {
         "application/pdf" = "evince.desktop";
         "inode/directory" = "org.gnome.Nautilus.desktop";
-
-        "application/x-shellscript" = "code.desktop";
-        "application/x-perl" = "code.desktop";
-        "application/json" = "code.desktop";
-        "text/x-readme" = "code.desktop";
-        "text/plain" = "code.desktop";
-        "text/markdown" = "code.desktop";
-        "text/x-csrc" = "code.desktop";
-        "text/x-chdr" = "code.desktop";
-        "text/x-python" = "code.desktop";
 
         "application/xhtml+xml" = "vivaldi-stable.desktop";
         "text/html" = "vivaldi-stable.desktop";

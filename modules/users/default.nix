@@ -1,4 +1,5 @@
 { pkgs, config, lib, ... }:
+with lib;
 
 {
   imports = [
@@ -8,6 +9,14 @@
     ./git.nix
     ./gnome.nix
   ];
+
+  options.ggazzi = {
+    configDir = mkOption {
+      description = "Path to this configuration flake.";
+      type = types.str;
+      default = "${config.home.homeDirectory}/.local/opt/linux-configs";
+    };
+  };
 
   config = {
     # Let Home Manager install and manage itself

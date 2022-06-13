@@ -47,6 +47,11 @@
                 enable = true;
                 native-compilation = true;
               };
+
+              vscode = {
+                enable = true;
+                default = true;
+              };
             };
 
             games.minecraft.enable = true;

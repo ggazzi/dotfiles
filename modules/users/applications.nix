@@ -40,6 +40,29 @@ in {
   config = mkIf (cfg.enable) {
     home.packages = cli_apps ++ (if systemCfg.desktop.enable then graphical_apps else []) ;
 
+    xdg.mimeApps = {
+      defaultApplications = {
+        "application/pdf" = "evince.desktop";
+        "inode/directory" = "org.gnome.Nautilus.desktop";
+
+        "application/x-shellscript" = "code.desktop";
+        "application/x-perl" = "code.desktop";
+        "application/json" = "code.desktop";
+        "text/x-readme" = "code.desktop";
+        "text/plain" = "code.desktop";
+        "text/markdown" = "code.desktop";
+        "text/x-csrc" = "code.desktop";
+        "text/x-chdr" = "code.desktop";
+        "text/x-python" = "code.desktop";
+
+        "application/xhtml+xml" = "vivaldi-stable.desktop";
+        "text/html" = "vivaldi-stable.desktop";
+        "x-scheme-handler/http" = "vivaldi-stable.desktop";
+        "x-scheme-handler/https" = "vivaldi-stable.desktop";
+      };
+    };
+
+    # Make discord work even when the latest version isn't available on nix
     xdg.configFile."discord/settings.json".text = ''
       { "SKIP_HOST_UPDATE": true }
     '';

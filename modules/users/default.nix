@@ -24,5 +24,17 @@
         open = "xdg-open";
       };
     };
+
+    # Configure the XDG User Directories to my taste
+    xdg = {
+      enable = true;
+      userDirs = {
+        enable = true;
+        download = "${config.home.homeDirectory}/Inbox";
+      };
+    };
+
+    # Allow other modules to configure the associations of applications with mimetypes
+    xdg.mimeApps.enable = true;
   };
 }

@@ -1,0 +1,2521 @@
+#+title: Doom Emacs Configuration
+#+author: Guilherme Grochau Azzi
+#+property: header-args:emacs-lisp :tangle yes :comments link
+#+property: header-args:elisp :exports code
+#+property: header-args:shell :tangle no setup.sh
+#+property: header-args :tangle no :results silent :eval no-export
+#+startup: fold
+
+
+* Introduction
+
+Despite being a nerd and computer scientist, I've never been really satisfied with digital tools for note taking, to-do lists, project management and so on.
+While they do bring you a lot of benefits in terms of the possible automations, they tend to be very inflexible, imposing a workflow onto you.
+Thus, I've tended to alternate between such tools and paper-based alternatives.
+
+This ended when I discovered [[https://org-mode.org/][Org Mode]], this wonderful [[https://www.gnu.org/software/emacs/][Emacs]] mode that gives you almost as much flexibility as paper, while still allowing you to automate a /bunch/ of stuff.
+Honestly, it is much more than an Emacs mode, coming with a huge ecosystem of extensions itself.
+This led to my readoption of Emacs, after having replaced it with VS Code for a while.
+I've never looked back from adopting Org Mode.
+
+The one thing I've always found tricky is maintaining my Emacs config.
+My most successful config was a literate config based on Org Mode, but then I ended up adopting [[https://github.com/hlissner/doom-emacs][Doom Emacs]] for its better defaults.
+Still, organizing my config without Org was not great.
+This document tries to fix that by uniting both.
+
+A lot of this config is shamelessly stolen from [[https://tecosaur.github.io/emacs-config/][tecosaur's great config]].
+
+** Why Emacs?
+
+Emacs is really hard to describe.
+A lot of people are under the impression that it is a text editor, but [[https://www.eigenbahn.com/2020/01/12/emacs-is-no-editor][it is arguably not]].
+I really like [[https://tecosaur.github.io/emacs-config/config.html#why-emacs][tecosaur's description]] of Emacs:
+
+#+begin_quote
+It is far more apt to describe Emacs as a Lisp machine providing a generic user-centric text manipulation environment.
+#+end_quote
+
+A consequence of this is that Emacs is really useful for implementing flexible semi-automated workflows.
+And in my case, organizing my work can really use a bit of structure and automation.
+
+
+** How does this config work?
+
+As I mentioned before, this is a [[https://en.wikipedia.org/wiki/Literate_programming][literate]] configuration.
+This means that the configuration code is interspersed within the text, as it is written to be understandable by humans.
+It is then weaved together into the appropriate source files, by piecing the code blocks together in the appropriate order.
+
+Since this is a Doom Emacs config, it involves three files:
+
+- =init.el=: imports the Doom Emacs configuration modules.
+  Its structure and most of its content is contained in its [[#doom-modules][own section]].
+- =packages.el=: declares packages that should be installed by Doom's package management system.
+  It is also mostly contained in its [[#package-loading][own section]].
+- =config.el=: contains the bulk of the config and is loaded last.
+
+Besides those, we also want to provide a shell-script =setup.sh= to install/initialise some requirements of this config.
+
+The weaving/tangling itself is supported by Doom Emacs's [[https://github.com/hlissner/doom-emacs/blob/develop/modules/config/literate/README.org][=literate=]] module, generating the Emacs configuration from the =$DOOM_DIR/config.org= file instead of the aforementioned three files.
+There is also an [[#asynchronous-config-tangling][=org-mode= hook that generates the configuration automatically]] when this file is saved.
+
+All =emacs-lisp= code blocks are tangled to =config.el= unless otherwise specified.
+This can be overridden by setting the header option ~:tangle "destination/file.el"~ to write to another file, or ~:tangle no~ to avoid tangling this code block.
+
+Moreover, blocks can be named and then weaved into other blocks using a [[https://orgmode.org/manual/Noweb-Reference-Syntax.html][noweb-style syntax]].
+The named block should have the option ~:tangle no~ and be preceded by a line with ~#+name: BLOCK-NAME~.
+Then it can be weaved into another code block that contains ~<<BLOCK-NAME>>~, as long as the option ~:noweb no-export~ is given.
+This ensures that the weaving takes place when tangling code, but not when exporting the whole document as a PDF or HTML.
+
+Most code blocks in this document are indeed tangled directly into the =config.el= file.
+The structure of =init.el= is defined by a single code block in the [[#doom-modules][section on Doom modules]].
+Finally, the content of =packages.el= is distributed throughout the configuration is blocks with the appropriate ~:tangle~ option, so that the loading and configuration of a package are close together.
+
+Since we are already talking about literate programming and named blocks, we might as well provide the named block here for importing the ~literate~ module.
+It will be weaved into the [[#doom-modules][section on Doom modules]].
+
+#+name: doom-literate
+#+begin_src emacs-lisp :tangle no
+literate
+#+end_src
+
+
+* Initial setup
+
+This file should use lexical binding. Obviously.
+This is the only sane default.
+Also, apparently [[https://nullprogram.com/blog/2016/12/22/][it is (slightly) faster]].
+
+#+begin_src emacs-lisp :comments no
+;;; config.el -*- lexical-binding: t; -*-
+#+end_src
+
+The =packages.el= file shouldn't be byte compiled.
+
+#+begin_src emacs-lisp :tangle packages.el
+;;; packages.el -*- no-byte-compile: t; -*-
+#+end_src
+
+** Personal information
+
+It's useful to have some basic personal information.
+
+#+begin_src emacs-lisp
+(setq user-full-name "Guilherme Grochau Azzi"
+      user-mail-address "g.grochauazzi@tu-berlin.de")
+#+end_src
+
+
+** Better defaults
+
+The following is based on my previous configurations, [[https://tecosaur.github.io/emacs-config/config.html#rudimentary-configuration][tecosaur/emacs-config]] and [[https://github.com/angrybacon/dotemacs/blob/master/dotemacs.org#use-better-defaults][angrybacon/dotemacs]].
+
+
+#+begin_src emacs-lisp
+(setq-default
+ delete-by-moving-to-trash t         ; Delete files to trash instead of permanently
+ window-combination-resize t         ; When resizing the frame, resize all windows (not just current)
+ x-stretch-cursor t                  ; Stretch cursor to glyph width
+ fill-column 90                      ; I like 90-char width lines
+ indent-tabs-mode nil                ; Stop using tabs!
+ tab-width 4                         ; Use 4-space indents by default (in some languages I override it)
+ sentence-end-double-space t)        ; I like using double spaces after the end of a sentence
+
+
+(setq auto-save-default t            ; Plase don't lose my work.
+      truncate-string-ellipsis "…"   ; Unicode is cute and compact 😀
+      scroll-margin 10)              ; Maintain a generous margin. As Tim Minchin illustrated nicely, context is important.
+
+(global-subword-mode 1)              ; Navigate through camelCase and snake_case words
+
+#+end_src
+
+Besides that, since I am using Doom Emacs, I will take advantage of its nicer defaults.
+Note that the following block will
+
+#+name: doom-config
+#+begin_src emacs-lisp :tangle no
+(default +bindings +smartparens)
+#+end_src
+
+**** TODO Incorporate defaults from angrybacon
+:LOGBOOK:
+- State "TODO"     from              [2021-06-22 Di 14:12]
+:END:
+
+
+** Auto-customisations
+
+I must admit I don't really get Emacs' customisation interface.
+I therefore don't want it to mess with my =init.el=, which it does by default.
+Use a different file instead, and load it if it exists.
+
+#+begin_src emacs-lisp
+(setq-default custom-file (expand-file-name ".custom.el" doom-private-dir))
+(when (file-exists-p custom-file)
+  (load custom-file))
+#+end_src
+
+
+** Doom configuration
+:PROPERTIES:
+:CUSTOM_ID: doom-configuration
+:END:
+
+*** Modules
+:PROPERTIES:
+:header-args:emacs-lisp: :tangle no
+:CUSTOM_ID: doom-modules
+:END:
+
+Doom has a nice /modular configuration base/ providing great configuration defaults.
+Using their [[https://github.com/hlissner/doom-emacs/blob/develop/docs/modules.org][existing modules]] saves me a lot of work.
+For my own config, however, I'd rather use a monolithic but literate approach.
+
+#+name: init.el
+#+attr_html: :collapsed t
+#+begin_src emacs-lisp :tangle init.el :noweb no-export :comments no
+;;; init.el -*- lexical-binding: t; -*-
+
+;; This file controls what Doom modules are enabled and what order they load in.
+;; Press 'C-c c k' on a module to view its documentation,
+;; and 'C-c c d' to browse its directory.
+
+
+(doom! :completion
+       <<doom-completion>>
+
+       :ui
+       <<doom-ui>>
+
+       :editor
+       <<doom-editor>>
+
+       :emacs
+       <<doom-emacs>>
+
+       :term
+       <<doom-term>>
+
+       :checkers
+       <<doom-checkers>>
+
+       :tools
+       <<doom-tools>>
+
+       :os
+       <<doom-os>>
+
+       :lang
+       <<doom-lang>>
+
+       :email
+       <<doom-email>>
+
+       :app
+       <<doom-app>>
+
+       :config
+       <<doom-literate>>
+       <<doom-config>>
+       )
+#+end_src
+
+**** Interface
+
+Emacs is okay.  Unless you use a lot of packages to improve the user experience.  Then it is great!
+
+#+name: doom-completion
+#+begin_src emacs-lisp
+company             ; the ultimate code completion backend
+;;helm              ; the *other* search engine for love and life
+;;ido               ; the other *other* search engine...
+(ivy                ; a search engine for love and life
+ +icons             ; ... yay icons!
+ +prescient)        ; ... filter candidates more smartly
+#+end_src
+
+#+name: doom-ui
+#+begin_src emacs-lisp
+deft                ; notational velocity for Emacs
+doom                ; what makes DOOM look the way it does
+doom-dashboard      ; a nifty splash screen for Emacs
+doom-quit           ; DOOM quit-message prompts when you quit Emacs
+(emoji +unicode)    ; 🙂 = :)
+;;fill-column       ; a `fill-column' indicator
+hl-todo             ; highlight TODO/FIXME/NOTE/DEPRECATED/HACK/REVIEW
+;;hydra             ; quick documentation for related commands
+indent-guides     ; highlighted indent columns
+(ligatures          ; ligatures and symbols to make your code pretty again
+ +fira              ; ... enable ligatures for the Fira Code font
+ +extra)            ; ... allow a few additional substitions
+;;minimap           ; show a map of the code on the side
+modeline            ; snazzy, Atom-inspired modeline, plus API
+nav-flash           ; blink cursor line after big motions
+;;neotree           ; a project drawer, like NERDTree for vim
+ophints             ; highlight the region an operation acts on
+(popup              ; tame sudden yet inevitable temporary windows
+ +all               ; ... all buffers whose name begins with an asterisk are popups
+ +defaults)         ; ... use reasonable default rules
+;;tabs              ; a tab bar for Emacs
+treemacs            ; a project drawer, like neotree but cooler
+unicode             ; extended unicode support for various languages
+vc-gutter           ; vcs diff in the fringe
+;;vi-tilde-fringe   ; fringe tildes to mark beyond EOB
+;;window-select     ; visually switch windows
+;; workspaces       ; tab emulation, persistence & separate workspaces
+;;zen               ; distraction-free coding or writing
+#+end_src
+
+#+name: doom-editor
+#+begin_src emacs-lisp
+;;(evil +everywhere); come to the dark side, we have cookies
+file-templates      ; auto-snippets for empty files
+fold                ; (nigh) universal code folding
+format              ; automated prettiness from various sources
+;;god               ; run Emacs commands without modifier keys
+;;lispy             ; vim for lisp, for people who don't like vim
+;;multiple-cursors  ; editing in many places at once, but only on evil
+;;objed             ; text object editing for the innocent
+;;parinfer          ; turn lisp into python, sort of
+;;rotate-text       ; cycle region at point between text candidates
+snippets            ; my elves. They type so I don't have to
+word-wrap           ; soft wrapping with language-aware indent
+#+end_src
+
+#+name: doom-emacs
+#+begin_src emacs-lisp
+(dired +icons)    ; making dired pretty [functional]
+electric          ; smarter, keyword-based electric-indent
+(ibuffer +icons)  ; interactive buffer management
+undo              ; persistent, smarter undo for your inevitable mistakes
+vc                ; version-control and Emacs, sitting in a tree
+#+end_src
+
+#+name: doom-term
+#+begin_src emacs-lisp
+;;eshell            ; the elisp shell that works everywhere
+;;shell             ; simple shell REPL for Emacs
+;;term              ; basic terminal emulator for Emacs
+;;vterm             ; the best terminal emulation in Emacs
+#+end_src
+
+#+name: doom-checkers
+#+begin_src emacs-lisp
+syntax              ; tasing you for every semicolon you forget
+;(spell              ; tasing you for misspelling mispelling
+; +hunspell          ; ... with morphological analysis and multiple languages
+; +flyspell)         ; ... and the frontend that supports hunspell
+;;grammar           ; tasing grammar mistake every you make
+#+end_src
+
+#+name: doom-tools
+#+begin_src emacs-lisp
+;;ansible
+;;debugger          ; FIXME stepping through code, to help you add bugs
+;;direnv            ; be direct about your environment
+;;docker              ; port everything to containers
+editorconfig        ; let someone else argue about tabs vs spaces
+;;ein               ; tame Jupyter notebooks with emacs
+;; (eval +overlay)     ; run code, run (also, repls)
+;;gist              ; interacting with github gists
+(lookup             ; navigate your code and its documentation
+ +dictionary)       ; ... also lookup words on dictionary/thesaurus
+lsp                 ; Language Server Protocol
+magit               ; a git porcelain for Emacs
+;; make                ; run make tasks from Emacs
+;;pass              ; password manager for nerds
+pdf                 ; pdf enhancements
+;;prodigy           ; FIXME managing external services & code builders
+rgb                 ; creating color strings
+;;taskrunner        ; taskrunner for all your projects
+;;terraform         ; infrastructure as code
+;;tmux              ; an API for interacting with tmux
+;;upload            ; map local to remote projects via ssh/ftp
+#+end_src
+
+#+name: doom-os
+#+begin_src emacs-lisp
+;;(:if IS-MAC macos)  ; improve compatibility with macOS
+tty                   ; improve the terminal Emacs experience
+#+end_src
+
+
+**** Language Support
+
+Oh, he's a polyglot.
+Well, since these are usually only loaded when an associated file is opened, might as well enable them.
+
+#+name: doom-lang
+#+begin_src emacs-lisp
+;;(agda +local)           ; types of types of types of types...
+;;beancount             ; mind the GAAP
+;;cc                    ; C > C++ == 1
+;;clojure               ; java with a lisp
+;;common-lisp           ; if you've seen one lisp, you've seen them all
+;;coq                   ; proofs-as-programs
+;;crystal               ; ruby at the speed of c
+;;csharp                ; unity, .NET, and mono shenanigans
+data                    ; config/data formats
+;;(dart +flutter)       ; paint ui and not much else
+;;elixir                ; erlang done right
+;;elm                   ; care for a cup of TEA?
+emacs-lisp              ; drown in parentheses
+;;erlang                ; an elegant language for a more civilized age
+;;ess                   ; emacs speaks statistics
+;;factor
+;;faust                 ; dsp, but you get to keep your soul
+;;fsharp                ; ML stands for Microsoft's Language
+;;fstar                 ; (dependent) types and (monadic) effects and Z3
+;;gdscript              ; the language you waited for
+;;(go +lsp)             ; the hipster dialect
+;;(haskell +lsp)        ; a language that's lazier than I am
+;;hy                    ; readability of scheme w/ speed of python
+;;idris                 ; a language you can depend on
+json                    ; At least it ain't XML
+;;(java +meghanada)     ; the poster child for carpal tunnel syndrome
+;;(javascript +lsp)     ; all(hope(abandon(ye(who(enter(here))))))
+;;(julia +lsp)          ; a better, faster MATLAB
+;;kotlin                ; a better, slicker Java(Script)
+;;(latex                ; writing papers in Emacs has never been so fun
+;; +latexmk             ; ... compile properly
+;; +cdlatex             ; ... quick maths symbols
+;; +fold)               ; ... fold the clutter away!
+;;lean                  ; for folks with too much to prove
+;;ledger                ; be audit you can be
+;;lua                   ; one-based indices? one-based indices
+markdown                ; writing docs for people to ignore
+;;nim                   ; python + lisp at the speed of c
+;;nix                   ; I hereby declare "nix geht mehr!"
+;;ocaml                 ; an objective camel
+(org                    ; organize your plain life in plain text
+ +pretty                ; ... with nice unicode symbols :D
+ +dragndrop             ; ... drop files/images into org buffers
+ +noter                 ; ... enhanced PDF notetaking
+ +pandoc                ; ... export with pandoc, if you want
+ +roam2)                ; ... wander around your notes
+;;php                   ; perl's insecure younger brother
+plantuml                ; diagrams for confusing people more
+;;purescript            ; javascript, but functional
+;;(python +lsp +pyright)  ; beautiful is better than ugly
+;;qt                    ; the 'cutest' gui framework ever
+;;racket                ; a DSL for DSLs
+;;raku                  ; the artist formerly known as perl6
+;;rest                  ; Emacs as a REST client
+;;rst                   ; ReST in peace
+;;(ruby +rails)         ; 1.step {|i| p "Ruby is #{i.even? ? 'love' : 'life'}"}
+;;(rust +lsp)             ; Fe2O3.unwrap().unwrap().unwrap().unwrap()
+;;scala                 ; java, but good
+;;scheme                  ; a fully conniving family of lisps
+sh                      ; she sells {ba,z,fi}sh shells on the C xor
+;;sml
+;;solidity              ; do you need a blockchain? No.
+;;swift                 ; who asked for emoji variables?
+;;terra                 ; Earth and Moon in alignment for performance.
+;;web                     ; the tubes
+yaml                    ; JSON, but readable
+;;zig                   ; C, but simpler
+#+end_src
+
+
+**** Everything in Emacs
+
+I don't do everything in Emacs.
+But I could if I wanted to...
+
+#+name: doom-email
+#+begin_src emacs-lisp
+;;(mu4e +gmail)
+;;notmuch
+;;(wanderlust +gmail)
+#+end_src
+
+#+name: doom-app
+#+begin_src emacs-lisp
+;;calendar
+;;emms
+;;everywhere        ; *leave* Emacs!? You must be joking
+;;irc               ; how neckbeards socialize
+;;(rss +org)        ; emacs as an RSS reader
+;;twitter           ; twitter client https://twitter.com/vnought
+#+end_src
+
+
+***** TODO Check out Emacs-Everywhere
+:LOGBOOK:
+- State "TODO"     from "⯮ NEXT"     [2021-06-22 Di 16:23]
+- State "⯮ NEXT"     from              [2021-06-22 Di 16:23]
+:END:
+
+*** Some helper macros
+
+Doom adds a few helpful macros:
+
++ =(load! "path/to/file.el")= loads external =.el= files relative to the current one
++ [[https://github.com/jwiegley/use-package][=use-package!=]] helps configure packages in a pretty /and efficient/ way
++ =add-load-path!= adds directories to the =load-path=, where Emacs searches for packages for =require=  or =use-package=.
++ =after!= delays execution until a given package is loaded
++ =add-hook!= registers hooks easily
++ =map!= binds new keys
+
+*** Package loading
+
+**** TODO Write instructions on how to load packages
+
+*** Allow babel execution in CLI actions
+
+Some of the code in this config is actually /generated/ during the tangling/weaving process.
+Yay metaprogramming!
+
+The problem is, Org sometimes asks for confirmation to evaluate things, which is difficult to provide when Emacs is called in batch mode by =doom sync= and similar.
+
+The solution lies in the =$DOOMDIR/cli.el= file, which is sourced by Doom every time it opens Emacs from a CLI command.
+We use it to waive the need for babel to confirm evaluation and to silence babel to avoid polluting the output.
+
+#+begin_src emacs-lisp :tangle cli.el
+(setq org-confirm-babel-evaluate nil)
+
+(defun babel-shut-up-a (orig-fn &rest args)
+  (quiet! (apply orig-fn args)))
+
+(advice-add 'org-babel-execute-src-block :around #'babel-shut-up-a)
+#+end_src
+
+*** Asynchronous config tangling
+:PROPERTIES:
+:CUSTOM_ID: asynchronous-config-tangling
+:END:
+
+Doom automatically recompiles the config using an =org-mode= hook ~+literate-enable-recompile-h~, which blocks the whole editor every time this file is saved.
+While the idea of automatically recompiling the config is good, it should be done asynchronously.
+So here is a simpler, async version of it, adapted from [[https://tecosaur.github.io/emacs-config/config.html#asyncronous-config-tangling][tecosaur]]'s config.
+
+#+begin_src emacs-lisp
+(defadvice! +literate-tangle-async-h ()
+  "A very simplified version of `+literate-tangle-h', but async."
+  :override #'+literate-tangle-h
+  (let ((default-directory doom-private-dir)
+        (curr-window (frame-selected-window)))
+    (start-process "tangle-config"
+                   "*tangling config.org*"
+                   "emacs"
+                   "--batch"
+                   "--eval"
+                   (format "(progn \
+                             (require 'org) \
+                             (setq org-confirm-babel-evaluate nil) \
+                             (org-babel-tangle-file \"%s\"))"
+                           +literate-config-file))
+    (display-buffer "*tangling config.org*")
+    (with-current-buffer "*tangling config.org*"
+      (goto-char (point-max)))
+    (select-window curr-window)))
+#+end_src
+
+
+** Systemd daemon
+
+I might want to run an Emacs server using systemd.
+
+*** TODO Adopt the configuration of the systemd daemon from [[https://tecosaur.github.io/emacs-config/config.html#systemd-daemon][tecosaur]]
+:LOGBOOK:
+- State "TODO"     from              [2021-06-22 Di 17:26]
+:END:
+
+
+
+* User interface
+
+** Visual settings
+
+*** Theme and Modeline
+
+Here I can set my preferred colour theme.
+
+#+begin_src emacs-lisp
+(setq doom-theme 'doom-vibrant)
+#+end_src
+
+I hate the red file names in the modeline when the buffer has been modified and not saved.
+Make it orange instead.
+
+#+begin_src emacs-lisp
+(custom-set-faces!
+  '(doom-modeline-buffer-modified :foreground "orange"))
+#+end_src
+
+*** Font Faces
+
+I like 'Fira Code', but I haven't decided on a the variable-pitch companions.
+I'm currently trying out 'Fira Sans' and 'Noto Serif', but I'm not quite satisfied yet...
+I think I need to go font shopping sometime.
+
+#+begin_src emacs-lisp
+(setq doom-font (font-spec :family "Fira Code" :size 15)
+      doom-big-font (font-spec :family "Fira Code" :size 25 :weight 'regular)
+
+      doom-variable-pitch-font (font-spec :family "Fira Sans" :size 16 :weight 'light)
+      doom-unicode-font (font-spec :family "Fira Code")
+      doom-serif-font (font-spec :family "Noto Serif")
+      )
+#+end_src
+
+If some font is missing, I'd rather be notified of it.  So the fonts are checked when this
+file is tangled and, if missing fonts are detected, a hook is installed that warns about
+the missing fonts at startup.
+
+#+begin_src emacs-lisp :noweb no-export
+<<detect-missing-fonts()>>
+#+end_src
+
+#+name: detect-missing-fonts
+#+begin_src emacs-lisp :tangle no
+(setq required-fonts '("Fira Code" "Fira Code Symbol" "Fira Sans" "Noto Serif"))
+
+(setq available-fonts
+  (delete-dups (or (font-family-list)
+                   (split-string (shell-command-to-string "fc-list : family")
+                                 "[,\n]"))))
+
+(setq missing-fonts
+  (delq nil (mapcar
+             (lambda (font)
+               (unless (delq nil (mapcar (lambda (f)
+                                           (string-match-p (format "^%s$" font) f))
+                                         available-fonts))
+                 font))
+             required-fonts)))
+
+(if missing-fonts
+    (pp-to-string
+     `(unless noninteractive
+        (add-hook! 'doom-init-ui-hook
+          (run-at-time nil nil
+                       (lambda ()
+                         (message "%s missing the following fonts: %s"
+                                  (propertize "Warning!" 'face '(bold warning))
+                                  (mapconcat (lambda (font)
+                                               (propertize font 'face 'font-lock-variable-name-face))
+                                             ',missing-fonts
+                                             ", "))
+                         (sleep-for 0.5))))))
+  ";; No missing fonts detected")
+#+end_src
+
+*** Mixed pitch
+
+In certain modes, we'd like to mix fixed- and variable-pitch fonts.
+This is supported by the =mixed-pitch-mode=.
+We provide the list ~mixed-pitch-modes~, where modes can be added throughout this configuration to activate mixed-pitch by default.
+
+Note that, as [[https://tecosaur.github.io/emacs-config/config.html#mixed-pitch][observed by tecosaur]], we need to be careful about activating =mixed-pitch-mode= in hooks, lest the mode be activated before UI initialisation.
+I adapt his solution by creating a hook that runs after UI initialisation to set up to hooks and already enable the =mixed-pitch-mode= if the current buffer warrants it.
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! mixed-pitch)
+#+end_src
+#+begin_src emacs-lisp
+(use-package! mixed-pitch)
+
+(defvar mixed-pitch-modes '()
+  "Modes that `mixed-pitch-mode' should be enabled in, but only after UI initialisation.")
+
+(setq mixed-pitch-modes--loaded nil)
+
+(defun mixed-pitch-register-mode (mode-name)
+  "Hook `mixed-pitch-mode' into the mode with give `mode-name'.
+Also immediately enables `mixed-pitch-mode' if currently in one of the modes."
+  (when (eq major-mode mode-name)
+    (mixed-pitch-mode 1))
+  (unless (memq mode-name mixed-pitch-modes)
+    (when mixed-pitch-modes--loaded
+      (add-hook (intern (concat (symbol-name mode-name) "-hook")) #'mixed-pitch-mode))
+    (add-to-list 'mixed-pitch-modes mode-name)))
+
+(defun init-mixed-pitch-h ()
+    "Hook `mixed-pitch-mode' into each mode in `mixed-pitch-modes'.
+Also immediately enables `mixed-pitch-mode' if currently in one of the modes."
+    (when (memq major-mode mixed-pitch-modes)
+      (mixed-pitch-mode 1))
+    (dolist (hook mixed-pitch-modes)
+      (add-hook (intern (concat (symbol-name hook) "-hook")) #'mixed-pitch-mode))
+    (setq mixed-pitch-modes--loaded t))
+
+(add-hook! doom-init-ui #'init-mixed-pitch-h)
+#+end_src
+
+One might want to apply mixed pitch with a serif face instead of the default.
+I adopt a [[https://tecosaur.github.io/emacs-config/config.html#mixed-pitch][function written by tecosaur]] to allow for that.
+
+#+begin_src emacs-lisp
+(autoload #'mixed-pitch-serif-mode "mixed-pitch"
+  "Change the default face of the current buffer to a serifed variable pitch, while keeping some faces fixed pitch." t)
+
+(after! mixed-pitch
+  (defface variable-pitch-serif
+    '((t (:family "serif")))
+    "A variable-pitch face with serifs."
+    :group 'basic-faces)
+  (setq mixed-pitch-set-height t)
+  (setq variable-pitch-serif-font doom-serif-font)
+  (set-face-attribute 'variable-pitch-serif nil :font variable-pitch-serif-font)
+  (defun mixed-pitch-serif-mode (&optional arg)
+    "Change the default face of the current buffer to a serifed variable pitch, while keeping some faces fixed pitch."
+    (interactive)
+    (let ((mixed-pitch-face 'variable-pitch-serif))
+      (mixed-pitch-mode (or arg 'toggle)))))
+#+end_src
+
+
+** Keyboard
+
+*** Global bindings
+
+There are a few keyboard bindings that I like to override.
+
++ Comment lines with =C-/=
++ Navigate through chunks of text with =C-<arrow>= (horizontally: words; vertically: logical lines)
++ Use the "universal" =C-z= for undo and =C-S-z= for redo
++ Use a smarter search by default with =C-s=
+
+#+begin_src emacs-lisp
+(map! ;; Comments
+      "C-/" #'comment-line
+
+      ;; Text navigation
+      "C-<left>" #'left-word
+      "C-<right>" #'right-word
+      "C-<up>" #'previous-logical-line
+      "C-<down>" #'next-logical-line
+
+      (:after undo-fu
+       "C-z" #'undo-fu-only-undo
+       "C-_" nil
+       "C-/" nil
+       "C-S-z" #'undo-fu-only-redo
+       "M-_" nil)
+
+      (:after swiper
+      "C-s" #'swiper))
+#+end_src
+
+I also heavily dislike the inconsistency between =C-w= in Emacs and bash.
+Instead, I set =C-w= on Emacs to behave like bash, killing backward to the beginning of a word.
+I also make =C-k= kill the region, if active---otherwise the line is killed, as in the default behaviour.
+Note that some modes have their own variants of ~kill-line~ mapped to =C-k=.
+Here I provide the macro ~me/bind-kill-region-or-line~ so they can be overriden appropriately.
+
+#+begin_src emacs-lisp
+(global-set-key (kbd "C-w") 'backward-kill-word)
+
+(defmacro me/bind-kill-region-or-line (key-map kill-line kill-region)
+  "Define and bind a function that kills the region, if active, or the line.
+The defined function will interactively call 'KILL-REGION' when
+the region is currently active, or 'KILL-LINE' otherwise.  It
+will also be bound to 'C-k' in the given 'KEY-MAP'."
+  (let ((kill-region-or-line
+         (intern (format "%s-or-%s" kill-region kill-line))))
+    `(progn
+       (defun ,kill-region-or-line ()
+         ,(format
+           "Kill the region if active, otherwise kill the current line.
+   See also '%s' and '%s'."
+           kill-region
+           kill-line)
+         (interactive)
+         (if (region-active-p)
+             (call-interactively ',kill-region)
+           (call-interactively ',kill-line)))
+       (define-key ,key-map (kbd "C-k") #',kill-region-or-line))))
+
+(me/bind-kill-region-or-line global-map kill-line kill-region)
+(after! org
+  (me/bind-kill-region-or-line org-mode-map org-kill-line kill-region))
+#+end_src
+
+
+**** TODO Adopt parts of the window config from [[https://tecosaur.github.io/emacs-config/config.html#windows][tecosaur]].
+:LOGBOOK:
+- State "TODO"     from              [2021-06-22 Di 14:26]
+:END:
+
+Window layouts seem interesting, I don't yet know where they come from.
+Asking which buffer I want to be in after splitting also sounds cool.
+
+*** Layouts with dead keys
+
+As a brazilian programmer living in Germany I have weird requirements for a keyboard.
+I settled on using the US International keyboard layout with dead keys.
+On Linux, this can lead to problems if I don't use the =iso-transl= package.
+
+#+begin_src emacs-lisp
+(use-package! iso-transl)
+#+end_src
+
+
+** Frames, buffers and windows
+
+*** Buffers
+
+I could use some prettier buffer names.
+
+#+begin_src emacs-lisp
+(setq doom-fallback-buffer-name "► Doom"
+      +doom-dashboard-name "► Doom")
+#+end_src
+
+**** TODO Improve buffer names when filename is the same but directory differs
+:LOGBOOK:
+- State "TODO"     from              [2021-06-22 Di 17:05]
+:END:
+
+*** Window Management
+
+I use the [[https://github.com/daichirata/emacs-rotate][=rotate= package]] to help manage the windows and their layouts
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! rotate)
+#+end_src
+
+Set up the keybindings window management using the prefix =C-x w=.
+Also, I like to navigate the windows with =C-x <arrow>=, which conflicts with some =smartparens= bindings.
+
+#+begin_src emacs-lisp
+(use-package! rotate)
+
+(map! ;; Window navigation
+      "C-x <left>" #'windmove-left
+      "C-x <right>" #'windmove-right
+      "C-x <down>" #'windmove-down
+      "C-x <up>" #'windmove-up
+      "C-x o" nil
+
+      :after rotate
+      :prefix ("C-x w" . "windows")
+      "l" #'rotate-layout
+      "r" #'rotate-window)
+
+(after! smartparens
+  (undefine-key! smartparens-mode-map "C-<left>" "C-<right>" "C-<up>" "C-<down>"))
+#+end_src
+
+*** Frame title
+
+I'd like to have just the current buffer name, then if applicable the project folder.
+
+#+begin_src emacs-lisp
+(setq frame-title-format
+      '(""
+        (:eval
+         (if (s-contains-p org-roam-directory (or buffer-file-name ""))
+             (replace-regexp-in-string
+              ".*/[0-9]*-?" "☰ "
+              (subst-char-in-string ?_ ?  buffer-file-name))
+           "%b"))
+        (:eval
+         (let ((project-name (projectile-project-name)))
+           (unless (string= "-" project-name)
+             (format (if (buffer-modified-p)  " ◉ %s" "  ●  %s") project-name))))))
+#+end_src
+
+*** Limiting buffer width
+
+I want tools to restrict the width of frames and soft-wrap lines, but not necessarily put me into a strict "single-buffer" layout to focus on writing like ~zen~ and ~writeroom~ do.
+A simple alternative is ~olivetti-mode~, which I enable by default for a few modes.
+I also make sure that it is adjusted to the ~fill-column~, so that it is compatible with automatic formatting.
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! olivetti)
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! olivetti
+  :hook
+   ((olivetti-mode . (lambda () (setq-local olivetti-body-width fill-column))))
+  :config
+  (setq olivetti-body-width fill-column))
+
+(map! :after olivetti
+      :map olivetti-mode-map
+      "C-c l >" #'olivetti-expand
+      "C-c l <" #'olivetti-shrink
+      "C-c l !" #'olivetti-set-width)
+#+end_src
+
+
+* Org Mode
+:PROPERTIES:
+:header-args:emacs-lisp: :tangle no :noweb-ref org-conf
+:END:
+
+The configuration of Org Mode is so extensive it deserves its own section.  It also involves a lot of concepts related to task and project management workflows as well as evergreen notes, which I want to write about over here.
+
+Since this section is fairly expensive to initialise, we'll wrap it in an ~(after ...)~ block.  Emacs-lisp code blocks in this section are not tangled by default, being instead given the ~:noweb-ref org-conf~.
+#+begin_src emacs-lisp :noweb no-export :tangle yes :noweb-ref nil
+(after! org
+  <<org-conf>>)
+#+end_src
+
+** System config
+
+*** MIME-types
+
+We want Org files to be recognised by the system, so we provide a MIME-type.
+
+#+begin_src xml :tangle ~/.local/share/mime/packages/org.xml :mkdirp yes :comments no
+<?xml version="1.0" encoding="utf-8"?>
+<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
+  <mime-type type="text/org">
+    <comment>Emacs Org-mode File</comment>
+    <glob pattern="*.org"/>
+    <alias type="text/org"/>
+  </mime-type>
+</mime-info>
+#+end_src
+
+When setting up this configuration, we make sure that the MIME database is updated to include Org files, then set Emacs as the default editor for it.
+#+begin_src shell :tangle (if (string= (shell-command-to-string "xdg-mime query default text/org") "") "setup.sh" "no")
+update-mime-database ~/.local/share/mime
+xdg-mime default emacs.desktop text/org
+#+end_src
+
+*** Git diffs
+
+Git can be configured so that diff chunks display useful information in their headers.  Protesilaos [[https://protesilaos.com/codelog/2021-01-26-git-diff-hunk-elisp-org/][explained how to use this]] for Org files, displaying the parent heading of each chunk.  This has to be /set up manually/, as follows.
+
+This can be achieved by creating a diff mode in =~/.config/git/attributes=:
+#+begin_src fundamental
+*.org   diff=org
+#+end_src
+
+Then this mode is configured to search for a "function name" with a regex that matches Org headings.  This goes into =~/.config/git/config=.
+#+begin_src gitconfig
+[diff "org"]
+  xfuncname = "^(\\*+ +.*)$"
+#+end_src
+
+
+** General appearance
+
+I want to optimise the appearance of Org Mode for text, with variable-pitch fonts for most of the content and fixed-pitch fonts for code and "metadata".  Thus, we need =mixed-pitch=.  To help focus on the text, remove line numbers, limit line width and display centred using ~olivetti-mode~.
+
+#+begin_src emacs-lisp
+(mixed-pitch-register-mode 'org-mode)
+(add-hook! org-mode #'+org-pretty-mode #'olivetti-mode)
+(add-hook! org-mode (display-line-numbers-mode -1))
+#+end_src
+
+*** Headings, titles and lists
+
+The headings and title can be improved to follow some [[https://practicaltypography.com/headings.html][good typographical practices]].  I've taken the sizes of headings mostly from [[https://tecosaur.github.io/emacs-config/#font-display][tecosaur]].  I also replace the bullets displayed along with headings into something more subtle.  Bullets for headings and for list items are prettified by [[https://github.com/integral-dw/org-superstar-mode][~org-superstar-mode~]], though I change the heading bullets into something more subtle.  I also change the character for collapsed items.
+
+#+begin_src emacs-lisp
+(custom-set-faces!
+  '(org-document-title :height 1.5)
+  '(outline-1 :weight extra-bold :height 1.25)
+  '(outline-2 :weight bold :height 1.15)
+  '(outline-3 :weight bold :height 1.12)
+  '(outline-4 :weight semi-bold :height 1.09)
+  '(outline-5 :weight semi-bold :height 1.06)
+  '(outline-6 :weight semi-bold :height 1.03)
+  '(outline-8 :weight semi-bold)
+  '(outline-9 :weight semi-bold)
+  '(org-superstar-header-bullet :height 1.2))
+(setq org-superstar-headline-bullets-list '("჻" "჻" "჻" "჻" "჻")
+      org-ellipsis " ▾ "
+      org-list-demote-modify-bullet '(("+" . "-") ("-" . "*") ("*" . "-") ("1." . "a.")))
+#+end_src
+
+When I'm editing in the middle of a file, I also like to display the parent headers at the top of the buffer.
+
+#+begin_src emacs-lisp :tangle packages.el :noweb-ref nil
+(package! org-sticky-header)
+#+end_src
+#+begin_src emacs-lisp
+  (use-package! org-sticky-header
+    :hook
+    (org-mode . org-sticky-header-mode)
+    :custom
+    (org-sticky-header-full-path 'full)
+    (org-sticky-header-outline-path-separator " ჻ ")
+    (org-sticky-header-prefix "჻ ")
+    (org-sticky-header-heading-star ""))
+#+end_src
+
+*** Markup
+
+While using markup to format the text is very practical, it is the prettiest or most readable.  The =org-appear= package solves this by hiding the markup, unless the cursor is on/within it.  Apparently, this requires ~+org-pretty-mode~ to be active, otherwise it doesn't work.
+
+#+begin_src emacs-lisp :tangle packages.el :noweb-ref nil
+(package! org-appear)
+#+end_src
+#+begin_src emacs-lisp
+(use-package! org-appear
+  :hook (org-mode . org-appear-mode)
+  :config
+  (setq org-appear-autoemphasis t
+        org-appear-autosubmarkers nil
+        org-appear-autolinks t))
+#+end_src
+
+We can have quote blocks stand out a bit more by making them /italic/.
+
+#+begin_src emacs-lisp
+(setq org-fontify-quote-and-verse-blocks t)
+#+end_src
+
+A lot of other Org mode features can be made much more readable with Unicode symbols.  This can be realised by customising ligatures.  The following is adapted from [[https://tecosaur.github.io/emacs-config/#symbols][tecosaur's config]].
+
+#+begin_src emacs-lisp
+(appendq! +ligatures-extra-symbols
+          `(:checkbox      "☐"
+            :pending       "◼"
+            :checkedbox    "☑"
+            :list_property "∷"
+            :em_dash       "—"
+            :ellipses      "…"
+            :arrow_right   "→"
+            :arrow_left    "←"
+            :title         "𝙏"
+            :subtitle      "𝙩"
+            :author        "𝘼"
+            :date          "𝘿"
+            :property      "☸"
+            :options       "⌥"
+            :startup       "⏻"
+            :macro         "𝓜"
+            :html_head     "🅷"
+            :html          "🅗"
+            :latex_class   "🄻"
+            :latex_header  "🅻"
+            :beamer_header "🅑"
+            :latex         "🅛"
+            :attr_latex    "🄛"
+            :attr_html     "🄗"
+            :attr_org      "⒪"
+            :begin_quote   "❝"
+            :end_quote     "❞"
+            :caption       "☰"
+            :header        "›"
+            :results       "🠶"
+            :begin_export  "⏩"
+            :end_export    "⏪"
+            :properties    "⚙"
+            :end           "∎"
+            :priority_a   ,(propertize "⚑" 'face 'all-the-icons-red)
+            :priority_b   ,(propertize "⬆" 'face 'all-the-icons-orange)
+            :priority_c   ,(propertize "■" 'face 'all-the-icons-yellow)
+            :priority_d   ,(propertize "⬇" 'face 'all-the-icons-green)
+            :priority_e   ,(propertize "❓" 'face 'all-the-icons-blue)))
+(set-ligatures! 'org-mode
+  :merge t
+  :checkbox      "[ ]"
+  :pending       "[-]"
+  :checkedbox    "[X]"
+  :list_property "::"
+  :em_dash       "---"
+  :ellipsis      "..."
+  :arrow_right   "->"
+  :arrow_left    "<-"
+  :title         "#+title:"
+  :subtitle      "#+subtitle:"
+  :author        "#+author:"
+  :date          "#+date:"
+  :property      "#+property:"
+  :options       "#+options:"
+  :startup       "#+startup:"
+  :macro         "#+macro:"
+  :html_head     "#+html_head:"
+  :html          "#+html:"
+  :latex_class   "#+latex_class:"
+  :latex_header  "#+latex_header:"
+  :beamer_header "#+beamer_header:"
+  :latex         "#+latex:"
+  :attr_latex    "#+attr_latex:"
+  :attr_html     "#+attr_html:"
+  :attr_org      "#+attr_org:"
+  :begin_quote   "#+begin_quote"
+  :end_quote     "#+end_quote"
+  :caption       "#+caption:"
+  :header        "#+header:"
+  :begin_export  "#+begin_export"
+  :end_export    "#+end_export"
+  :results       "#+RESULTS:"
+  :property      ":PROPERTIES:"
+  :end           ":END:"
+  :priority_a    "[#A]"
+  :priority_b    "[#B]"
+  :priority_c    "[#C]"
+  :priority_d    "[#D]"
+  :priority_e    "[#E]")
+(plist-put +ligatures-extra-symbols :name "⁍")
+#+end_src
+
+*** Performance and font lock
+
+All these customisations make Org files really nice to look at, but may hinder the performance of Emacs.  More precisely, font-lock can get quite expensive, which is a problem for large files.  In order to make typing more responsive, I defer font-locking while typing.
+
+#+begin_src emacs-lisp
+(defun locally-defer-font-lock ()
+  "Set jit-lock defer and stealth, when buffer is over a certain size"
+  (when (> (buffer-size) 50000)
+    (setq-local jit-lock-defer-time 0.05
+                jit-lock-stealth-time 1)))
+
+(add-hook! org-mode #'locally-defer-font-lock)
+#+end_src
+
+*** LaTeX fragments
+**** Prettier highlighting
+First off, we want those fragments to look good.
+#+begin_src emacs-lisp
+(setq org-highlight-latex-and-related '(native script entities))
+#+end_src
+
+However, by using =native= highlighting the =org-block= face is added, and that
+doesn't look too great --- particularly when the fragments are previewed.
+
+Ideally ~org-src-font-lock-fontify-block~ wouldn't add the =org-block= face, but we
+can avoid advising that entire function by just adding another face with
+=:inherit default= which will override the background colour.
+
+Inspecting ~org-do-latex-and-related~ shows that ="latex"= is the language argument
+passed, and so we can override the background as discussed above.
+#+begin_src emacs-lisp
+(require 'org-src)
+(add-to-list 'org-src-block-faces '("latex" (:inherit default :extend t)))
+#+end_src
+
+**** More eager rendering
+
+Better than syntax-highlighted LaTeX is /rendered/ LaTeX, and this is provided by =org-fragtog=.
+#+begin_src emacs-lisp :tangle packages.el :noweb-ref nil
+(package! org-fragtog)
+#+end_src
+#+begin_src emacs-lisp
+(use-package! org-fragtog
+  :hook (org-mode . org-fragtog-mode))
+#+end_src
+
+**** Prettier rendering
+
+Since we can, instead of making the background colour match the =default= face,
+let's make it transparent.
+#+begin_src emacs-lisp
+(setq org-format-latex-options
+      (plist-put org-format-latex-options :background "Transparent"))
+#+end_src
+
+
+
+
+
+
+** General behaviour
+
+*** Better defaults
+
+#+begin_src emacs-lisp
+(setq org-list-allow-alphabetical t               ; have a. A. a) A) list bullets
+      org-export-in-background t                  ; run export processes in external emacs process
+      org-catch-invisible-edits 'smart            ; try not to accidently do weird stuff in invisible regions
+      org-export-with-sub-superscripts '{}        ; don't treat lone _ / ^ as sub/superscripts, require _{} / ^{}
+      org-startup-folded 'content                 ; Show all headings on startup, but not their content
+      org-enforce-todo-dependencies t)            ; Make sure subtasks are completed before supertask
+
+(setq org-babel-default-header-args
+      (-snoc (assq-delete-all :comments org-babel-default-header-args)
+             '(:comments . "link")))
+#+end_src
+
+*** Nicer ~org-return~
+
+The behaviour of the =return= key in Org Mode can be improved, which I'm taking from alphapapa's [[https://github.com/alphapapa/unpackaged.el#org-return-dwim][unpackaged.el]].  The changes on the behaviour of =return= are, depending on where it's pressed:
+
+  * On a heading, move point after the end of its contents
+  * On an empty list item, end the list and create a newline
+  * On a non-empty list item, add a new item (with checkbox if the current item has it)
+  * On an empty line following a list, turn the line into a list item
+  * In an empty row of a table, end the table and create a newline
+  * In a non-empty row of a table, insert a new row
+
+#+begin_src emacs-lisp
+(defun unpackaged/org-element-descendant-of (type element)
+  "Return non-nil if ELEMENT is a descendant of TYPE.
+TYPE should be an element type, like `item' or `paragraph'.
+ELEMENT should be a list like that returned by `org-element-context'."
+  ;; MAYBE: Use `org-element-lineage'.
+  (when-let* ((parent (org-element-property :parent element)))
+    (or (eq type (car parent))
+        (unpackaged/org-element-descendant-of type parent))))
+
+;;;###autoload
+(defun unpackaged/org-return-dwim (&optional default)
+  "A helpful replacement for `org-return-indent'.  With prefix, call `org-return-indent'.
+
+On headings, move point to position after entry content.  In
+lists, insert a new item or end the list, with checkbox if
+appropriate.  In tables, insert a new row or end the table."
+  ;; Inspired by John Kitchin: http://kitchingroup.cheme.cmu.edu/blog/2017/04/09/A-better-return-in-org-mode/
+  (interactive "P")
+  (if default
+      (org-return t)
+    (cond
+     ;; Act depending on context around point.
+
+     ;; NOTE: I prefer RET to not follow links, but by uncommenting this block, links will be
+     ;; followed.
+
+     ;; ((eq 'link (car (org-element-context)))
+     ;;  ;; Link: Open it.
+     ;;  (org-open-at-point-global))
+
+     ((org-at-heading-p)
+      ;; Heading: Move to position after entry content.
+      ;; NOTE: This is probably the most interesting feature of this function.
+      (let ((heading-start (org-entry-beginning-position)))
+        (goto-char (org-entry-end-position))
+        (cond ((and (org-at-heading-p)
+                    (= heading-start (org-entry-beginning-position)))
+               ;; Entry ends on its heading; add newline after
+               (end-of-line)
+               (insert "\n\n"))
+              (t
+               ;; Entry ends after its heading; back up
+               (forward-line -1)
+               (end-of-line)
+               (when (org-at-heading-p)
+                 ;; At the same heading
+                 (forward-line)
+                 (insert "\n")
+                 (forward-line -1))
+               ;; FIXME: looking-back is supposed to be called with more arguments.
+               (while (not (looking-back (rx (repeat 3 (seq (optional blank) "\n")))))
+                 (insert "\n"))
+               (forward-line -1)))))
+
+     ((org-at-item-checkbox-p)
+      ;; Checkbox: Insert new item with checkbox.
+      (org-insert-todo-heading nil))
+
+     ((org-in-item-p)
+      ;; Plain list.  Yes, this gets a little complicated...
+      (let ((context (org-element-context)))
+        (if (or (eq 'plain-list (car context))  ; First item in list
+                (and (eq 'item (car context))
+                     (not (eq (org-element-property :contents-begin context)
+                              (org-element-property :contents-end context))))
+                (unpackaged/org-element-descendant-of 'item context))  ; Element in list item, e.g. a link
+            ;; Non-empty item: Add new item.
+            (org-insert-item)
+          ;; Empty item: Close the list.
+          ;; TODO: Do this with org functions rather than operating on the text. Can't seem to find the right function.
+          (delete-region (line-beginning-position) (line-end-position))
+          (insert "\n"))))
+
+     ((when (fboundp 'org-inlinetask-in-task-p)
+        (org-inlinetask-in-task-p))
+      ;; Inline task: Don't insert a new heading.
+      (org-return t))
+
+     ((org-at-table-p)
+      (cond ((save-excursion
+               (beginning-of-line)
+               ;; See `org-table-next-field'.
+               (cl-loop with end = (line-end-position)
+                        for cell = (org-element-table-cell-parser)
+                        always (equal (org-element-property :contents-begin cell)
+                                      (org-element-property :contents-end cell))
+                        while (re-search-forward "|" end t)))
+             ;; Empty row: end the table.
+             (delete-region (line-beginning-position) (line-end-position))
+             (org-return t))
+            (t
+             ;; Non-empty row: call `org-return-indent'.
+             (org-return t))))
+     (t
+      ;; All other cases: call `org-return-indent'.
+      (org-return t)))))
+
+(map!
+ :map org-mode-map
+ [return] #'unpackaged/org-return-dwim)
+#+end_src
+
+*** Nicer generated heading IDs
+
+This is taken from [[https://tecosaur.github.io/emacs-config/#nicer-generated-heading][tecosaur's config]], which in turn is adapted from alphapapa's [[https://github.com/alphapapa/unpackaged.el#export-to-html-with-useful-anchors][unpackaged.el]].
+
+By default, Org generated heading IDs like =#org80fc2a5= which ... works, but has
+two issues
++ It's completely uninformative, I have no idea what's being referenced
++ If I export the same file, everything will change.
+  Now, while without hardcoded values it's impossible to set references in
+  stone, it would be nice for there to be a decent chance of staying the same.
+
+Both of these issues can be addressed by generating IDs like
+=#language-configuration=, which is what I'll do here.
+
+It's worth noting that alphapapa's use of ~url-hexify-string~ seemed to cause me
+some issues. Replacing that in ~a53899~ resolved this for me. To go one step
+further, I create a function for producing nice short links, like an inferior
+version of ~reftex-label~.
+
+#+begin_src emacs-lisp
+(defvar org-reference-contraction-max-words 3
+  "Maximum number of words in a reference reference.")
+(defvar org-reference-contraction-max-length 35
+  "Maximum length of resulting reference reference, including joining characters.")
+(defvar org-reference-contraction-stripped-words
+  '("the" "on" "in" "off" "a" "for" "by" "of" "and" "is" "to")
+  "Superfluous words to be removed from a reference.")
+(defvar org-reference-contraction-joining-char "-"
+  "Character used to join words in the reference reference.")
+
+(defun org-reference-contraction-truncate-words (words)
+  "Using `org-reference-contraction-max-length' as the total character 'budget' for the WORDS
+and truncate individual words to conform to this budget.
+
+To arrive at a budget that accounts for words undershooting their requisite average length,
+the number of characters in the budget freed by short words is distributed among the words
+exceeding the average length.  This adjusts the per-word budget to be the maximum feasable for
+this particular situation, rather than the universal maximum average.
+
+This budget-adjusted per-word maximum length is given by the mathematical expression below:
+
+max length = \\floor{ \\frac{total length - chars for seperators - \\sum_{word \\leq average length} length(word) }{num(words) > average length} }"
+  ;; trucate each word to a max word length determined by
+  ;;
+  (let* ((total-length-budget (- org-reference-contraction-max-length  ; how many non-separator chars we can use
+                                 (1- (length words))))
+         (word-length-budget (/ total-length-budget                      ; max length of each word to keep within budget
+                                org-reference-contraction-max-words))
+         (num-overlong (-count (lambda (word)                            ; how many words exceed that budget
+                                 (> (length word) word-length-budget))
+                               words))
+         (total-short-length (-sum (mapcar (lambda (word)                ; total length of words under that budget
+                                             (if (<= (length word) word-length-budget)
+                                                 (length word) 0))
+                                           words)))
+         (max-length (/ (- total-length-budget total-short-length)       ; max(max-length) that we can have to fit within the budget
+                        num-overlong)))
+    (mapcar (lambda (word)
+              (if (<= (length word) max-length)
+                  word
+                (substring word 0 max-length)))
+            words)))
+
+(defun org-reference-contraction (reference-string)
+  "Give a contracted form of REFERENCE-STRING that is only contains alphanumeric characters.
+Strips 'joining' words present in `org-reference-contraction-stripped-words',
+and then limits the result to the first `org-reference-contraction-max-words' words.
+If the total length is > `org-reference-contraction-max-length' then individual words are
+truncated to fit within the limit using `org-reference-contraction-truncate-words'."
+  (let ((reference-words
+         (-filter (lambda (word)
+                    (not (member word org-reference-contraction-stripped-words)))
+                  (split-string
+                   (->> reference-string
+                        downcase
+                        (replace-regexp-in-string "\\[\\[[^]]+\\]\\[\\([^]]+\\)\\]\\]" "\\1") ; get description from org-link
+                        (replace-regexp-in-string "[-/ ]+" " ") ; replace seperator-type chars with space
+                        puny-encode-string
+                        (replace-regexp-in-string "^xn--\\(.*?\\) ?-?\\([a-z0-9]+\\)$" "\\2 \\1") ; rearrange punycode
+                        (replace-regexp-in-string "[^A-Za-z0-9 ]" "") ; strip chars which need %-encoding in a uri
+                        ) " +"))))
+    (when (> (length reference-words)
+             org-reference-contraction-max-words)
+      (setq reference-words
+            (cl-subseq reference-words 0 org-reference-contraction-max-words)))
+
+    (when (> (apply #'+ (1- (length reference-words))
+                    (mapcar #'length reference-words))
+             org-reference-contraction-max-length)
+      (setq reference-words (org-reference-contraction-truncate-words reference-words)))
+
+    (string-join reference-words org-reference-contraction-joining-char)))
+#+end_src
+
+Now here's alphapapa's subtly tweaked mode.
+#+begin_src emacs-lisp
+(define-minor-mode unpackaged/org-export-html-with-useful-ids-mode
+  "Attempt to export Org as HTML with useful link IDs.
+Instead of random IDs like \"#orga1b2c3\", use heading titles,
+made unique when necessary."
+  :global t
+  (if unpackaged/org-export-html-with-useful-ids-mode
+      (advice-add #'org-export-get-reference :override #'unpackaged/org-export-get-reference)
+    (advice-remove #'org-export-get-reference #'unpackaged/org-export-get-reference)))
+(unpackaged/org-export-html-with-useful-ids-mode 1) ; ensure enabled, and advice run
+
+(defun unpackaged/org-export-get-reference (datum info)
+  "Like `org-export-get-reference', except uses heading titles instead of random numbers."
+  (let ((cache (plist-get info :internal-references)))
+    (or (car (rassq datum cache))
+        (let* ((crossrefs (plist-get info :crossrefs))
+               (cells (org-export-search-cells datum))
+               ;; Preserve any pre-existing association between
+               ;; a search cell and a reference, i.e., when some
+               ;; previously published document referenced a location
+               ;; within current file (see
+               ;; `org-publish-resolve-external-link').
+               ;;
+               ;; However, there is no guarantee that search cells are
+               ;; unique, e.g., there might be duplicate custom ID or
+               ;; two headings with the same title in the file.
+               ;;
+               ;; As a consequence, before re-using any reference to
+               ;; an element or object, we check that it doesn't refer
+               ;; to a previous element or object.
+               (new (or (cl-some
+                         (lambda (cell)
+                           (let ((stored (cdr (assoc cell crossrefs))))
+                             (when stored
+                               (let ((old (org-export-format-reference stored)))
+                                 (and (not (assoc old cache)) stored)))))
+                         cells)
+                        (when (org-element-property :raw-value datum)
+                          ;; Heading with a title
+                          (unpackaged/org-export-new-named-reference datum cache))
+                        (when (member (car datum) '(src-block table example fixed-width property-drawer))
+                          ;; Nameable elements
+                          (unpackaged/org-export-new-named-reference datum cache))
+                        ;; NOTE: This probably breaks some Org Export
+                        ;; feature, but if it does what I need, fine.
+                        (org-export-format-reference
+                         (org-export-new-reference cache))))
+               (reference-string new))
+          ;; Cache contains both data already associated to
+          ;; a reference and in-use internal references, so as to make
+          ;; unique references.
+          (dolist (cell cells) (push (cons cell new) cache))
+          ;; Retain a direct association between reference string and
+          ;; DATUM since (1) not every object or element can be given
+          ;; a search cell (2) it permits quick lookup.
+          (push (cons reference-string datum) cache)
+          (plist-put info :internal-references cache)
+          reference-string))))
+
+(defun unpackaged/org-export-new-named-reference (datum cache)
+  "Return new reference for DATUM that is unique in CACHE."
+  (cl-macrolet ((inc-suffixf (place)
+                             `(progn
+                                (string-match (rx bos
+                                                  (minimal-match (group (1+ anything)))
+                                                  (optional "--" (group (1+ digit)))
+                                                  eos)
+                                              ,place)
+                                ;; HACK: `s1' instead of a gensym.
+                                (-let* (((s1 suffix) (list (match-string 1 ,place)
+                                                           (match-string 2 ,place)))
+                                        (suffix (if suffix
+                                                    (string-to-number suffix)
+                                                  0)))
+                                  (setf ,place (format "%s--%s" s1 (cl-incf suffix)))))))
+    (let* ((headline-p (eq (car datum) 'headline))
+           (title (if headline-p
+                      (org-element-property :raw-value datum)
+                    (or (org-element-property :name datum)
+                        (concat (org-element-property :raw-value
+                                                      (org-element-property :parent
+                                                                            (org-element-property :parent datum)))))))
+           ;; get ascii-only form of title without needing percent-encoding
+           (ref (concat (org-reference-contraction (substring-no-properties title))
+                        (unless (or headline-p (org-element-property :name datum))
+                          (concat ","
+                                  (pcase (car datum)
+                                    ('src-block "code")
+                                    ('example "example")
+                                    ('fixed-width "mono")
+                                    ('property-drawer "properties")
+                                    (_ (symbol-name (car datum))))
+                                  "--1"))))
+           (parent (when headline-p (org-element-property :parent datum))))
+      (while (--any (equal ref (car it))
+                    cache)
+        ;; Title not unique: make it so.
+        (if parent
+            ;; Append ancestor title.
+            (setf title (concat (org-element-property :raw-value parent)
+                                "--" title)
+                  ;; get ascii-only form of title without needing percent-encoding
+                  ref (org-reference-contraction (substring-no-properties title))
+                  parent (when headline-p (org-element-property :parent parent)))
+          ;; No more ancestors: add and increment a number.
+          (inc-suffixf ref)))
+      ref)))
+
+(add-hook 'org-load-hook #'unpackaged/org-export-html-with-useful-ids-mode)
+#+end_src
+We also need to redefine src_elisp{(org-export-format-reference)} as it now may
+be passed a string as well as a number.
+#+begin_src emacs-lisp
+(defadvice! org-export-format-reference-a (reference)
+  "Format REFERENCE into a string.
+
+REFERENCE is a either a number or a string representing a reference,
+as returned by `org-export-new-reference'."
+  :override #'org-export-format-reference
+  (if (stringp reference) reference (format "org%07x" reference)))
+#+end_src
+
+*** Translate capital keywords to lower case
+
+This section comes directly from [[https://tecosaur.github.io/emacs-config/#translate-capital-keywords][tecosaur's config]].
+
+Everyone used to use ~#+CAPITAL~ keywords. Then people realised that ~#+lowercase~ is actually both marginally easier and visually nicer, so now the capital version is just used in the manual.
+#+begin_quote
+Org is standardized on lower case. Uppercase is used in the manual as a poor
+man's bold, and supported for historical reasons. --- [[https://orgmode.org/list/87tuuw3n15.fsf@nicolasgoaziou.fr][Nicolas Goaziou on the Org ML]]
+#+end_quote
+
+To avoid sometimes having to choose between the hassle out of updating old
+documents and using mixed syntax, I'll whip up a basic transcode-y function.
+It likely misses some edge cases, but should mostly work.
+
+#+begin_src emacs-lisp
+(defun org-syntax-convert-keyword-case-to-lower ()
+  "Convert all #+KEYWORDS to #+keywords."
+  (interactive)
+  (save-excursion
+    (goto-char (point-min))
+    (let ((count 0)
+          (case-fold-search nil))
+      (while (re-search-forward "^[ \t]*#\\+[A-Z_]+" nil t)
+        (unless (s-matches-p "RESULTS" (match-string 0))
+          (replace-match (downcase (match-string 0)) t)
+          (setq count (1+ count))))
+      (message "Replaced %d occurances" count))))
+#+end_src
+
+
+** Task and project management
+
+*** Tasks
+
+I like to categorise my tasks/to-dos into the following states:
+
+ * =NEXT=: something I want to do in the near future
+ * =TODO=: something I want to do at some point, but don't need to think about right now (unless its deadline or scheduled date is coming up)
+ * =WAIT=: something that's blocked and might need some follow-up
+ * =DONE=: something I've completed successfully
+ * =CANC=: something I've decided not to do
+
+#+begin_src emacs-lisp
+(setq org-todo-keywords
+      '((sequence "TODO(t)" "NEXT(n)" "WAIT(w)" "|" "DONE(d)" "CANC(c)")))
+(custom-set-faces!
+  '(org-todo :family "Fira Code"))
+#+end_src
+
+It's also much nicer if task headings have special icons, instead of the default bullets.  It helps me quickly see the current status of task lists.  Moreover, I want the TODO statuses to have fixed pitched so they all align together.
+
+#+begin_src emacs-lisp
+(after! org-superstar
+  (setq org-superstar-special-todo-items t)
+  (setq org-superstar-todo-bullet-alist
+        '(("NEXT" . ?☐)
+          ("TODO" . ?☐)
+          ("WAIT" . ?⌛)
+          ("DONE" . ?☑)
+          ("CANC" . ?☒))))
+#+end_src
+
+It is often useful to define chains of tasks, such that when one task is completed the next is set to =NEXT=.  This functionality is provided by the =org-edna= package. I provide some helpers for that.
+
+#+begin_src emacs-lisp :tangle packages.el :noweb-ref nil
+(package! org-edna)
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package org-edna
+  :after org
+  :config (org-edna-mode 1))
+
+(defun org-trigger-next-task ()
+  "Set the TRIGGER property to set next heading to NEXT upon completion."
+  (interactive)
+  (org-set-property
+   "TRIGGER"
+   (concat "next-sibling todo!(\"NEXT\")")))
+
+(defun org-trigger-chain-next-task ()
+  "Set the TRIGGER property to start a chain setting the next heading to NEXT upon completion."
+  (interactive)
+  (org-set-property
+   "TRIGGER"
+   (concat "next-sibling chain!(\"TRIGGER\") todo!(\"NEXT\")")))
+
+(map! :map org-mode-map
+      :prefix ("C-c l C" . "TRIGGER property")
+      "t" #'org-trigger-next-task
+      "c" #'org-trigger-chain-next-task)
+#+end_src
+
+**** DONE Customize bullets of todos using [[https://github.com/integral-dw/org-superstar-mode][org-superstar-mode]]
+Search their README for "fancy TODO items".
+**** DONE Make TODO/NEXT... use fixed-width font
+**** TODO Customize org-priority-faces
+
+*** Projects and areas of responsibility
+
+#+begin_src emacs-lisp
+(add-to-list 'org-tags-exclude-from-inheritance "PROJ")
+(add-to-list 'org-tags-exclude-from-inheritance "DONE_PROJ")
+(add-to-list 'org-tags-exclude-from-inheritance "PAUSED_PROJ")
+(add-to-list 'org-tags-exclude-from-inheritance "AREA_RESP")
+
+(setq org-tag-alist '((:startgroup)
+                      ("PROJ" . ?P)
+                      ("DONE_PROJ" . ?D)
+                      ("PAUSED_PROJ")
+                      (:endgroup)
+                      (:newline)
+                      ("AREA_RESP" . ?A)))
+#+end_src
+
+*** Agendas
+
+#+begin_src emacs-lisp
+(setq org-agenda-deadline-faces
+      '((1.001 . error)
+        (1.0 . org-warning)
+        (0.5 . org-upcoming-deadline)
+        (0.0 . org-upcoming-distant-deadline)))
+#+end_src
+
+#+begin_src emacs-lisp :noweb no-export
+(defun define-org-agenda (key &rest args)
+  ;; Make sure the variable exists and delete any existing agendas with same key
+  (setq org-agenda-custom-commands
+        (when (boundp 'org-agenda-custom-commands)
+          (assoc-delete-all key org-agenda-custom-commands)))
+  (add-to-list 'org-agenda-custom-commands (cons key args)))
+
+(defmacro define-org-agenda! (key &rest args)
+  `(define-org-agenda ,key ,@(mapcar (lambda (i) (if (listp i) `(quote ,i) i)) args)))
+
+(define-org-agenda! "p" "Projects and Areas of Responsibility"
+  ((tags "AREA_RESP"
+         ((org-agenda-overriding-header "Areas of Responsibility\n")
+          (org-agenda-prefix-format '((tags . "  %i ")))))
+   (tags "PROJ"
+         ((org-agenda-overriding-header "Active Projects\n")))
+   (tags "PAUSED_PROJ"
+         ((org-agenda-overriding-header "Paused Projects\n")))
+   (tags "DONE_PROJ"
+         ((org-agenda-overriding-header "Finished Projects\n")))))
+
+(define-org-agenda! "n" "Next Actions"
+  ((agenda "" ((org-agenda-span 1) (org-deadline-warning-days 14)))
+   (todo "NEXT"
+         ((org-agenda-overriding-header "Next Actions\n")))
+   (todo "WAIT"
+         ((org-agenda-overriding-header "Waiting For\n")))))
+
+(setq org-agenda-skip-scheduled-if-done t
+      org-agenda-skip-deadline-if-done t
+      org-agenda-include-deadlines t
+      org-agenda-block-separator ""
+      org-agenda-tags-column 90
+      org-agenda-compact-blocks nil
+      org-agenda-sorting-strategy '((agenda deadline-up scheduled-up category-up)
+                                    (todo category-up deadline-up priority-down)
+                                    (tags category-up deadline-up priority-down)
+                                    (search category-up)))
+
+(setq org-agenda-prefix-format
+      '((agenda . " %i %-25:c%?-12t% s")
+;        (todo . " %i %(org-agenda--format-days-until-deadline (org-entry-get-days-until-deadline (point))) %-25:c")
+;        (tags . " %i %(org-agenda--format-days-until-deadline (org-entry-get-days-until-deadline (point))) %-25:c")
+        (todo . " %i %-25:c %-8(org-agenda--days-until-deadline)  ")
+        (tags . " %i %-25:c %-8(org-agenda--days-until-deadline)  ")
+        (search . " %i %-25:c")))
+
+(defun org-agenda--days-until-deadline (&optional num-days)
+  (if-let ((days (or num-days (org-entry-get-days-until-deadline))))
+      (if (>= days 0)
+          (format "in %dd" days)
+        (format "%dd ago" (- days)))
+    ""))
+
+(defun org-entry-get-days-until-deadline (&optional pom inherit)
+  (if-let ((deadline-date (org-entry-get (or pom (point)) "DEADLINE" inherit)))
+      (let* ((today-day-number (org-today))
+             (deadline-day-number (org-time-string-to-absolute deadline-date)))
+        (- deadline-day-number today-day-number))))
+#+end_src
+
+**** NEXT Configure and document Org agendas
+
+*** Weekly planning
+
+#+begin_src emacs-lisp
+(defun me/open-week-planner ()
+  (interactive)
+  (select-frame-set-input-focus (make-frame))
+  (org-agenda nil "p")
+  (select-window (split-window nil nil 'below))
+  (let* ((today-dow (string-to-number (format-time-string "%w")))
+         (mon (org-read-date nil t (cond ((< today-dow 1) "mon") ((= today-dow 1) "today") (t "-mon"))))
+         (tue (org-read-date nil t (cond ((< today-dow 2) "tue") ((= today-dow 2) "today") (t "-tue"))))
+         (wed (org-read-date nil t (cond ((< today-dow 3) "wed") ((= today-dow 3) "today") (t "-wed"))))
+         (thu (org-read-date nil t (cond ((< today-dow 4) "thu") ((= today-dow 4) "today") (t "-thu"))))
+         (fri (org-read-date nil t (cond ((< today-dow 5) "fri") ((= today-dow 5) "today") (t "-fri")))))
+    (org-roam-dailies--capture mon t)
+    (goto-char (point-min))
+    (select-window (split-window nil nil 'right))
+    (org-roam-dailies--capture tue t)
+    (goto-char (point-min))
+    (select-window (split-window nil nil 'right))
+    (org-roam-dailies--capture wed t)
+    (goto-char (point-min))
+    (select-window (split-window nil nil 'right))
+    (org-roam-dailies--capture thu t)
+    (goto-char (point-min))
+    (select-window (split-window nil nil 'right))
+    (org-roam-dailies--capture fri t)
+    (goto-char (point-min)))
+  (org-roam-buffer-deactivate))
+#+end_src
+
+** Org Roam
+:PROPERTIES:
+:header-args:emacs-lisp: :tangle no :noweb-ref org-roam-default-config
+:END:
+
+How to structure and organise my notes and my knowledge has always been one my biggest pain points.  In fact, given my perfectionist tendencies, I tend to obsess about how to properly organise my files and notes when given a rigid structure.  This gets in the way of actually thinking or working.
+
+On the other hand, not having any system of organisation leads to proper chaos, and more importantly to the anxiety that I won't find any information when I need it.  This completely erodes my motivation to keep notes, which leads to chaos in my head and even greater anxiety.
+
+An innovation I found exceedingly interesting for this is the use of pervasive linking with backling tracking.
+This allows me to minimise the "rigid" part of the organisation system and let the links organically create the addional structure.
+
+On Emacs, this is provided by the [[https://www.orgroam.com][=org-roam=]] package.  It tracks the Org files within a directory, tracing any backlinks.
+It also provides some cool functionality on top of Org's templating features.
+
+Thus, I will use Org Roam as the glue holding my whole system of task, project and knowledge management together.
+In all but the first subsection, I will provide the conventions and configuration that enable that.
+
+However, I may use other Roam directories for specific purpuses.  For example, I do have a Roam directory for taking notes regarding a particular D&D campaign I'm playing, which comes with its own set of conventions and configurations.
+
+Thus, I provide the following command to easily switch between roam directories, either loading their configuration from a =.roam-config.el= file or using my default configuration described in the remainder of this section.
+We need to load this at startup, unlike the rest of the Org Mode configuration, so we can immediately access the necessary functionality.
+#+begin_src emacs-lisp :tangle config.el :noweb no-export :noweb-ref nil
+(defun org-roam-set-directory (roam-dir)
+  "Set the `org-roam-directory' and also `deft-directory' and `org-agenda-files' accordingly."
+  (interactive "D")
+  (setq deft-directory roam-dir
+        org-roam-directory roam-dir
+        org-roam-db-location (expand-file-name ".org-roam.db" roam-dir)
+        org-agenda-files
+        (mapcar (lambda (subdir) (expand-file-name subdir roam-dir))
+                '("Projects" "Areas")))
+  (let ((config-path (expand-file-name ".roam-config.el" roam-dir)))
+    (if (file-exists-p config-path)
+        (load-file config-path)
+      <<org-roam-default-config>>
+      ))
+  (when (fboundp 'org-roam-db-update)
+    (org-roam-db-update)))
+
+(map! :map doom-leader-map
+      "r D" #'org-roam-set-directory)
+
+(org-roam-set-directory "~/Dokumente/Roam")
+#+end_src
+
+*** Defaults and keybindings
+
+The following options apply by default and are generally not changed by individual roam directories.
+#+begin_src emacs-lisp :noweb-ref org-conf
+(setq deft-recursive t
+      org-roam-tag-sort t
+      org-roam-graph-executable "fdp"
+      org-roam-mode-section-functions (list #'org-roam-backlinks-section
+                                            #'org-roam-reflinks-section
+                                            #'org-roam-unlinked-references-section))
+#+end_src
+
+We must load the keybindings before Org Mode so we can use them on startup.
+#+begin_src emacs-lisp :tangle config.el :noweb no-export :noweb-ref nil
+(map! :leader
+      :prefix ("r" . "org-roam")
+      "c" #'org-roam-capture
+      "f" #'org-roam-node-find
+      "g" #'org-roam-graph
+      "i" #'org-roam-node-insert
+      "l" #'org-roam-node-insert
+      "r" #'org-roam-buffer-toggle
+      "s" #'deft
+      "t" #'org-roam-dailies-goto-today
+      "u" #'org-roam-ui-mode
+      (:prefix ("d" . "dailies")
+       "d" #'org-roam-dailies-goto-date
+       "m" #'org-roam-dailies-goto-tomorrow
+       "t" #'org-roam-dailies-goto-today
+       "y" #'org-roam-dailies-goto-yesterday
+       "n" #'org-roam-dailies-goto-next-note
+       "p" #'org-roam-dailies-goto-previous-note))
+#+end_src
+
+We want to be able to click links on the backlink buffer.
+
+#+begin_src emacs-lisp :noweb-ref org-conf
+(define-key org-roam-mode-map [mouse-1] #'org-roam-visit-thing)
+#+end_src
+
+*** Directory Structure
+
+For my knowledge and task management, the Roam directory must contain the following subdirectories.
+
++ =Areas/= contains files tracking my areas of responsibility, which are valid for indeterminate amounts of time over which a certain standard should be held.  The following information is always relevant on these files:
+  - The standards that I want to keep in this area, standards I explicitly /don't/ need to keep, how flexible they should be
+  - Isolated tasks relevant for this area
+  - Ideas for the future
++ =Projects/= contains files tracking my active and finished projects, which always have a deadline and a success criterion. The following information is always relevant on these files:
+  - The deadline and success criteria
+  - The tasks relevant to the project
+  - Any general plans and ideas that might be interesting
++ =Daily/= contains daily log files, used to take notes .  I currently don't have a very clear idea of what I want to include on those and how they should be structured, so I might refine this in the future.
++ =Evergreen/= contains the heart of my knowledge management system: evergreen notes
++ =Reference/= contains reference material, with each entry potentially containing specific notes on this reference
++ =Writing Inbox/= collects immature notes and ideas that aren't evergreen and I think could become evergreen
++ =Reading Inbox.org= collects links to material that I want to read and potentiality add to my reference
+
+We provide a script to create this directory structure within a directory.
+#+begin_src shell :tangle ~/.local/bin/setup-roam-dir
+#!/bin/sh
+mkdir -p "$1" && cd "$1" || exit 1
+mkdir Areas Projects Daily Evergreen Reference 'Writing Inbox'
+#+end_src
+#+begin_src shell :tangle setup.sh
+chmod +x ~/.local/bin/setup-roam-dir
+#+end_src
+
+We also set the dailies directory approriately.
+#+begin_src emacs-lisp
+(setq org-roam-dailies-directory "Daily/"
+      org-roam-graph-exclude-matcher "/Daily/")
+#+end_src
+
+We make sure =deft= skips node properties, otherwise search results become unreadable.
+
+#+begin_src emacs-lisp :noweb-ref org-conf
+;; Works because all relevant files have the "#+title: " line
+(advice-add 'deft-parse-title :override
+            (lambda (file contents)
+              (if deft-use-filename-as-title
+                  (deft-base-filename file)
+                (let* ((case-fold-search 't)
+                       (begin (string-match "title: " contents))
+                       (end-of-begin (match-end 0))
+                       (end (string-match "\n" contents begin)))
+                  (if begin
+                      (substring contents end-of-begin end)
+                    (format "%s" file))))))
+
+(setq deft-strip-summary-regexp
+      (concat "\\("
+              ;; blank lines
+              ;;"[\n ]*$"
+              ;; any line with a :SOMETHING:
+              "^:.+:.*\n"
+              ;; any line starting with #+
+              "\\|^#\\+.*\n"
+              ;; any line starting with an asterisk
+              "\\|^\\*.*\n"
+              ;;
+              "\\|^[[:blank:]]*\\(DEADLINE\\|SCHEDULED\\):.*\n"
+              "\\)"
+       ))
+#+end_src
+
+Finally, we make sure directories are displayed when listing org-roam nodes.
+#+begin_src emacs-lisp
+(after! org-roam
+  (cl-defmethod org-roam-node-filetitle ((node org-roam-node))
+    "Return the file TITLE for the node."
+    (org-roam-get-keyword "TITLE" (org-roam-node-file node)))
+
+  (cl-defmethod org-roam-node-directories ((node org-roam-node))
+    "Return a list of parent directories for the node relative to the 'org-roam-directory'."
+    (if-let ((dirs (file-name-directory (file-relative-name (org-roam-node-file node) org-roam-directory))))
+        (string-join (f-split dirs) "/")
+      nil))
+
+  (cl-defmethod org-roam-node-hierarchy ((node org-roam-node))
+    "Return the hierarchy for the node."
+    (let ((title (org-roam-node-title node))
+          (olp (org-roam-node-olp node))
+          (level (org-roam-node-level node))
+          (directories (org-roam-node-directories node))
+          (filetitle (org-roam-node-filetitle node)))
+      (concat
+       (if directories (format "(%s) " directories))
+       (if (> level 0) (concat filetitle " > "))
+       (if (> level 1) (concat (string-join olp " > ") " > "))
+       title)))
+
+  (setq org-roam-node-display-template "${hierarchy:*} ${tags:10}"))
+#+end_src
+
+*** Templates and Capture
+
+The following templates are used for my knowledge and task management.
+#+begin_src emacs-lisp
+(setq org-roam-capture-templates
+      '(("p" "Project" plain "%?"
+         :target (file+head+olp "Projects/${slug}.org"
+                                "#+title: ${title}\n#+CATEGORY: %^{Area of Responsibility}
+\n* ${title}  :PROJ:
+DEADLINE: %^{Deadline}t
+Area of Responsibility: [[roam:%\\1]]
+\n** Success Criteria\n\n"
+                                ("Log"))
+         :unnarrowed t)
+         ("a" "Area of Responsibilty" plain "%?"
+          :target (file+head+olp "Areas/${slug}.org"
+                                 "#+title: ${title}\n#+CATEGORY: ${title}
+ \n* ${title}   :AREA_RESP:
+ \n** Standard to Uphold
+\n\n** Future Ideas\n\n"
+                                 ("Log"))
+          :unnarrowed t)
+        ("w" "Writing Inbox" plain "%?"
+         :target (file+head "Writing Inbox/%<%Y-%m-%d>_${slug}.org"
+                            "#+title: ${title}\n#+author: %n\n\n")
+         :unnarrowed t)
+        ("e" "Evergreen" plain "%?"
+         :target (file+head "Evergreen/${slug}.org"
+                            "#+title: ${title}\n#+author: %n\n\n")
+         :unnarrowed t)
+        ("R" "Reference" plain "%?"
+         :target (file+head "Reference/${title}.org"
+                            "#+title: ${title}\n\n#+begin_src bibtex\n\n#+end_src\n\n"
+         )
+         :unnarrowed t)
+        ("r" "Reading Inbox")
+        ("rm" "Manual Entry" entry "** ${title}%?\n"
+         :target (file+head+olp "Reading Inbox.org"
+                                "#+title: Reading Inbox\n\n* Inbox\n"
+                                ("Uncategorised")))
+        ("rl" "Link from Clipbox" entry "** %(org-cliplink-capture)%? \n"
+         :target (file+head+olp "Reading Inbox.org"
+                                "#+title: Reading Inbox\n\n* Inbox\n"
+                                ("Uncategorised"))))
+      org-roam-dailies-capture-templates
+      '(("d" "default" plain "%?"
+         :target (file+head+olp "%<%Y-%m-%d>.org"
+                                "#+title: %<%Y-%m-%d>\n\n* Log\n"
+                                ("Log"))
+         :unnarrowed t)))
+#+end_src
+
+**** TODO Command for adding link from clipboard into reading inbox
+
+*** References with bibtex
+
+Ideally, I should be able to produce nice citations and references to every item of my =Reference= folder, when preparing manuscripts. In order to allow for that, each of these files must contain a =bibtex= code block defining the appropriate citation. These can then be collected into a single .bib file with the following command.
+
+#+begin_src emacs-lisp
+(defun org-roam-references-export-bibtex ()
+  (interactive)
+  (let* ((references-dir (expand-file-name "Reference" org-roam-directory))
+         (export-file "/tmp/references.org")
+         (references-bib (expand-file-name "references.bib" org-roam-directory)))
+    (with-current-buffer (generate-new-buffer "org-roam-bibtex-export")
+      (insert "#+property: header-args:bibtex :comments no\n")
+      (dolist (file (org-roam--list-files references-dir))
+        (insert (format "#+include: \"%s\"\n" file)))
+      (org-export-to-file 'org export-file))
+    (with-current-buffer (find-file-noselect export-file)
+      (org-babel-tangle nil references-bib "bibtex"))
+    ))
+#+end_src
+
+For now, I will only have the exports.
+Within my roam directory I will still use links to the =Reference= files.
+Later, I may either want to use citation with =org-cite= or create utilities for replacing links with the citations, for when I want to export a manuscript draft into LaTeX.
+
+**** TODO Check out the new =org-cite= package for references
+Note: as of 08.2021 this is a cutting edge package that is not yet easy to install and configure.
+Wait until it is more practical.
+In the meantime, I'll just link to the =Reference= entries.
+
+*** Graphing UI
+
+#+begin_src emacs-lisp :tangle no :noweb-ref nil
+(unpin! org-roam)
+(package! org-roam-ui
+  :recipe
+  (:host github
+   :repo "org-roam/org-roam-ui"
+   :branch "main"
+   :files ("*.el" "out")))
+#+end_src
+
+#+begin_src emacs-lisp :tangle no :noweb-ref nil
+(use-package! websocket :after org-roam)
+
+
+(use-package! org-roam-ui
+  :after org-roam
+  :config
+  (setq org-roam-ui-sync-theme t
+        org-roam-ui-follow t
+        org-roam-ui-update-on-save t
+        org-roam-ui-open-on-start t))
+#+end_src
+
+** Exporting
+
+*** Special Blocks
+
+#+begin_src emacs-lisp :tangle packages.el :noweb-ref nil
+(package! org-special-block-extras)
+#+end_src
+
+*** LaTeX Export
+
+LaTeX compilation should be done using =latexmk=, which is much smarter than just blindly repeating =pdflatex=.
+Also, it can use =biber= instead of =bibtex=, which is just better.
+The following is taken directly [[https://tecosaur.github.io/emacs-config/#latex-export][from tecosaur]].
+
+#+begin_src emacs-lisp
+(setq org-latex-pdf-process '("latexmk -f -pdf -%latex -shell-escape -interaction=nonstopmode -output-directory=%o %f"))
+#+end_src
+
+**** Modular LaTeX preambles
+
+In order to do anything mildly fancy in LaTeX without a lot of copy-paste and unreadable code, we need to define some utilities in our preambles.
+But then we are often stuck copy-pasting preambles around, which is also not helpful.
+
+Instead, as [[https://tecosaur.github.io/emacs-config/#cleverer-preamble][proposed by tecosaur]], we can split up the features we might want and having Emacs automatically detect which features are desired.  The necessary fragments are then included into the preamble of the exported file.
+I have adopted this idea and adapted his code.
+
+Thus, this section prepares the infrastructure that is used subsequently to provide various features.
+
+***** Defining and detecting features
+
+The core of the system is a collection of /features/, each of which is identified by a /feature symbol/ and may contain the following, all of which are optional.
+  * A LaTeX snippet implementing this feature.  Note that this is optional, so some features may act as a /meta-feature/, i.e., a collection of other features that are frequently used together.
+  * A list of other features this one depends on.  These will be activated automatically along with this feature.
+  * A list of other features incompatible with this one.  The system will warn the user when they are active at the same time.
+  * A list of LaTeX packages this depends on.  The system will warn the user when they are not available.
+
+#+begin_src emacs-lisp
+(defvar org-latex-features '()
+  "LaTeX features and details required to include them when generating a preamble.
+
+List where each item's car is the feature symbol and the rest forms a plist,
+as described by `def-org-latex-feature!'.")
+
+(defmacro def-org-latex-feature! (feature-symbol &rest body)
+  "Define a LaTeX feature that can be included when generating a preamble.
+
+The feature is uniquely identified by the given symbol.
+If the symbol starts with \"!\", it will be activated for all exports.
+
+The body forms a plist with the following keys:
+
+- :snippet, which may be either
+  - a string which should be included in the preamble
+  - a symbol, the value of which is included in the preamble
+  - a function, which is evaluated with the list of feature flags as its
+    single argument. The result of which is included in the preamble
+  - a list, which is `eval'uated, with a list of feature flags available
+    as \"features\"
+
+- :requires, a feature symbol or list of feature symbols that will be
+  automatically included when this one is.
+
+- :packages, a string or list of strings determining the names of
+  LaTeX packages that must be available for this feature to work.
+  Automatically determined from the snippet if omitted and the
+  snippet is a string.
+
+- :conflicts, a feature symbol or list of feature symbols that must not
+  be activated when this one is."
+  ;; Infer packages from string snippets
+  (when-let ((snippet (plist-get body :snippet)))
+    (when (stringp snippet)
+      (let ((packages nil)
+            (match (string-match "\\\\usepackage{\\([^}]+\\)}" snippet)))
+        (while match
+          (push (split-string (substring snippet (match-beginning 1) (match-end 1))
+                              "," t "[[:blank]]+")
+                packages)
+          (setq match (string-match "\\\\usepackage{\\([^}]+\\)}" snippet (match-end 0))))
+        (plist-put! body :packages
+                    (append (plist-get body :packages) (mapcan #'identity packages))))))
+  ;; Generated code:
+  `(setq org-latex-features
+         (cons (cons ',feature-symbol ',body)
+               (assoc-delete-all ',feature-symbol org-latex-features))))
+#+end_src
+
+Features can be automatically detected using certain feature tests.
+These generally look for patterns in the file, but they can also be arbitrary functions with access to as much state information as possible.
+
+#+begin_src emacs-lisp
+(defvar org-latex-feature-tests '()
+  "Tests run over Org files to activate their associated LaTeX feature flags.
+
+Alist where the car is a test for the presence of the feature,
+and the cdr is either a single feature symbol or a list of feature symbols.
+
+The possible values for feature tests as well as their interpretation is
+documented in `def-org-latex-feature-test!'.")
+
+(defmacro def-org-latex-feature-test! (features &rest body)
+  "Defines a test over Org files to activate one or more LaTeX features.
+
+The first argument must be either a single feature flag, or a list of feature flags.
+
+A feature test may be one a:
+ - string, which is used as a regex search in the buffer
+ - symbol, the value of which is fetched
+ - function, which is called with info as an argument
+
+The macro may thus either be called with a single string or symbol,
+or with one or more forms that are interpreted as the body
+of a function taking an argument called info."
+  (let ((test
+         (cond
+          ((null body)
+           (error "def-org-latex-feature-test! was given no body"))
+          ((or (cdr body) (listp (car body)))
+           `(lambda (info) . ,body))
+          ((stringp (car body))
+           (car body))
+          (t
+           `(quote ,(car body))))))
+    `(let ((test ,test))
+       (setq org-latex-feature-tests
+             (cons (cons test ',features)
+                   (assoc-delete-all test org-latex-feature-tests))))))
+#+end_src
+
+***** Generating preambles
+
+In order to generate the preamble, we may either take a list of features or detect them automatically from the current buffer.  Then we resolve these features, adding all transitive dependencies as well as eager features, then sorting according to ~:order~. Finally, we just concatenate all their snippets together.
+
+#+begin_src emacs-lisp
+(defun org-latex-generate-features-preamble (&optional features)
+  "Generate the LaTeX preamble content required to provide FEATURES.
+This is done according to `org-latex-features', looking up the given symbols there.
+
+If FEATURES are not given, detect them with `org-latex-detect-features' instead."
+  (setq features (or features (org-latex-detect-features)))
+  (let ((resolved-features (org-latex-resolve-features features)))
+    (concat
+     (format "\n%%%%%% features: %s\n" (mapcar #'car resolved-features))
+     (mapconcat (lambda (feature)
+                  (when-let ((snippet (plist-get (cdr feature) :snippet)))
+                    (format "%%%% %s\n%s"
+                            (car feature)
+                            (pcase snippet
+                              ((pred stringp) snippet)
+                              ((pred symbolp) (symbol-value snippet))
+                              ((pred functionp) (funcall snippet features))
+                              ((pred listp) (eval `(let ((features ',features)) (,@snippet))))
+                              (_ (user-erro "org-latex-features :snippet value %s unabled to be used" snippet))))))
+                resolved-features
+                "\n")
+     "\n%%% end features\n")))
+
+(defun org-latex-detect-features (&optional buffer info)
+  "List feature symbols for the features detected in BUFFER by the `org-latex-feature-tests'."
+  (let ((case-fold-search nil)
+        (run-feature-test
+         (lambda (test)
+           (let ((result
+                  (pcase test
+                    ((pred stringp) test)
+                    ((pred functionp) (funcall test info))
+                    ((pred symbolp) (symbol-value test))
+                    (_ (user-error "org-latex-conditional-features key %s unable to be used" test)))))
+             (if (stringp result)
+                 (save-excursion
+                   (goto-char (point-min))
+                   (re-search-forward result nil t))
+               result)))))
+    (with-current-buffer (or buffer (current-buffer))
+      (delete-dups
+       (mapcan (lambda (feature-test)
+                 (when (funcall run-feature-test (car feature-test))
+                   (if (listp (cdr feature-test)) (cdr features-test) (list (cdr feature-test)))))
+               org-latex-feature-tests)))))
+
+(defun org-latex-resolve-features (features)
+  "For each feature symbol in FEATURES process :requires keyword
+and sort according to :order"
+  (setq features                ;; Look up all feature definitions
+        (mapcar (lambda (feature-symbol)
+                  (or (assoc feature-symbol org-latex-features)
+                      (error "Feature %s not provided in org-latex-features" feature-symbol)))
+                features))
+  (setq features                ;; Add all eager features
+        (append features
+                (mapcan (lambda (feature)
+                          (when (and (plist-get (cdr feature) :eager)
+                                     (not (assoc (car feature) features)))
+                            (list feature)))
+                        org-latex-features)))
+  (let ((unresolved features))  ;; Add all transitive dependencies
+    (while unresolved
+      (when-let ((requirements (plist-get (cdr (car unresolved)) :requires)))
+        (dolist (requirement (if (symbolp requirements) (list requirements) requirements))
+          (unless (assoc requirement features)
+            (setcdr unresolved
+                    (cons (or (assoc requirement org-latex-features)
+                              (error "Feature %s not provided in org-latex-features (dependency)" requirement))
+                          (cdr unresolved))))))
+      (setq unresolved (cdr unresolved))))
+  (sort features
+        (lambda (feat1 feat2)
+          (< (or (plist-get (cdr feat1) :order) 1)
+             (or (plist-get (cdr feat2) :order) 1)))))
+#+end_src
+
+Finally, advise Org to use this generated preamble content when exporting to LaTeX.
+
+#+begin_src emacs-lisp
+(defvar info--tmp nil)
+
+(defadvice! org-latex-save-info (info &optional t_ s_)
+  :before #'org-latex-make-preamble
+  (setq info--tmp info))
+
+(defadvice! org-slice-latex-header-and-generated-preamble-a (orig-fn tpl def-pkg pkg snippets-p &optional extra)
+  "Dynamically insert preamble content based on `org-latex-features' and `org-latex-feature-tests'."
+  :around #'org-splice-latex-header
+  (let ((header (funcall orig-fn tpl def-pkg pkg snippets-p extra)))
+    (if snippets-p
+        header
+      (concat header
+              (org-latex-generate-features-preamble (org-latex-detect-features nil info--tmp))
+              "\n"))))
+#+end_src
+
+***** Checking for required LaTeX packages
+
+Many of the features provided below need certain LaTeX packages to be present in the system.
+Otherwise, compilation of generated LaTeX files into PDFs will fail.
+We add some advice to check for missing LaTeX packages (using =kpsewhich=) the first time we try to export a PDF.
+
+#+begin_src emacs-lisp
+(defun check-for-latex-packages (packages)
+  (mapcan (lambda (package)
+            (unless
+                (= 0 (shell-command (format "kpsewhich %s.sty" package)))
+              (list package)))
+          packages))
+
+(defun org-latex-required-packages ()
+  "List all LaTeX packages that are required by `org-latex-features'."
+  (let ((packages nil))
+    (dolist (feature org-latex-features)
+      (setq packages (append (plist-get (cdr feature) :packages)
+                             packages)))
+    (delete-dups packages)))
+
+(defun +org-warn-about-missing-latex-packages (&rest _)
+  (message "Checking for missing LaTeX packages...")
+  (sleep-for 0.4)
+  (when-let (missing-pkgs (check-for-latex-packages (org-latex-required-packages)))
+    (message "%s You are missing the following LaTeX packages: %s."
+             (propertize "Warning!" 'face '(bold warning))
+             (mapconcat (lambda (pkg) (propertize pkg 'face 'font-lock-variable-name-face))
+                        missing-pkgs
+                        ", ")))
+  (advice-remove 'org-latex-export-to-pdf #'+org-warn-about-missing-latex-packages)
+  (sleep-for 1))
+
+(advice-add 'org-latex-export-to-pdf :before #'+org-warn-about-missing-latex-packages)
+#+end_src
+
+
+**** Images and captions
+
+#+begin_src emacs-lisp :noweb no-export
+(def-org-latex-feature! image :snippet "\\usepackage{graphicx}" :order 2)
+(def-org-latex-feature! svg :snippet "\\usepackage{svg}" :order 2)
+(def-org-latex-feature! caption :order 0.2
+  :snippet "
+<<org-latex-caption-preamble>>
+")
+
+(def-org-latex-feature-test! image
+  "\\[\\[\\(?:file\\|https?\\):\\(?:[^]]\\|\\\\\\]\\)+?\\.\\(?:eps\\|pdf\\|png\\|jpeg\\|jpg\\|jbig2\\)\\]\\]")
+(def-org-latex-feature-test! svg
+  "\\[\\[\\(?:file\\|https?\\):\\(?:[^]]+?\\|\\\\\\]\\)\\.svg\\]\\]")
+(def-org-latex-feature-test! caption
+  "^[ \t]*#\\+caption:\\|\\\\caption")
+#+end_src
+
+Captions could do with a bit of tweaking such that
++ You can easily have multiple captions
++ Links to figures take you to the /top/ of the figure (not the bottom)
++ Caption labels could do with being emphasised slightly more
++ Multiline captions should run ragged-right, but only when then span more than
+  one line
+
+#+name: org-latex-caption-preamble
+#+begin_src LaTeX
+\\usepackage{subcaption}
+\\usepackage[hypcap=true]{caption}
+\\setkomafont{caption}{\\sffamily\\small}
+\\setkomafont{captionlabel}{\\upshape\\bfseries}
+\\captionsetup{justification=raggedright,singlelinecheck=true}
+\\usepackage{capt-of} % required by Org
+#+end_src
+
+**** Message blocks
+
+It's nice to have "message blocks", things like info/warning/error/success.
+A LaTeX macro should make them trivial to create.
+
+#+begin_src emacs-lisp :noweb no-export
+(def-org-latex-feature! box-warning :requires .fancybox :snippet "\\defsimplebox{warning}{e66100}{\\ding{68}}{Warning}" :order 4)
+(def-org-latex-feature! box-info :requires .fancybox :snippet "\\defsimplebox{info}{3584e4}{\\ding{68}}{Information}" :order 4)
+(def-org-latex-feature! box-success :requires .fancybox :snippet "\\defsimplebox{success}{26a269}{\\ding{68}}{\\vspace{-\\baselineskip}}" :order 4)
+(def-org-latex-feature! box-error :requires .fancybox :snippet "\\defsimplebox{error}{c01c28}{\\ding{68}}{Important}" :order 4)
+(def-org-latex-feature! .fancybox
+  :requires .pifont :order 3.9
+  :snippet "
+<<org-latex-box-preamble>>
+")
+(def-org-latex-feature! .pifont :snippet "\\usepackage{pifont}")
+
+(def-org-latex-feature-test! box-warning
+  "^[ \t]*#\\+begin_warning\\|\\\\begin{warning}")
+(def-org-latex-feature-test! box-info
+  "^[ \t]*#\\+begin_info\\|\\\\begin{info}")
+(def-org-latex-feature-test! box-success
+  "^[ \t]*#\\+begin_success\\|\\\\begin{success}")
+(def-org-latex-feature-test! box-error
+  "^[ \t]*#\\+begin_error\\|\\\\begin{error}")
+#+end_src
+#+name: org-latex-box-preamble
+#+begin_src LaTeX
+% args = #1 Name, #2 Colour, #3 Ding, #4 Label
+\\newcommand{\\defsimplebox}[4]{%
+  \\definecolor{#1}{HTML}{#2}
+  \\newenvironment{#1}[1][]
+  {%
+    \\par\\vspace{-0.7\\baselineskip}%
+    \\textcolor{#1}{#3} \\textcolor{#1}{\\textbf{\\def\\temp{##1}\\ifx\\temp\\empty#4\\else##1\\fi}}%
+    \\vspace{-0.8\\baselineskip}
+    \\begin{addmargin}[1em]{1em}
+  }{%
+    \\end{addmargin}
+    \\vspace{-0.5\\baselineskip}
+  }%
+}
+#+end_src
+
+**** Checkboxes
+
+The default checkboxes look rather ugly, so let's provide some prettier alternatives.
+
+#+begin_src emacs-lisp :noweb no-export
+(def-org-latex-feature! checkbox
+  :requires .pifont
+  :order 3
+  :snippet (concat (unless (memq 'maths features)
+                     "\\usepackage{amssymb} % provides \\square")
+                   "
+<<org-latex-checkbox-preamble>>
+"))
+
+(def-org-latex-feature-test! checkbox
+  "^[ \t]*\\(?:[-+*]\\|[0-9]+[.)]\\|[A-Za-z]+[.)]\\) \\[[ -X]\\]")
+#+end_src
+#+name: org-latex-checkbox-preamble
+#+begin_src LaTeX
+\\newcommand{\\checkboxUnchecked}{$\\square$}
+\\newcommand{\\checkboxTransitive}{\\rlap{\\raisebox{-0.1ex}{\\hspace{0.35ex}\\Large\\textbf -}}$\\square$}
+\\newcommand{\\checkboxChecked}{\\rlap{\\raisebox{0.2ex}{\\hspace{0.35ex}\\scriptsize \\ding{52}}}$\\square$}
+#+end_src
+
+We can then make sure that exported checkboxes from Org use our custom commands.
+
+#+begin_src emacs-lisp
+(defun +org-export-latex-fancy-item-checkboxes (text backend info)
+  (when (org-export-derived-backend-p backend 'latex)
+    (replace-regexp-in-string
+     "\\\\item\\[{$\\\\\\(\\w+\\)$}\\]"
+     (lambda (fullmatch)
+       (concat "\\\\item[" (pcase (substring fullmatch 9 -3) ; content of capture group
+                             ("square" "\\\\checkboxUnchecked")
+                             ("boxminus" "\\\\checkboxTransitive")
+                             ("boxtimes" "\\\\checkboxChecked")
+                             (_ (substring fullmatch 9 -3))) "]"))
+     text)))
+
+;;(add-to-list 'org-export-filter-item-functions '+org-export-latex-fancy-item-checkboxes)
+#+end_src
+
+**** Cosmetic changes
+
+When space is not a concern, I prefer to separate paragraphs with spacing instead of indenting the first line.
+
+#+begin_src emacs-lisp
+(def-org-latex-feature! par-sep
+  :snippet "\\setlength{\\parskip}{\\baselineskip}\n\\setlength{\\parindent}{0pt}\n"
+  :order 0.5)
+
+(defvar org-latex-par-sep t
+  "Vertically separate paragraphs and remove indentation of first lines.")
+(def-org-latex-feature-test! par-sep org-latex-par-sep)
+#+end_src
+
+
+*** Hugo Export
+
+Sometimes I want to turn a bunch of Org files into a static website.
+For that, I use the [[https://gohugo.io/][Hugo static site generator]].
+
+#+begin_src emacs-lisp :tangle packages.el :noweb-ref nil
+(package! ox-hugo)
+#+end_src
+
+
+* Languages
+
+** Ledger
+
+I use the haskell-based hledger instead of the usual ledger.
+
+#+begin_src emacs-lisp :tangle no
+(use-package! ledger-mode
+  :mode ("\\.ledger\\'" "\\.journal\\'")
+  :config
+  (setq ledger-binary-path "hledger"))
+#+end_src
+
+
+** Graphviz
+
+Graphviz is super helpful to draw simple graphs based on readable plaintext =.dot= / =.gv= files.
+Let's also make sure that code blocks on Org mode have the right language mode for Graphviz.
+
+#+begin_src emacs-lisp :tangle no
+;; packages.el
+(package! graphviz-dot-mode)
+#+end_src
+#+begin_src emacs-lisp :tangle no
+(use-package! graphviz-dot-mode
+  :commands graphviz-dot-mode
+  :mode ("\\.dot\\'" "\\.gz\\'")
+  :init
+  (after! org
+    (setcdr (assoc "dot" org-src-lang-modes)
+            'graphviz-dot)))
+
+(use-package! company-graphviz-dot
+  :after graphviz-dot-mode)
+#+end_src
+
+
+* Features
+
+** Version control
+
+I basically use only [[https://git-scm.com/][git]] for version control, which is wonderfully supported in Emacs through [[https://magit.vc/][Magit]].
+Honestly it is the best git frontend I have ever used.
+
+The Doom configuration of Magit is great by default.
+The only thing that could be better are the diffs, which don't have great style and/or syntax highlighting.
+This coudld be vastly improved using [[https://github.com/dandavison/delta][=delta=]], which has an [[https://github.com/dandavison/magit-delta][appropriate minor mode]] under development.
+Unfortunately, it hasn't really worked for me yet.
+
+#+begin_src emacs-lisp :tangle packages.el
+;;(package! magit-delta
+;;  :recipe (:host github :repo "dandavison/magit-delta"))
+#+end_src
+
+#+begin_src emacs-lisp
+;;(after! magit (magit-delta-mode +1))
+#+end_src
+
+
+** Manual pages
+
+Emacs provides extensive documentation, which is helpful but not always nice to look at.  Using variable-pitch fonts and colours helps!  So does centering the contents on the buffer.  We use variable-pitch fonts for ~Info-mode~ only, since it doesn't work well for ~helpful-mode~.
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! info-colors)
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! info-colors
+  :commands (info-colors-fontify-node))
+
+(add-hook! Info-selection-hook 'info-colors-fontify-node)
+(mixed-pitch-register-mode 'Info-mode)
+
+(add-hook! (Info-mode helpful-mode)
+  (olivetti-mode)
+  (olivetti-set-width 100))
+#+end_src
+
+
+** Spell checking
+
+#+begin_comment
+
+As a brazilian computer scientist living in Germany, my life has a constant mix of at least three languages.
+Thus, my spell checking tools need to cope with switching languages as quickly as I do, and hopefully also with mixing and matching.
+Fortunately, there is a nice [[https://200ok.ch/posts/2020-08-22_setting_up_spell_checking_with_multiple_dictionaries.html][blog post]] explaining how to do it using =hunspell= as a backend and =flyspell-mode= as the frontend.
+
+#+name: set-hunspell-dicts
+#+begin_src emacs-lisp :tangle no
+(setq ispell-dictionary "en_GB,de_DE,pt_BR"
+      ispell-personal-dictionary "~/.local/share/hunspell/dicts/personal")
+#+end_src
+
+#+begin_src emacs-lisp :noweb no-export
+(after! ispell
+  <<set-hunspell-dicts>>
+  ;; The following has to be called before ispell-hunspell-add-multi-dic will work
+  (ispell-set-spellchecker-params)
+  (ispell-hunspell-add-multi-dic ispell-dictionary))
+#+end_src
+
+Make sure I have the dictionaries installed, otherwise warn on startup.
+
+#+begin_src emacs-lisp :noweb no-export
+<<detect-missing-dicts()>>
+#+end_src
+
+#+name: detect-missing-dicts
+#+begin_src emacs-lisp :tangle no :noweb no-export
+<<set-hunspell-dicts>>
+
+(setq missing-dicts '())
+
+(unless (file-exists-p ispell-personal-dictionary)
+  (add-to-list 'missing-dicts ispell-personal-dictionary))
+
+(if missing-dicts
+    (pp-to-string
+     `(unless noninteractive
+        (add-hook! 'doom-init-ui-hook
+          (run-at-time nil nil
+                       (lambda ()
+                         (message "%s missing the following Hunspell dictionaries: %s"
+                                  (propertize "Warning!" 'face '(bold warning))
+                                  (mapconcat (lambda (font)
+                                               (propertize font 'face 'font-lock-variable-name-face))
+                                             ',missing-dicts
+                                             ", "))
+                         (sleep-for 0.5))))))
+  ";; No missing Hunspell dictionaries detected")
+#+end_src
+
+*** TODO Add checks that other Hunspell dictionaries are available
+*** TODO Add grammar checking
+
+#+end_comment

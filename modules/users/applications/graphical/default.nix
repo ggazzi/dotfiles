@@ -31,9 +31,6 @@ in {
 
     xdg.mimeApps = {
       defaultApplications = {
-        "application/pdf" = "evince.desktop";
-        "inode/directory" = "org.gnome.Nautilus.desktop";
-
         "application/xhtml+xml" = "vivaldi-stable.desktop";
         "text/html" = "vivaldi-stable.desktop";
         "x-scheme-handler/http" = "vivaldi-stable.desktop";

@@ -1,11 +1,11 @@
 { pkgs, config, lib, ... }:
 
 with lib; let
-  cfg = config.ggazzi.emacs;
+  cfg = config.ggazzi.applications.emacs;
   systemCfg = config.machineData.systemConfig;
 
 in {
-  options.ggazzi.emacs = {
+  options.ggazzi.applications.emacs = {
     enable = mkOption {
       description = "Enable and install Emacs";
       type = types.bool;

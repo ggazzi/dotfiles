@@ -2,10 +2,9 @@
 
 {
   imports = [
-    ./applications.nix
+    ./applications
     ./bash
-    ./emacs
-    ./games.nix
+    ./games
     ./git.nix
     ./gnome.nix
   ];

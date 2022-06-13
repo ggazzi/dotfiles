@@ -35,16 +35,18 @@
           username = "ggazzi";
 
           userConfig = {
-            applications.enable = true;
-
-            emacs = {
-              enable = true;
-              native-compilation = true;
-            };
-
             git = {
               enable = true;
               gitg.enable = true;
+            };
+
+            applications = {
+              enable = true;
+
+              emacs = {
+                enable = true;
+                native-compilation = true;
+              };
             };
 
             games.minecraft.enable = true;

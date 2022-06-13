@@ -37,6 +37,11 @@
           userConfig = {
             applications.enable = true;
 
+            emacs = {
+              enable = true;
+              native-compilation = true;
+            };
+
             git = {
               enable = true;
               gitg.enable = true;

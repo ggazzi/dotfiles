@@ -4,6 +4,7 @@
   imports = [
     ./applications.nix
     ./bash
+    ./emacs
     ./games.nix
     ./git.nix
     ./gnome.nix

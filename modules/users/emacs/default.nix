@@ -33,7 +33,7 @@ in {
 
     # Install and tangle the config file, then update doom accordingly (if installed)
     xdg.configFile."doom-emacs/config.org" = {
-      source = config.lib.file.mkOutOfStoreSymlink ./config.org;
+      source = ./config.org;
       onChange = "${pkgs.writeShellScript "emacs-config-change" ''
         export DOOMDIR="${config.home.sessionVariables.DOOMDIR}"
         export DOOMLOCALDIR="${config.home.sessionVariables.DOOMLOCALDIR}"

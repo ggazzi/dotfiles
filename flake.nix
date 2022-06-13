@@ -48,6 +48,11 @@
                 native-compilation = true;
               };
 
+              vivaldi = {
+                enable = true;
+                default = true;
+              };
+
               vscode = {
                 enable = true;
                 default = true;

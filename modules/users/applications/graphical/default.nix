@@ -6,6 +6,7 @@ in {
 
   imports = [
     ./vscode
+    ./vivaldi.nix
   ];
 
   config = mkIf (cfg.enable && systemCfg.desktop.enable) {
@@ -14,10 +15,7 @@ in {
       keepassxc
 
       # Cloud Storage
-      seafile-client      
-
-      # Browser
-      vivaldi vivaldi-ffmpeg-codecs
+      seafile-client
 
       # Communication tools
       tdesktop discord
@@ -29,20 +27,11 @@ in {
     # Visual Studio Code as a text editor
     programs.vscode.enable = true;
 
-    xdg.mimeApps = {
-      defaultApplications = {
-        "application/xhtml+xml" = "vivaldi-stable.desktop";
-        "text/html" = "vivaldi-stable.desktop";
-        "x-scheme-handler/http" = "vivaldi-stable.desktop";
-        "x-scheme-handler/https" = "vivaldi-stable.desktop";
-      };
-    };
-
     # Make discord work even when the latest version isn't available on nix
     xdg.configFile."discord/settings.json".text = ''
       { "SKIP_HOST_UPDATE": true }
     '';
-    
+
     fonts.fontconfig.enable = systemCfg.desktop.enable;
   };
 

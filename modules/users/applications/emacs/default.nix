@@ -23,7 +23,7 @@ in {
     # I am not managing doom emacs with nix.
     # Instead, I install emacs along with any external dependencies and manage
     # the configuration. Doom itself must be installed manually.
-   
+
     home.sessionVariables = {
       DOOMDIR = "${config.xdg.configHome}/doom-emacs";
       DOOMLOCALDIR = "${config.xdg.dataHome}/doom-emacs";
@@ -33,14 +33,16 @@ in {
 
     # Install and tangle the config file, then update doom accordingly (if installed)
     xdg.configFile."doom-emacs/config.org" = {
-      source = ./config.org;
+      source =
+        config.lib.file.mkOutOfStoreSymlink
+        "${config.ggazzi.configDir}/modules/users/applications/emacs/config.org";
       onChange = "${pkgs.writeShellScript "emacs-config-change" ''
         export DOOMDIR="${config.home.sessionVariables.DOOMDIR}"
         export DOOMLOCALDIR="${config.home.sessionVariables.DOOMLOCALDIR}"
 
         emacs --batch --eval "(progn (require 'org) (setq org-confirm-babel-evaluate nil) (org-babel-tangle-file \"${config.xdg.configHome}/doom-emacs/config.org\"))"
-        if which doom 
-        then 
+        if which doom
+        then
           doom sync
         fi
       ''}";
@@ -86,14 +88,14 @@ in {
       };
     };
 
-    home.packages = with pkgs; [ 
+    home.packages = with pkgs; [
       (
         if systemCfg.desktop.enable then
           if cfg.native-compilation then
             emacs28NativeComp
           else
             emacs
-        else 
+        else
           emacs-nox
       )
 

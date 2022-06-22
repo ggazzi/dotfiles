@@ -79,7 +79,8 @@
             username = "ggazzi";
             uid = 1000;
             home = "/home/ggazzi-nixos";
-            groups = [ "wheel" "networkmanager" "video" ];
+            groups = [ "wheel" "networkmanager" "video" "docker" ];
+
           }];
 
           systemConfig = {
@@ -95,6 +96,8 @@
               };
 
             };
+
+            docker.enable = true;
 
             printers = {
               enable = true;

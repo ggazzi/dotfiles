@@ -71,7 +71,10 @@
 
           hardware = {
             cpuCores = 4;
-            networkingInterfaces = ["enp2s0" "wlp3s0"];
+            networkingInterfaces = {
+              enp2s0 = { useDHCP = true; };
+              wlp3s0 = { wifi = true; useDHCP = true; };
+            };
             configuration = ./hardware/carrocinha.nix;
           };
 

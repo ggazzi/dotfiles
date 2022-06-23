@@ -15,12 +15,33 @@ in
       type = types.bool;
       default = false;
     };
+
+    boot.efi.enable = mkOption {
+      description = "Enable the systemd-boot EFI boot loader";
+      type = types.bool;
+      default = true;
+    };
+
+    networkmanager.enable = mkOption {
+      description = "Enable usage of the NetworkManager";
+      type = types.bool;
+      default = true;
+    };
+
+    sshd.enable = mkOption {
+       description = "Enable the openssh server daemon";
+       type = types.bool;
+       default = false;
+    };
   };
 
   config = {
-    # Use the systemd-boot EFI boot loader.
-    boot.loader.systemd-boot.enable = true;
-    boot.loader.efi.canTouchEfiVariables = true;
+
+    boot.loader = mkIf cfg.boot.efi.enable {
+      # Use the systemd-boot EFI boot loader.
+      systemd-boot.enable = true;
+      efi.canTouchEfiVariables = true;
+    };
 
     nix = {
       # Allow usage of Flakes
@@ -41,6 +62,8 @@ in
     };
 
     virtualisation.docker.enable = cfg.docker.enable;
+    networking.networkmanager.enable = cfg.networkmanager.enable;
+    services.openssh.enable = cfg.sshd.enable;
 
     # Some very basic packages that are needed pretty much everywhere
     environment.systemPackages = with pkgs; [

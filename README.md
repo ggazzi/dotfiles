@@ -8,13 +8,15 @@ This is heavily based on [Jordan Isaac's dotfiles](https://github.com/jordanisaa
 
 ## Updating
 
-If the system configuration is changed, the system can be updated with the following command, run from this directory.
+To update upstream software, update this flake by running `nix flake update` from this directory, then update the system according to the instructions below.
+
+If the system configuration is changed or this flake has been updated, the actual system can be updated with the following command, run from this directory.
 
 ```sh
 nixos-rebuild switch --flake '.#'
 ```
 
-For the user configuration, use the following command.
+For the user configuration and the corresponding software, use the following command.
 It requires the `--impure` flag so it can read the system configuration from a file.
 
 ```sh
@@ -23,9 +25,17 @@ home-manager switch --flake "$PWD" --impure
 
 ## Installation
 
-This is here mostly because I'm lazy don't want to think of it again.
+1. Install NixOS normally on the new system, letting it generate the `configuration.nix` and `harware-configuration.nix` files under `/etc/nixos/`.
 
-1. Run `nix-shell -p git stow home-manager bash`.
-2. Checkout this repository, `cd` to its root.
-3. Run `./scripts/install-dotfiles.bash` to link all dotfiles.
-4. Run `home-manager switch` to install any remaining software and configurations.
+2. Prepare the configuration for the new system.
+
+    - Choose a new hostname, set it in `/etc/nixos/configuration.nix` and apply it by running `nixos-rebuild test`.
+
+    - Copy the `/etc/nixos/hardware-configuration.nix` into `hardware/<hostname>.nix`.
+
+    - Create the new system configuration in `flake.nix`, adding an entry under `outputs.nixosConfigurations`.
+      Don't forget to set `hadware`, `users` and `systemConfig` appropriately.
+
+3. Apply this configuration to the system by running `nixos-rebuild switch --flake '.#'` from this directory.
+
+4. Log into each user, set their password and apply the configuration by running `home-manager switch --flake "$PWD" --impure` from this directory.

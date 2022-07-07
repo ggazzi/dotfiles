@@ -7,9 +7,10 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    nixos-hardware.url = "github:NixOs/nixos-hardware/master";
   };
 
-  outputs = { nixpkgs, home-manager, ... }@inputs: 
+  outputs = { nixpkgs, home-manager, nixos-hardware, ... }@inputs:
     let
       # Bring some useful libraries into the namespace
       inherit (nixpkgs) lib;
@@ -111,6 +112,43 @@
               drivers = [pkgs.epson-escpr];
             };
           };
+        };
+
+        rascal = host.mkHost {
+          name = "rascal";
+          system = "aarch64-linux";
+          stateVersion = "22.05";
+
+          hardware = {
+            cpuCores = 4;
+            networkingInterfaces = {
+              wlan0 = { wifi = true; useDHCP = true; };
+              eth0 = {
+                useDHCP = false;
+                ipv4.addresses = [{
+                  address = "192.168.1.2";
+                  prefixLength = 24;
+                }];
+              };
+            };
+            configuration = [ ./hardware/rascal.nix nixos-hardware.nixosModules.raspberry-pi-4 ];
+          };
+
+          users = [{
+            username = "ggazzi";
+            uid = 1000;
+            home = "/home/ggazzi";
+            groups = [ "wheel" "docker" ];
+          }];
+
+          systemConfig = { ... }: {
+            boot.efi.enable = false;
+            networkmanager.enable = false;
+            desktop.enable = false;
+            docker.enable = true;
+            sshd.enable = true;
+          };
+
         };
       };
     };

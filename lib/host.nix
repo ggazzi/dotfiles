@@ -1,10 +1,13 @@
-{ system, pkgs, home-manager, lib, user, ...}:
+{ pkgsBySystem, home-manager, lib, user, ...}:
 with builtins;
 {
   # Function used to build the configuration for a host
   mkHost = {
     # Will be used as hostname
     name,
+
+    # Nix platform type for this host, will be used as `nixpkgs.system`
+    system,
 
     # A set containing the following hardware/kernel options.
     #
@@ -25,7 +28,11 @@ with builtins;
     #
     hardware,
 
-    # Options that will be read by the system configuration module
+    # Options that will be read by the system configuration module.
+    # This is a function taking the following set of parameters:
+    #
+    #  - `pkgs`: the instantiated and configurated nixpkgs.
+    #
     systemConfig,
 
     # NixOS release from which the default settings for stateful data,
@@ -52,20 +59,23 @@ with builtins;
     };
 
     hwconfig = default_hardware // hardware;
+    pkgs = pkgsBySystem."${system}";
+    config = systemConfig { inherit pkgs; };
   in lib.nixosSystem {
     inherit system;
 
     modules = [
       {
-        imports = [ ../modules/system hardware.configuration ] ++ (map user.mkSystemUser users);
+        imports = [ ../modules/system ] ++ hardware.configuration ++ (map user.mkSystemUser users);
 
         # Save the custom system config to ggazzi to avoid any conflicts with other modules
-        ggazzi = systemConfig;
+        ggazzi = config;
 
         # Write configuration data to a file so it can be used by home-manager
         environment.etc = {
           "hmsystemdata.json".text = toJSON {
-            inherit name systemConfig stateVersion;
+            inherit name system stateVersion;
+            systemConfig = config;
             hardware = with hwconfig; { inherit cpuCores gpuTempSensor cpuTempSensor; };
             users = user.mkSystemUserData users;
           };

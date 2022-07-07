@@ -1,4 +1,4 @@
-{ pkgs, home-manager, lib, system, overlays, ... }:
+{ pkgsBySystem, home-manager, lib, ... }:
 with builtins;
 let
   resolveHome = {username, home}: if home == null then "/home/${username}" else home;
@@ -17,6 +17,8 @@ in {
 
       homeDirectory = machineData.users."${username}".home;
       stateVersion = machineData.stateVersion;
+      system = machineData.system;
+      pkgs = pkgsBySystem."${system}";
     in home-manager.lib.homeManagerConfiguration {
       inherit system pkgs username homeDirectory stateVersion;
 
@@ -29,13 +31,13 @@ in {
               description = "Settings passed from nixos system configuration. Will be empty if not present.";
             };
 
-            config.machineData = machineData; 
+            config.machineData = machineData;
           };
         in {
           # Save the custom user config to ggazzi to avoid any conflicts with other modules
-          ggazzi = userConfig;
+          ggazzi = userConfig { inherit pkgs; };
 
-          nixpkgs.overlays = overlays;
+          nixpkgs.overlays = pkgs.overlays;
           nixpkgs.config.allowUnfree = true;
 
           systemd.user.startServices = true;
@@ -48,24 +50,24 @@ in {
   # Function used to create a user in a system configuration
   mkSystemUser = {
     # The regular username (`users.users."${username}".name`)
-    username, 
+    username,
 
     # Same as `users.users."${username}".uid`
-    uid, 
+    uid,
 
     # Path to the home directory (`users.users."${username}".home`).
     # Default: "/home/${username}"
     home ? null,
 
-    # Names of groups to which the user should be added 
+    # Names of groups to which the user should be added
     # (`users.users."${username}".extraGroups`)
-    groups, 
+    groups,
 
     # Path or package of the user shell (`users.users."${username}".shell`)
-    shell ? null, 
+    shell ? null,
 
-    ... 
-  }: 
+    ...
+  }:
   {
     users.users."${username}" = {
       name = username;
@@ -81,10 +83,10 @@ in {
 
   # Extracts system information about the given users that is used by the user configuration.
   # Receives a list of sets that are valid as arguments for `mkSystemUser`.
-  mkSystemUserData = 
+  mkSystemUserData =
     let
       mkUserData = {username, home, ...}: {
-        name = username; 
+        name = username;
         value = { home = resolveHome { inherit username home; }; };
       };
     in users: listToAttrs (map mkUserData users);

@@ -16,25 +16,28 @@
 
       # Load our utilities for generating host and user configurations
       util = import ./lib {
-        inherit system pkgs home-manager lib; overlays = (pkgs.overlays);
+        inherit pkgsBySystem home-manager lib;
       };
       inherit (util) user;
       inherit (util) host;
 
       # Global configuration for nixpkgs
-      pkgs = import nixpkgs {
-        inherit system;
+      nixpkgs-config = {
         config.allowUnfree = true;
         overlays = [];
       };
+      makePkg = system: {
+        name = system;
+        value = import nixpkgs (nixpkgs-config // { inherit system; });
+      };
+      pkgsBySystem = builtins.listToAttrs (map makePkg ["x86_64-linux" "aarch64-linux"]);
 
-      system = "x86_64-linux";
     in {
       homeConfigurations = {
         ggazzi = user.mkHMUser {
           username = "ggazzi";
 
-          userConfig = {
+          userConfig = { ... }: {
             git = {
               enable = true;
               gitg.enable = true;
@@ -68,6 +71,7 @@
         carrocinha = host.mkHost {
           name = "carrocinha";
           stateVersion = "21.11";
+          system = "x86_64-linux";
 
           hardware = {
             cpuCores = 4;
@@ -75,7 +79,7 @@
               enp2s0 = { useDHCP = true; };
               wlp3s0 = { wifi = true; useDHCP = true; };
             };
-            configuration = ./hardware/carrocinha.nix;
+            configuration = [ ./hardware/carrocinha.nix ];
           };
 
           users = [{
@@ -86,7 +90,7 @@
 
           }];
 
-          systemConfig = {
+          systemConfig = { pkgs, ... }: {
 
             desktop = {
               enable = true;

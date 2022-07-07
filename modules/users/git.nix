@@ -47,10 +47,10 @@ in {
         lg = "log --pretty=format:\"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]\" --decorate --graph";
         linfo = "log -p --decorate";
 
-        diff-tree = "git diff";
-        dt = "git diff";
-        diff-index = "git diff --cached";
-        di = "git diff --cached";
+        diff-tree = "diff";
+        dt = "diff";
+        diff-index = "diff --cached";
+        di = "diff --cached";
       };
 
       delta.enable = true;

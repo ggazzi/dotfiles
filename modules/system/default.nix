@@ -67,7 +67,7 @@ in
 
     # Some very basic packages that are needed pretty much everywhere
     environment.systemPackages = with pkgs; [
-      vim git wget
+      vim git wget home-manager
     ];
   };
 

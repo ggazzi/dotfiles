@@ -7,6 +7,7 @@ in
   imports = [
     ./desktop
     ./printers.nix
+    ./sshd.nix
   ];
 
   options.ggazzi = {
@@ -26,12 +27,6 @@ in
       description = "Enable usage of the NetworkManager";
       type = types.bool;
       default = true;
-    };
-
-    sshd.enable = mkOption {
-       description = "Enable the openssh server daemon";
-       type = types.bool;
-       default = false;
     };
   };
 
@@ -63,7 +58,6 @@ in
 
     virtualisation.docker.enable = cfg.docker.enable;
     networking.networkmanager.enable = cfg.networkmanager.enable;
-    services.openssh.enable = cfg.sshd.enable;
 
     # Some very basic packages that are needed pretty much everywhere
     environment.systemPackages = with pkgs; [

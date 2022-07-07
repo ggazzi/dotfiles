@@ -24,11 +24,14 @@
     };
 
   fileSystems."/home" =
-    { device = "/dev/disk/by-uuid/ee837c0f-1953-40bf-a95f-b4454c93430b";
+    { # device = "/dev/disk/by-uuid/ee837c0f-1953-40bf-a95f-b4454c93430b"; # The old partition
+      device = "/dev/disk/by-uuid/2a4df250-dafb-4576-a6c1-284f21f57ad9"; # The new partition
       fsType = "ext4";
     };
 
-  swapDevices = [ ];
+  swapDevices =
+    [ { device = "/dev/disk/by-uuid/beaa0ffb-8e42-494f-857f-4e9c3d850536"; }
+    ];
 
   powerManagement.cpuFreqGovernor = lib.mkDefault "powersave";
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;

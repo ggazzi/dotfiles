@@ -15,7 +15,7 @@ in {
 
   config = {
     home.packages = with pkgs; 
-      (if cfg.minecraft.enable then [minecraft] else []) ++ 
-      (if systemCfg.desktop.games.steam then [steam] else []);
+      (if systemCfg.desktop.enable && cfg.minecraft.enable then [minecraft] else []) ++ 
+      (if systemCfg ? desktop.games.steam && systemCfg.desktop.games.steam then [steam] else []);
   };
 }

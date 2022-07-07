@@ -1,0 +1,9 @@
+# The following files are generated from config.org and should not be stored.
+#
+# In fact, they shouldn't even be generated in this directory, but sometimes
+# this can happen while editing the config.org file.
+cli.el
+config.el
+init.el
+packages.el
+setup.sh

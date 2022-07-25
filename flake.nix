@@ -86,8 +86,7 @@
             username = "ggazzi";
             uid = 1000;
             home = "/home/ggazzi-nixos";
-            groups = [ "wheel" "networkmanager" "video" "docker" ];
-
+            groups = [ "wheel" "networkmanager" "video" "docker" "scanner" "lp" ];
           }];
 
           systemConfig = { pkgs, ... }: {
@@ -109,6 +108,10 @@
             printers = {
               enable = true;
               drivers = [pkgs.epson-escpr];
+            };
+            scanners = {
+              enable = true;
+              backends = [pkgs.epkowa];
             };
           };
         };

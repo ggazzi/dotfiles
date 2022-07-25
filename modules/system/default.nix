@@ -7,6 +7,7 @@ in
   imports = [
     ./desktop
     ./printers.nix
+    ./scanners.nix
     ./sshd.nix
   ];
 

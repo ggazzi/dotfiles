@@ -1,7 +1,7 @@
 { pkgs, config, lib, ... }:
 with lib;
 
-let   
+let
   cfg = config.ggazzi.printers;
 in {
   options.ggazzi.printers = {
@@ -13,10 +13,8 @@ in {
 
     drivers = mkOption {
       description = ''
-        CUPS drivers to use. 
+        CUPS drivers to use.
         For more information, see the option <literal>services.printing.drivers</literal>.
-
-        Must be a function taking the <literal>pkgs</literal> set and returning the list of drivers.
         '';
       type = types.listOf types.path;
       default = [];

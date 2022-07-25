@@ -9,7 +9,7 @@
     };
   };
 
-  outputs = { nixpkgs, home-manager, ... }@inputs: 
+  outputs = { nixpkgs, home-manager, ... }@inputs:
     let
       # Bring some useful libraries into the namespace
       inherit (nixpkgs) lib;

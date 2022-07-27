@@ -22,6 +22,9 @@ in {
 
       # Fonts
       fira fira-mono fira-code fira-code-symbols
+
+      # Text tools
+      meld
     ];
 
     # Visual Studio Code as a text editor

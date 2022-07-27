@@ -6,7 +6,7 @@ in {
   options.ggazzi.games = {
     minecraft = {
       enable = mkOption {
-        description = "Install the minecraft launcher";
+        description = "Install the PolyMC minecraft launcher";
         type = types.bool;
         default = false;
       };
@@ -14,8 +14,8 @@ in {
   };
 
   config = {
-    home.packages = with pkgs; 
-      (if cfg.minecraft.enable then [minecraft] else []) ++ 
+    home.packages = with pkgs;
+      (if cfg.minecraft.enable then [polymc] else []) ++
       (if systemCfg.desktop.games.steam then [steam] else []);
   };
 }

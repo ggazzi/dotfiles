@@ -1720,8 +1720,15 @@ We need to load this at startup, unlike the rest of the Org Mode configuration, 
 
 (map! :map doom-leader-map
       "r D" #'org-roam-set-directory)
+#+end_src
 
-(org-roam-set-directory "~/Dokumente/Roam")
+Finally, we set the default Roam directory. For setups with a desktop environment, I want it to be located within the "Documents" folder. In my setups, this will always be available from the ~XDG_DOCUMENTS_DIR~ environment variable. If this variable is not present, I assume we don't have a desktop environment and place it directly at the home directory.
+
+#+begin_src emacs-lisp :tangle config.el :noweb no-export :noweb-ref nil
+(org-roam-set-directory
+ (if (getenv "XDG_DOCUMENTS_DIR")
+     (expand-file-name "Roam" (getenv "XDG_DOCUMENTS_DIR"))
+   ("~/roam")))
 #+end_src
 
 *** Defaults and keybindings

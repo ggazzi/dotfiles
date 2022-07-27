@@ -110,6 +110,7 @@ in {
       plantuml
       shellcheck # shell script linting
       sqlite # org-roam
+      gcc # for compiling sqlite (dependency of org-roam)
     ];
   };
 }

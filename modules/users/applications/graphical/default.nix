@@ -17,6 +17,9 @@ in {
       # Cloud Storage
       seafile-client
 
+      # Office tools
+      onlyoffice-bin
+
       # Communication tools
       tdesktop discord
 

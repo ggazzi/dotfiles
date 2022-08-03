@@ -23,10 +23,10 @@ in {
   in mkIf (cfg.enable && systemCfg.desktop.enable) {
     # Place the config files as links to this repository
     # (this way, configs can be changed by the editor)
-    xdg.configFile."Code/User/settings.json".source = 
+    xdg.configFile."Code/User/settings.json".source =
       config.lib.file.mkOutOfStoreSymlink "${src-dir}/settings.json";
 
-    xdg.configFile."Code/User/keybindings.json".source = 
+    xdg.configFile."Code/User/keybindings.json".source =
       config.lib.file.mkOutOfStoreSymlink "${src-dir}/keybindings.json";
 
     # Install VS Code and some extensions
@@ -68,8 +68,6 @@ in {
         "application/x-perl" = "code.desktop";
         "application/json" = "code.desktop";
         "text/x-readme" = "code.desktop";
-        "text/plain" = "code.desktop";
-        "text/markdown" = "code.desktop";
         "text/x-csrc" = "code.desktop";
         "text/x-chdr" = "code.desktop";
         "text/x-python" = "code.desktop";

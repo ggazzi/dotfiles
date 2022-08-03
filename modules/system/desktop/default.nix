@@ -67,13 +67,13 @@ in {
     xdg.mime = {
       enable = true;
       addedAssociations = {
-        "application/pdf" = "evince.desktop";
+        "application/pdf" = "org.gnome.Evince.desktop";
 
         "application/x-yaml" = "org.gnome.TextEditor.desktop";
         "text/plain" = "org.gnome.TextEditor.desktop";
       };
       defaultApplications = {
-        "application/pdf" = "evince.desktop";
+        "application/pdf" = "org.gnome.Evince.desktop";
         "inode/directory" = "org.gnome.Nautilus.desktop";
       };
     };

@@ -1,9 +1,9 @@
 { pkgs, config, lib, ... }:
 with lib; let
-  cfg = config.ggazzi.gnome;
-  systemCfg = config.machineData.systemConfig;
+  # cfg = config.ggazzi.desktop.gnome;
+  systemCfg = config.machineData.systemConfig.graphical;
 in {
-  config = mkIf (systemCfg.graphical.enable) {
+  config = mkIf (systemCfg.enable && systemCfg.gnome.enable) {
 
     home.packages = with pkgs; [
       gnome.gnome-tweaks

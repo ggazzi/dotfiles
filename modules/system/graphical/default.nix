@@ -7,6 +7,7 @@ with lib;
 let cfg = config.ggazzi.graphical;
 in {
   imports = [
+    ./gnome.nix
     ./nvidia-optimus.nix
   ];
 
@@ -29,18 +30,14 @@ in {
   config = mkIf (cfg.enable) {
     programs.steam.enable = cfg.games.steam;
 
-    # Time zone where my machines generally are
-    time.timeZone = "Europe/Berlin";
-
     # Use X Keyboard config in ttys as well
     console.useXkbConfig = true;
 
     # Enable the X11 windowing system.
     services.xserver.enable = true;
 
-    # Enable the GNOME Desktop Environment.
+    # Enable GDM as display manager.
     services.xserver.displayManager.gdm.enable = true;
-    services.xserver.desktopManager.gnome.enable = true;
 
     # Configure keymap in X11
     services.xserver.layout = "us";
@@ -60,22 +57,7 @@ in {
       options hid_apple fnmode=2
     '';
 
-    # Enable touchpad support (enabled default in most desktopManager).
-    # services.xserver.libinput.enable = true;
-
-    # Set some default MIME associations
-    xdg.mime = {
-      enable = true;
-      addedAssociations = {
-        "application/pdf" = "org.gnome.Evince.desktop";
-
-        "application/x-yaml" = "org.gnome.TextEditor.desktop";
-        "text/plain" = "org.gnome.TextEditor.desktop";
-      };
-      defaultApplications = {
-        "application/pdf" = "org.gnome.Evince.desktop";
-        "inode/directory" = "org.gnome.Nautilus.desktop";
-      };
-    };
+    # Enable touchpad support.
+    services.xserver.libinput.enable = true;
   };
 }

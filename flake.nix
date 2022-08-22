@@ -93,6 +93,8 @@
 
             graphical = {
               enable = true;
+              gnome.enable = true;
+
               games.steam = true;
 
               nvidia-optimus = {

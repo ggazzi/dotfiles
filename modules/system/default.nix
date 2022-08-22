@@ -1,7 +1,12 @@
 { pkgs, config, lib, ... }:
 
 with lib;
-let cfg = config.ggazzi;
+let
+  cfg = config.ggazzi;
+  nospace = str: filter (c: c == " ") (stringToCharacters str) == [];
+  timezone = types.addCheck types.str nospace
+    // { description = "string without spaces"; };
+
 in
 {
   imports = [
@@ -35,6 +40,12 @@ in
       type = types.bool;
       default = false;
     };
+
+    time.timeZone = mkOption {
+      default = "Europe/Berlin";
+      type = timezone;
+      description = "Time zone used when displaying dates and times.";
+    };
   };
 
   config = {
@@ -62,6 +73,7 @@ in
       font = "Lat2-Terminus16";
       # keyMap = "us-acentos"; Needs to be set only for non-desktop environments
     };
+    time = cfg.time;
 
     virtualisation.docker.enable = cfg.docker.enable;
     networking.networkmanager.enable = cfg.networkmanager.enable;

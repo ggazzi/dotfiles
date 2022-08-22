@@ -25,17 +25,44 @@ home-manager switch --flake "$PWD" --impure
 
 ## Installation
 
-1. Install NixOS normally on the new system, letting it generate the `configuration.nix` and `harware-configuration.nix` files under `/etc/nixos/`.
+1. Boot up an appropriate installation medium and [prepare the installation as usual](https://nixos.org/manual/nixos/stable/index.html#sec-installation), in particular by partitioning as you wish and mounting everything under `/mnt`.
 
-2. Prepare the configuration for the new system.
+2. Use `nixos-generate-config --root /mnt` to generate appropriate `configuration.nix` and `harware-configuration.nix` files under `/etc/nixos/`. Add the following to `configuration.nix`, and feel free to delete the graphical environment.
 
-    - Choose a new hostname, set it in `/etc/nixos/configuration.nix` and apply it by running `nixos-rebuild test`.
+    ```nix
+    {
+        # ...
 
-    - Copy the `/etc/nixos/hardware-configuration.nix` into `hardware/<hostname>.nix`.
+        nix = {
+            # Allow usage of Flakes
+            package = pkgs.nixFlakes;
+            extraOptions = ''
+                experimental-features = nix-command flakes
+            '';
+
+            # Save *a lot* of space
+            autoOptimiseStore = true;
+        };
+
+        environment.systemPackages = with pkgs; [vim git];
+    }
+    ```
+
+3. Prepare the configuration for the new system.
+
+    - Choose a new hostname, set it in `/etc/nixos/configuration.nix`.
+
+    - Clone this repository somewhere in the new system (you might need to run `nix-shell -p git`).
+
+    - Copy `/etc/nixos/hardware-configuration.nix` into `hardware/<hostname>.nix`.
 
     - Create the new system configuration in `flake.nix`, adding an entry under `outputs.nixosConfigurations`.
-      Don't forget to set `hadware`, `users` and `systemConfig` appropriately.
+      Don't forget to set `hardware`, `users` and `systemConfig` appropriately.
 
-3. Apply this configuration to the system by running `nixos-rebuild switch --flake '.#'` from this directory.
+4. Install nix with a basic configuration by running `nixos-install` and set the root password.
 
-4. Log into each user, set their password and apply the configuration by running `home-manager switch --flake "$PWD" --impure` from this directory.
+5. Reboot into the new installation, log in as root and `cd` into this repository.
+
+6. Apply this configuration to by running `nixos-rebuild switch --flake .`.
+
+7. Log into each user, set their password and apply the configuration by running `home-manager switch --flake . --impure` from this directory.

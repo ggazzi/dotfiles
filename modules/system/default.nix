@@ -29,6 +29,12 @@ in
       type = types.bool;
       default = true;
     };
+
+    bluetooth.enable = mkOption {
+      description = "Enable support for Bluetooth";
+      type = types.bool;
+      default = false;
+    };
   };
 
   config = {
@@ -59,6 +65,8 @@ in
 
     virtualisation.docker.enable = cfg.docker.enable;
     networking.networkmanager.enable = cfg.networkmanager.enable;
+
+    hardware.bluetooth = cfg.bluetooth;
 
     # Some very basic packages that are needed pretty much everywhere
     environment.systemPackages = with pkgs; [

@@ -90,7 +90,7 @@ in {
 
     home.packages = with pkgs; [
       (
-        if systemCfg.desktop.enable then
+        if systemCfg.graphical.enable then
           if cfg.native-compilation then
             emacs28NativeComp
           else

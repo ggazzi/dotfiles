@@ -5,7 +5,7 @@ let cfg = config.ggazzi;
 in
 {
   imports = [
-    ./desktop
+    ./graphical
     ./printers.nix
     ./scanners.nix
     ./sshd.nix

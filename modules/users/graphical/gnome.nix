@@ -3,7 +3,7 @@ with lib; let
   cfg = config.ggazzi.gnome;
   systemCfg = config.machineData.systemConfig;
 in {
-  config = mkIf (systemCfg.desktop.enable) {
+  config = mkIf (systemCfg.graphical.enable) {
 
     home.packages = with pkgs; [
       gnome.gnome-tweaks

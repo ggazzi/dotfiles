@@ -20,7 +20,7 @@ in {
 
   config = let
     src-dir = "${config.ggazzi.configDir}/modules/users/applications/graphical/vscode";
-  in mkIf (cfg.enable && systemCfg.desktop.enable) {
+  in mkIf (cfg.enable && systemCfg.graphical.enable) {
 
     home.packages = with pkgs; [vivaldi vivaldi-ffmpeg-codecs];
 

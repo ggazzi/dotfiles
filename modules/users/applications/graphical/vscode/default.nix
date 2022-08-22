@@ -20,7 +20,7 @@ in {
 
   config = let
     src-dir = "${config.ggazzi.configDir}/modules/users/applications/graphical/vscode";
-  in mkIf (cfg.enable && systemCfg.desktop.enable) {
+  in mkIf (cfg.enable && systemCfg.graphical.enable) {
     # Place the config files as links to this repository
     # (this way, configs can be changed by the editor)
     xdg.configFile."Code/User/settings.json".source =

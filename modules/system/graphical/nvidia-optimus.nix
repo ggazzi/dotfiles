@@ -3,8 +3,8 @@ with lib;
 
 # Configuration for laptops with NVidia Optimus technology
 
-let   
-  cfg = config.ggazzi.desktop.nvidia-optimus;
+let
+  cfg = config.ggazzi.graphical.nvidia-optimus;
 
   nvidia-offload = pkgs.writeShellScriptBin "nvidia-offload" ''
     export __NV_PRIME_RENDER_OFFLOAD=1
@@ -14,7 +14,7 @@ let
     exec -a "$0" "$@"
   '';
 in {
-  options.ggazzi.desktop.nvidia-optimus = {
+  options.ggazzi.graphical.nvidia-optimus = {
     enable = mkOption {
       description = "Configure the system to use NVidia Optimus graphic cards";
       type = types.bool;

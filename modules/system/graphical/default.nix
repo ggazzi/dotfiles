@@ -4,15 +4,15 @@ with lib;
 # Configuration for machines with a desktop environment.
 # These are generally desktop or laptop machines.
 
-let cfg = config.ggazzi.desktop;
+let cfg = config.ggazzi.graphical;
 in {
   imports = [
     ./nvidia-optimus.nix
   ];
 
-  options.ggazzi.desktop = {
+  options.ggazzi.graphical = {
     enable = mkOption {
-      description = "Enable a desktop environment";
+      description = "Enable a graphical environment";
       type = types.bool;
       default = false;
     };

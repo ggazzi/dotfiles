@@ -5,9 +5,8 @@ with lib;
   imports = [
     ./applications
     ./bash
-    ./games
+    ./graphical
     ./git.nix
-    ./gnome.nix
   ];
 
   options.ggazzi = {

@@ -91,7 +91,7 @@
 
           systemConfig = { pkgs, ... }: {
 
-            desktop = {
+            graphical = {
               enable = true;
               games.steam = true;
 

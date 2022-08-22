@@ -16,6 +16,6 @@ in {
   config = {
     home.packages = with pkgs;
       (if cfg.minecraft.enable then [polymc] else []) ++
-      (if systemCfg.desktop.games.steam then [steam] else []);
+      (if systemCfg.graphical.games.steam then [steam] else []);
   };
 }

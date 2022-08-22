@@ -9,7 +9,7 @@ in {
     ./vivaldi.nix
   ];
 
-  config = mkIf (cfg.enable && systemCfg.desktop.enable) {
+  config = mkIf (cfg.enable && systemCfg.graphical.enable) {
     home.packages = with pkgs; [
       # Password manager
       keepassxc
@@ -38,7 +38,7 @@ in {
       { "SKIP_HOST_UPDATE": true }
     '';
 
-    fonts.fontconfig.enable = systemCfg.desktop.enable;
+    fonts.fontconfig.enable = true;
   };
 
 }

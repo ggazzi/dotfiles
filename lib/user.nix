@@ -48,7 +48,7 @@ in {
     };
 
   # Function used to create a user in a system configuration
-  mkSystemUser = {
+  mkSystemUser = pkgs : {
     # The regular username (`users.users."${username}".name`)
     username,
 
@@ -64,7 +64,7 @@ in {
     groups,
 
     # Path or package of the user shell (`users.users."${username}".shell`)
-    shell ? null,
+    shell ? pkgs.bashInteractive,
 
     ...
   }:

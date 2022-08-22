@@ -66,7 +66,7 @@ with builtins;
 
     modules = [
       {
-        imports = [ ../modules/system ] ++ hardware.configuration ++ (map user.mkSystemUser users);
+        imports = [ ../modules/system ] ++ hardware.configuration ++ (map (user.mkSystemUser pkgs) users);
 
         # Save the custom system config to ggazzi to avoid any conflicts with other modules
         ggazzi = config;

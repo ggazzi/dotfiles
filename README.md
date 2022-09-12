@@ -13,14 +13,14 @@ To update upstream software, update this flake by running `nix flake update` fro
 If the system configuration is changed or this flake has been updated, the actual system can be updated with the following command, run from this directory.
 
 ```sh
-nixos-rebuild switch --flake '.#'
+nixos-rebuild switch --flake .
 ```
 
 For the user configuration and the corresponding software, use the following command.
 It requires the `--impure` flag so it can read the system configuration from a file.
 
 ```sh
-home-manager switch --flake "$PWD" --impure
+home-manager switch --flake . --impure
 ```
 
 ## Installation

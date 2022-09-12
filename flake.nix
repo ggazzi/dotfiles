@@ -105,6 +105,7 @@
 
             };
 
+            bluetooth.enable = true;
             docker.enable = true;
 
             printers = {

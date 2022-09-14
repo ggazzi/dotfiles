@@ -8,13 +8,13 @@
     [ (modulesPath + "/installer/scan/not-detected.nix")
     ];
 
-  boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "usbhid" "uas" "usb_storage" "sd_mod" ];
+  boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "usbhid" "usb_storage" "sd_mod" ];
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ "kvm-intel" ];
   boot.extraModulePackages = [ ];
 
   fileSystems."/" =
-    { device = "/dev/disk/by-uuid/8d63132b-8af0-4782-b0a8-18c7e963bf38";
+    { device = "/dev/disk/by-uuid/10b188f7-0811-4422-b4a7-529f34b2811f";
       fsType = "ext4";
     };
 
@@ -24,8 +24,7 @@
     };
 
   fileSystems."/home" =
-    { # device = "/dev/disk/by-uuid/ee837c0f-1953-40bf-a95f-b4454c93430b"; # The old partition
-      device = "/dev/disk/by-uuid/2a4df250-dafb-4576-a6c1-284f21f57ad9"; # The new partition
+    { device = "/dev/disk/by-uuid/2a4df250-dafb-4576-a6c1-284f21f57ad9";
       fsType = "ext4";
     };
 

@@ -13,56 +13,42 @@ To update upstream software, update this flake by running `nix flake update` fro
 If the system configuration is changed or this flake has been updated, the actual system can be updated with the following command, run from this directory.
 
 ```sh
-nixos-rebuild switch --flake .
+nixos-rebuild switch --flake path/to/this/flake
 ```
 
 For the user configuration and the corresponding software, use the following command.
 It requires the `--impure` flag so it can read the system configuration from a file.
 
 ```sh
-home-manager switch --flake . --impure
+home-manager switch --flake path/to/this/flake --impure
 ```
 
 ## Installation
 
 1. Boot up an appropriate installation medium and [prepare the installation as usual](https://nixos.org/manual/nixos/stable/index.html#sec-installation), in particular by partitioning as you wish and mounting everything under `/mnt`.
 
-2. Use `nixos-generate-config --root /mnt` to generate appropriate `configuration.nix` and `harware-configuration.nix` files under `/etc/nixos/`. Add the following to `configuration.nix`, and feel free to delete the graphical environment.
-
-    ```nix
-    {
-        # ...
-
-        nix = {
-            # Allow usage of Flakes
-            package = pkgs.nixFlakes;
-            extraOptions = ''
-                experimental-features = nix-command flakes
-            '';
-
-            # Save *a lot* of space
-            autoOptimiseStore = true;
-        };
-
-        environment.systemPackages = with pkgs; [vim git];
-    }
-    ```
-
-3. Prepare the configuration for the new system.
-
-    - Choose a new hostname, set it in `/etc/nixos/configuration.nix`.
+2. Prepare this set of configurations for the new system.
 
     - Clone this repository somewhere in the new system (you might need to run `nix-shell -p git`).
 
-    - Copy `/etc/nixos/hardware-configuration.nix` into `hardware/<hostname>.nix`.
-
-    - Create the new system configuration in `flake.nix`, adding an entry under `outputs.nixosConfigurations`.
+    - Create the new system configuration in `flake.nix`, adding an entry under `outputs.nixosConfigurations` with the chosen hostname.
       Don't forget to set `hardware`, `users` and `systemConfig` appropriately.
 
-4. Install nix with a basic configuration by running `nixos-install` and set the root password.
+    - Generate configuration for the hardware using `nixos-generate-config --root /mnt` and copy `/etc/nixos/hardware-configuration.nix` into `hardware/<hostname>.nix`.
 
-5. Reboot into the new installation, log in as root and `cd` into this repository.
 
-6. Apply this configuration to by running `nixos-rebuild switch --flake .`.
+3. Install the OS by running `nixos-install --flake path/to/this/flake#<hostname>`. You should be prompted for a root password.
 
-7. Log into each user, set their password and apply the configuration by running `home-manager switch --flake . --impure` from this directory.
+4. Use `nixos-enter` to effectively `chroot` into the newly installed nixos and set the passwords for the desired users (`passwd <username>`).
+
+5. Reboot into the new installation and apply the configuration of each desired user by running `home-manager switch --flake path/to/this/flake --impure` as the desired user.
+
+### Doom Emacs
+
+Since Doom Emacs has its own package manager that doesn't necessarily play well with nix, each user has to install it manually.
+It will need a configuration file, however, that **is** managed by home-manager in this flake.
+The following instructions will help you install it and apply the configuration.
+
+1. Make sure that Emacs is enabled for this user in `flake.nix` and that this was applied by `home-manager`.
+
+2. Install Doom Emacs [as usual](https://github.com/doomemacs/doomemacs#install). The required environment variables will have been set by `home-manager`.

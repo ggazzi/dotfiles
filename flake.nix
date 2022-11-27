@@ -13,7 +13,7 @@
     };
   };
 
-  outputs = { nixpkgs, home-manager, rnix-lsp, ... }@inputs:
+  outputs = { nixpkgs, home-manager, ... }@inputs:
     {
       homeConfigurations.gazzi = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.aarch64-darwin;

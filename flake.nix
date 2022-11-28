@@ -7,13 +7,17 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-  };
-
-  outputs = { nixpkgs, home-manager, ... }@inputs:
-  {
-    homeConfigurations.gazzi = home-manager.lib.homeManagerConfiguration {
-      pkgs = nixpkgs.legacyPackages.aarch64-darwin;
-      modules = [ ./modules ];
+    rnix-lsp = {
+      url = "github:nix-community/rnix-lsp";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
   };
+
+  outputs = { nixpkgs, home-manager, rnix-lsp, ... }@inputs:
+    {
+      homeConfigurations.gazzi = home-manager.lib.homeManagerConfiguration {
+        pkgs = nixpkgs.legacyPackages.aarch64-darwin;
+        modules = [ ./modules ];
+      };
+    };
 }

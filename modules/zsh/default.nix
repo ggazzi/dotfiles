@@ -6,7 +6,7 @@ in
 {
   programs.zsh.enable = true;
   home.packages = with pkgs; [
-    starship
+    starship direnv
   ];
 
   home.sessionVariables = {

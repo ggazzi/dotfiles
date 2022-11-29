@@ -1,3 +1,6 @@
+# TODO: extract this to a macOS-specific thing
+alias ls='ls -G'
+
 alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'

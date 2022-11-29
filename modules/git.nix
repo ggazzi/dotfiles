@@ -11,6 +11,7 @@
         a = "add";
         b = "branch";
 
+        cm = "commit";
         co = "checkout";
         st = "status -s -- .";
 

@@ -5,15 +5,15 @@
 add_newline = true
 
 [character]
-success_symbol = "[✓](bold green) [»](bold)"
-error_symbol = "[✗](bold red) [»](bold)"
+success_symbol = "[✓](bold green) [»](cyan)"
+error_symbol = "[✗](bold red) [»](cyan)"
 
 [directory.substitutions]
 "Documents" = " "
 "Downloads" = " "
 "Music" = " "
 "Pictures" = " "
-"workspace" = " "
+"workspace" = ""
 
 
 [aws]

@@ -12,3 +12,6 @@ source "$ZSH_HOME/completion.zsh"
 
 # Use direnv for dir-local environment vars
 (which direnv >/dev/null) && eval "$(direnv hook zsh)"
+
+# Set PATH, MANPATH, etc., for Homebrew.
+eval "$(/opt/homebrew/bin/brew shellenv)"

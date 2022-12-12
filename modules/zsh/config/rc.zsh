@@ -8,7 +8,7 @@ source "$ZSH_HOME/aliases.zsh"
 source "$ZSH_HOME/completion.zsh"
 
 # Use starship to embellish our prompt
-eval $(starship init zsh)
+(which starship >/dev/null) && eval "$(starship init zsh)"
 
 # Use direnv for dir-local environment vars
-eval $(direnv hook zsh)
+(which direnv >/dev/null) && eval "$(direnv hook zsh)"

@@ -1,6 +1,7 @@
 { ... }:
 {
   imports = [
+    ./dev.nix
     ./emacs
     ./git.nix
     ./home.nix

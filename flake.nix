@@ -7,15 +7,27 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    dev-cli-utils = {
+      url = "github:ggazzi/dev-cli-utils";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs = { nixpkgs, home-manager, ... }@inputs:
+  outputs = { nixpkgs, home-manager, dev-cli-utils, ... }@inputs:
     {
-      homeConfigurations.gazzi = home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.aarch64-darwin;
-        modules = [ ./modules ];
-      };
+
+      homeConfigurations.gazzi =
+        let
+          system = "aarch64-darwin";
+          overlays = [
+            (self: super: {
+              dev-cli-utils = dev-cli-utils.packages.${system}.default;
+            })
+          ];
+        in
+        home-manager.lib.homeManagerConfiguration {
+          pkgs = import nixpkgs { inherit system overlays; };
+          modules = [ ./modules ];
+        };
     };
 }

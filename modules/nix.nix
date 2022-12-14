@@ -2,6 +2,9 @@
 
 {
   config = {
-    home.packages = with pkgs; [ rnix-lsp ];
+    home.packages = with pkgs; [
+      # Install an LSP to help edit my nix files
+      rnix-lsp
+    ];
   };
 }

@@ -4,25 +4,49 @@ let
   inherit (config) xdg;
 in
 {
-  programs.zsh.enable = true;
-  home.packages = with pkgs; [
-    starship direnv
-  ];
+  programs.zsh = {
+    enable = true;
+    enableCompletion = true;
+    dotDir = ".config/zsh";
 
-  home.sessionVariables = {
-    ZSH_HOME = "${xdg.configHome}/zsh";
+    # Add all files from ./config to the end of .zrc
+    initExtra =
+      with builtins;
+      let
+        cfgFiles = readDir ./config;
+        readCfg = name: _: readFile (./config + "/${name}");
+        cfgContents = (attrValues (mapAttrs readCfg cfgFiles));
+      in
+      concatStringsSep "\n" cfgContents;
   };
 
-  home.file = {
-    ".zprofile".text = "source ~/.nix-profile/etc/profile.d/hm-session-vars.sh\nsource $HOME/.zshrc\n";
-    ".zshrc".text = ''source "$ZSH_HOME/rc.zsh"'';
+  # Use direnv to manage environment variables on a per-directory basis
+  programs.direnv = {
+    enable = true;
+    enableZshIntegration = true;
   };
 
-  xdg.configFile = {
-    "starship.toml".source = ./starship.toml;
-    "zsh" = {
-      source = ./config;
-      recursive = true;
+  # Use starship for a pretty and helpful shell prompt
+  programs.starship = {
+    enable = true;
+    enableZshIntegration = true;
+    settings = {
+
+      add_newline = true;
+
+      character = {
+        success_symbol = "[✓](bold green) [»](cyan)";
+        error_symbol = "[✗](bold red) [»](cyan)";
+      };
+
+      directory.substitutions = {
+        "Documents" = " ";
+        "Downloads" = " ";
+        "Music" = " ";
+        "Pictures" = " ";
+        "workspace" = "";
+      };
+
     };
   };
 }

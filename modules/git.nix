@@ -2,6 +2,8 @@
 
 {
   config = {
+    home.shellAliases.g = "git";
+
     programs.git = {
       enable = true;
       userName = "Guilherme Grochau Azzi";

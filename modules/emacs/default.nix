@@ -8,6 +8,8 @@
 
     home.packages = with pkgs; [ ripgrep fd ];
 
+    home.sessionPath = [ "$HOME/.emacs.d/bin/" ];
+
     home.sessionVariables = {
       DOOMDIR = "${config.xdg.configHome}/doom-emacs";
       DOOMLOCALDIR = "${config.xdg.dataHome}/doom-emacs";

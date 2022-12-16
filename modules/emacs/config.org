@@ -457,3 +457,71 @@ I'd like to have just the current buffer name, then if applicable the project fo
              (format (if (buffer-modified-p)  " ◉ %s" "  ●  %s") project-name))))))
 #+end_src
 
+
+* Org mode
+
+** General appearance
+
+*** Headings, titles and lists
+
+The headings and title can be improved to follow some [[https://practicaltypography.com/headings.html][good typographical practices]].
+I've taken the sizes of headings mostly from [[https://tecosaur.github.io/emacs-config/#font-display][tecosaur]].
+I also replace the bullets displayed along with headings into something more subtle.
+Bullets for headings and for list items are prettified by [[https://github.com/integral-dw/org-superstar-mode][~org-superstar-mode~]], though I change the heading bullets into something more subtle.
+I also change the character for collapsed items.
+
+#+begin_src emacs-lisp
+(custom-set-faces!
+  '(org-document-title :height 1.5)
+  '(outline-1 :weight extra-bold :height 1.25)
+  '(outline-2 :weight bold :height 1.15)
+  '(outline-3 :weight bold :height 1.12)
+  '(outline-4 :weight semi-bold :height 1.09)
+  '(outline-5 :weight semi-bold :height 1.06)
+  '(outline-6 :weight semi-bold :height 1.03)
+  '(outline-8 :weight semi-bold)
+  '(outline-9 :weight semi-bold)
+  '(org-superstar-header-bullet :height 1.2))
+(setq org-ellipsis "…"
+      org-list-demote-modify-bullet '(("+" . "-") ("-" . "*") ("*" . "-") ("1." . "a.")))
+#+end_src
+
+When I'm editing in the middle of a file, I also like to display the parent headers at the top of the buffer.
+
+#+begin_src emacs-lisp :tangle packages.el :noweb-ref nil
+(package! org-sticky-header)
+#+end_src
+#+begin_src emacs-lisp
+  (use-package! org-sticky-header
+    :hook
+    (org-mode . org-sticky-header-mode)
+    :custom
+    (org-sticky-header-full-path 'full)
+    (org-sticky-header-outline-path-separator " ჻ ")
+    (org-sticky-header-prefix "჻ ")
+    (org-sticky-header-heading-star ""))
+#+end_src
+
+*** Markup
+
+While using markup to format the text is very practical, it is not the prettiest or most readable.
+The =org-appear= package solves this by hiding the markup, unless the cursor is on/within it.
+
+#+begin_src emacs-lisp :tangle packages.el :noweb-ref nil
+(package! org-appear)
+#+end_src
+#+begin_src emacs-lisp
+(use-package! org-appear
+  :hook (org-mode . org-appear-mode)
+  :config
+  (setq org-appear-autoemphasis t
+        org-appear-autosubmarkers nil
+        org-appear-autolinks t))
+#+end_src
+
+We can have quote blocks stand out a bit more by making them /italic/.
+
+#+begin_src emacs-lisp
+(setq org-fontify-quote-and-verse-blocks t)
+#+end_src
+

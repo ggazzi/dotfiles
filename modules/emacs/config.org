@@ -457,10 +457,48 @@ I'd like to have just the current buffer name, then if applicable the project fo
              (format (if (buffer-modified-p)  " ◉ %s" "  ●  %s") project-name))))))
 #+end_src
 
+*** Limiting buffer width
+
+I want tools to restrict the width of frames and soft-wrap lines, but not necessarily put me into a strict "single-buffer" layout to focus on writing like ~zen~ and ~writeroom~ do.
+A simple alternative is ~olivetti-mode~, which I enable by default for a few modes.
+I also make sure that it is adjusted to the ~fill-column~, so that it is compatible with automatic formatting.
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! olivetti)
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! olivetti
+  :hook
+   ((olivetti-mode . (lambda () (setq-local olivetti-body-width fill-column))))
+  :config
+  (setq olivetti-body-width fill-column))
+
+(map! :after olivetti
+      :leader
+      :prefix ("v" . "olivetti")
+      :n "t" #'olivetti-mode
+      :n "v" #'olivetti-mode
+
+      :map olivetti-mode-map
+      :leader
+      :prefix ("v" . "olivetti")
+      :n ">" #'olivetti-expand
+      :n "<" #'olivetti-shrink
+      :n "w" #'olivetti-set-width)
+#+end_src
+
 
 * Org mode
 
 ** General appearance
+
+To help focus on the text, I'll remove line numbers, limit line width and display centred using ~olivetti-mode~.
+
+ #+begin_src emacs-lisp
+(add-hook! org-mode #'+org-pretty-mode #'olivetti-mode)
+(add-hook! org-mode (display-line-numbers-mode -1))
+#+end_src
 
 *** Headings, titles and lists
 
@@ -525,3 +563,15 @@ We can have quote blocks stand out a bit more by making them /italic/.
 (setq org-fontify-quote-and-verse-blocks t)
 #+end_src
 
+
+* Manual pages
+
+Emacs provides extensive documentation, which is helpful but not always nice to look at.
+Fortunately, doom emacs already improves this a lot by adding colours!
+I also limit the width and center contents on the buffer.
+
+#+begin_src emacs-lisp
+(add-hook! (Info-mode helpful-mode)
+  (olivetti-mode)
+  (olivetti-set-width 100))
+#+end_src

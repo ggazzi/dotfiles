@@ -37,6 +37,12 @@
         branch.autosetuprebase = "always";
         init.defaultBranch = "main";
       };
+
+      ignores = [
+        ".DS_Store"
+        "*.code-workspace"
+        ".vscode/*"
+      ];
     };
   };
 }

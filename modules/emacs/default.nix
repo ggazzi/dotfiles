@@ -25,5 +25,12 @@
       VISUAL = "emacs -nw";
     };
 
+    # Have git always ignore some emacs-related files
+    programs.git.ignores = [
+      ".projectile"
+      ".dir-locals.el"
+      "*.elc"
+    ];
+
   };
 }

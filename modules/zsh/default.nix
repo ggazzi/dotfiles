@@ -23,6 +23,7 @@ in
   # Use direnv to manage environment variables on a per-directory basis
   programs.direnv = {
     enable = true;
+    nix-direnv.enable = true;
     enableZshIntegration = true;
   };
 

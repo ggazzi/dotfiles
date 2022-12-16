@@ -1,42 +1,70 @@
 { pkgs, config, lib, ... }:
 
 {
-  config = let inherit (config) xdg; in {
-    # I am not managing doom emacs with nix.
+  config =
+    let
+      inherit (config) xdg;
+      doomDir = "${xdg.configHome}/doom-emacs";
+      doomLocalDir = "${xdg.dataHome}/doom-emacs";
+    in
+    {
+      # I am not managing doom emacs with nix.
 
-    # I only install some dependencies for doom
-    # Emacs is installed with homebrew, so I have
-    # access to the application graphically
-    home.packages = with pkgs; [ ripgrep fd ];
+      # I only install some dependencies for doom
+      # Emacs is installed with homebrew, so I have
+      # access to the application graphically
+      home.packages = with pkgs; [ ripgrep fd ];
 
-    # Make sure that doom is on the path
-    home.sessionPath = [ "$HOME/.emacs.d/bin/" ];
+      # Make sure that doom is on the path
+      home.sessionPath = [ "$HOME/.emacs.d/bin/" ];
 
-    # Add a shortcut for emacs
-    home.shellAliases.e = "emacs -nw";
+      # Add a shortcut for emacs
+      home.shellAliases.e = "emacs -nw";
 
-    home.sessionVariables = {
-      # Set the directories where the doom configuration should go
-      DOOMDIR = "${xdg.configHome}/doom-emacs";
-      DOOMLOCALDIR = "${xdg.dataHome}/doom-emacs";
+      home.sessionVariables = {
+        # Set the directories where the doom configuration should go
+        DOOMDIR = doomDir;
+        DOOMLOCALDIR = doomLocalDir;
 
-      # Use as default command-line editor
-      EDITOR = "emacs -nw";
-      VISUAL = "emacs -nw";
+        # Use as default command-line editor
+        EDITOR = "emacs -nw";
+        VISUAL = "emacs -nw";
+      };
+
+      programs.git = {
+        # Have git always ignore some emacs-related files
+        ignores = [
+          ".projectile"
+          ".dir-locals.el"
+          "*.elc"
+        ];
+
+        # Improve git diffs for org files
+        attributes = [ "*.org diff=org" ];
+        extraConfig = {
+          "diff \"org\"" = {
+            xfuncname = "^(\\*+ +.*)$";
+          };
+        };
+      };
+
+      # Install a link to the config file, then tangle it
+      # If doom is installed, update it accordingly
+      xdg.configFile."doom-emacs/config.org" = {
+        source = config.lib.file.mkOutOfStoreSymlink
+          "${config.ggazzi.configDir}/modules/emacs/config.org";
+
+        onChange = "${pkgs.writeShellScript "emacs-config-change" ''
+        export DOOMDIR="${doomDir}"
+        export DOOMLOCALDIR="${doomLocalDir}"
+
+        emacs --batch --eval "(progn (require 'org) (setq org-confirm-babel-evaluate nil) (org-babel-tangle-file \"${doomDir}/config.org\"))"
+        if which doom
+        then
+          doom sync
+        fi
+      ''}";
+      };
+
     };
-
-    # Have git always ignore some emacs-related files
-    programs.git.ignores = [
-      ".projectile"
-      ".dir-locals.el"
-      "*.elc"
-    ];
-
-    xdg.configFile = {
-      "doom-emacs/config.el".source = ./config.el;
-      "doom-emacs/init.el".source = ./init.el;
-      "doom-emacs/packages.el".source = ./packages.el;
-    };
-
-  };
 }

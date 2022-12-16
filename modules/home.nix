@@ -1,6 +1,15 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 {
+
+  options.ggazzi = with lib; {
+    configDir = mkOption {
+      description = "Path to this configuration flake.";
+      type = types.str;
+      default = "${config.home.homeDirectory}/workspace/ggazzi/dotfiles";
+    };
+  };
+
   config = {
     # Home Manager needs a bit of information about you and the
     # paths it should manage.

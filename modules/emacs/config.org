@@ -423,3 +423,37 @@ I like the evil keybindings for searching, but I want better search functions.
       "/" #'consult-line
       "?" #'consult-line-multi)
 #+end_src
+
+
+** Frames, buffers and windows
+
+*** Buffers
+
+I could use some prettier buffer names.
+
+#+begin_src emacs-lisp
+(setq doom-fallback-buffer-name "► Doom"
+      +doom-dashboard-name "► Doom")
+#+end_src
+
+**** TODO Improve buffer names when filename is the same but directory differs
+
+*** Frame title
+
+I'd like to have just the current buffer name, then if applicable the project folder.
+
+#+begin_src emacs-lisp
+(setq frame-title-format
+      '(""
+        (:eval
+         (if (s-contains-p org-roam-directory (or buffer-file-name ""))
+             (replace-regexp-in-string
+              ".*/[0-9]*-?" "☰ "
+              (subst-char-in-string ?_ ?  buffer-file-name))
+           "%b"))
+        (:eval
+         (let ((project-name (projectile-project-name)))
+           (unless (string= "-" project-name)
+             (format (if (buffer-modified-p)  " ◉ %s" "  ●  %s") project-name))))))
+#+end_src
+

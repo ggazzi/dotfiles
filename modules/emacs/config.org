@@ -575,3 +575,25 @@ I also limit the width and center contents on the buffer.
   (olivetti-mode)
   (olivetti-set-width 100))
 #+end_src
+
+
+* Languages
+
+** Nix
+
+Nix files work best with 2-space indendation.
+Also, this is what the =rnix-lsp= does.
+
+#+begin_src emacs-lisp
+(after! nix-mode
+  (add-hook! nix-mode
+    (lambda () (setq-local standard-indent 2))))
+#+end_src
+
+I use flakes for pretty much every project I touch.
+A good template saves me some time.
+
+#+begin_src emacs-lisp
+(add-to-list '+file-templates-alist
+             '("/flake\\.nix$" :trigger "__flake.nix"))
+#+end_src

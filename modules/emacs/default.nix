@@ -48,23 +48,31 @@
         };
       };
 
-      # Install a link to the config file, then tangle it
-      # If doom is installed, update it accordingly
-      xdg.configFile."doom-emacs/config.org" = {
-        source = config.lib.file.mkOutOfStoreSymlink
-          "${config.ggazzi.configDir}/modules/emacs/config.org";
+      xdg.configFile = {
 
-        onChange = "${pkgs.writeShellScript "emacs-config-change" ''
-        export DOOMDIR="${doomDir}"
-        export DOOMLOCALDIR="${doomLocalDir}"
+        # Install a link to the config file, then tangle it
+        # If doom is installed, update it accordingly
+        "doom-emacs/config.org" = {
+          source = config.lib.file.mkOutOfStoreSymlink
+            "${config.ggazzi.configDir}/modules/emacs/config.org";
 
-        emacs --batch --eval "(progn (require 'org) (setq org-confirm-babel-evaluate nil) (org-babel-tangle-file \"${doomDir}/config.org\"))"
-        if which doom
-        then
-          doom sync
-        fi
-      ''}";
+          onChange = "${pkgs.writeShellScript "emacs-config-change" ''
+            export DOOMDIR="${doomDir}"
+            export DOOMLOCALDIR="${doomLocalDir}"
+
+            emacs --batch --eval "(progn (require 'org) (setq org-confirm-babel-evaluate nil) (org-babel-tangle-file \"${doomDir}/config.org\"))"
+            if which doom
+            then
+              doom sync
+            fi
+          ''}";
+        };
+
+        "doom-emacs/snippets" = {
+          source = ./snippets;
+          recursive = true;
+        };
+
       };
-
     };
 }

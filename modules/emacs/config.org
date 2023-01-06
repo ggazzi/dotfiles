@@ -424,6 +424,16 @@ I like the evil keybindings for searching, but I want better search functions.
       "?" #'consult-line-multi)
 #+end_src
 
+*** Manual indentation
+
+Sometimes, the automatic indentation tries to be cleverer than it is.
+Thus, I also want easy access to manual indentation commands.
+
+#+begin_src emacs-lisp
+(map! :leader
+      :prefix "c"
+      :nv "TAB" #'indent-rigidly)
+#+end_src
 
 ** Frames, buffers and windows
 

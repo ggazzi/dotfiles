@@ -627,3 +627,22 @@ A good template saves me some time.
 (add-to-list '+file-templates-alist
              '("/flake\\.nix$" :trigger "__flake.nix"))
 #+end_src
+
+
+** Javascript
+
+I often use `jest` as a testing framework, so I want better access to their tests.
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! jest)
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! jest
+  :after js2-mode
+  :hook (js2-mode . jest-minor-mode)
+  :init
+  (map! :map jest-minor-mode-map
+        :localleader
+        :n "j" #'jest-popup))
+#+end_src

@@ -432,6 +432,29 @@ Thus, I also want easy access to manual indentation commands.
       :nv "TAB" #'indent-rigidly)
 #+end_src
 
+*** Smerge mode
+
+I often use =smerge-mode= when I run into conflicts.
+I want good keyboard shortcuts for it.
+
+#+begin_src emacs-lisp
+(map! :map smerge-mode-map
+      :leader
+      :prefix ("g m" . "smerge")
+      :n "n" #'smerge-next
+      :n "p" #'smerge-prev
+      :n "C" #'smerge-combine-with-next
+      :n "R" #'smerge-refine
+
+      :prefix ("g m k" . "smerge-keep")
+      :n "a" #'smerge-keep-all
+      :n "b" #'smerge-keep-base
+      :n "u" #'smerge-keep-upper
+      :n "l" #'smerge-keep-lower
+      :n "o" #'smerge-keep-other)
+#+end_src
+
+
 ** Frames, buffers and windows
 
 *** Buffers

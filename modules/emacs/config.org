@@ -411,14 +411,14 @@ Make it orange instead.
 
 ** Keyboard
 
-*** Better search
+*** Interactive search
 
-I like the evil keybindings for searching, but I want better search functions.
+I want the option of a more interactive search than the default one provided by Evil-mode.
+That is, I want to be shown the matches for my search on the current buffer and navigate through them, instead of jumping to the first match.
 
 #+begin_src emacs-lisp
 (map! :map evil-motion-state-map
-      "/" #'consult-line
-      "?" #'consult-line-multi)
+      "C-/" #'consult-line)
 #+end_src
 
 *** Manual indentation

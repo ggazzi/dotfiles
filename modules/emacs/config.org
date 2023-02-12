@@ -92,9 +92,6 @@ The following is based on my previous configurations, [[https://tecosaur.github.
 (setq auto-save-default t            ; Plase don't lose my work.
       truncate-string-ellipsis "…"   ; Unicode is cute and compact 😀
       scroll-margin 10)              ; Maintain a generous margin. As Tim Minchin illustrated nicely, context is important.
-
-(global-subword-mode 1)              ; Navigate through camelCase and snake_case words
-
 #+end_src
 
 Besides that, since I am using Doom Emacs, I will take advantage of its nicer defaults.

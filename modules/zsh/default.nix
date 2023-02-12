@@ -26,6 +26,7 @@ in
     nix-direnv.enable = true;
     enableZshIntegration = true;
   };
+  programs.git.ignores = [ ".direnv" ]; # temporary files created by direnv
 
   # Use starship for a pretty and helpful shell prompt
   programs.starship = {

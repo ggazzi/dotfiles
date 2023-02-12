@@ -26,7 +26,10 @@
           ];
         in
         home-manager.lib.homeManagerConfiguration {
-          pkgs = import nixpkgs { inherit system overlays; };
+          pkgs = import nixpkgs {
+            inherit system overlays;
+            config = { allowUnfree = true; };
+          };
           modules = [ ./modules ];
         };
     };

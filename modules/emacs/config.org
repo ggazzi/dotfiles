@@ -313,7 +313,7 @@ emacs-lisp              ; drown in parentheses
 ;;idris                 ; a language you can depend on
 json                    ; At least it ain't XML
 ;;(java +meghanada)     ; the poster child for carpal tunnel syndrome
-(javascript +lsp)       ; all(hope(abandon(ye(who(enter(here))))))
+(javascript)            ; all(hope(abandon(ye(who(enter(here))))))
 ;;(julia +lsp)          ; a better, faster MATLAB
 ;;kotlin                ; a better, slicker Java(Script)
 ;;(latex                ; writing papers in Emacs has never been so fun
@@ -640,7 +640,7 @@ I often use `jest` as a testing framework, so I want better access to their test
 #+begin_src emacs-lisp
 (use-package! jest
   :after js2-mode
-  :hook (js2-mode . jest-minor-mode)
+  :hook ((js2-mode rxjs-mode typescript-mode) . jest-minor-mode)
   :init
   (map! :map jest-minor-mode-map
         :localleader

@@ -1,6 +1,7 @@
 { ... }:
 {
   imports = [
+    ./alacritty
     ./dev.nix
     ./emacs
     ./git.nix

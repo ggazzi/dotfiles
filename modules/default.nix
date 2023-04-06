@@ -1,13 +1,10 @@
 { ... }:
 {
   imports = [
-    ./alacritty
-    ./dev.nix
+    ./cli
     ./emacs
-    ./git.nix
     ./golang.nix
     ./home.nix
     ./nix.nix
-    ./zsh
   ];
 }

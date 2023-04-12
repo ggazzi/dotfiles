@@ -4,6 +4,7 @@
     ./alacritty
     ./dev.nix
     ./git.nix
+    ./helix
     ./tmux
     ./zsh
   ];

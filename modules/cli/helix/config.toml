@@ -1,0 +1,19 @@
+theme = "catppuccin_mocha"
+
+[editor]
+line-number = "relative"
+
+[editor.cursor-shape]
+insert = "bar"
+normal = "block"
+select = "underline"
+
+[editor.statusline]
+left = ["diagnostics", "spinner", "file-name"]
+right = ["selections", "position", "workspace-diagnostics"]
+
+[editor.gutters]
+layout = ["diff", "diagnostics", "line-numbers", "spacer"]
+
+[editor.soft-wrap]
+enable = true

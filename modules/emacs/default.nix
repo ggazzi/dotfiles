@@ -25,10 +25,6 @@
         # Set the directories where the doom configuration should go
         DOOMDIR = doomDir;
         DOOMLOCALDIR = doomLocalDir;
-
-        # Use as default command-line editor
-        EDITOR = "emacs -nw";
-        VISUAL = "emacs -nw";
       };
 
       programs.git = {

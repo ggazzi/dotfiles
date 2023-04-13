@@ -3,8 +3,9 @@
 {
   config = {
     home.packages = with pkgs; [
-      # Install an LSP to help edit my nix files
-      rnix-lsp
+      # Development tools
+      nil
+      nixpkgs-fmt
     ];
   };
 }

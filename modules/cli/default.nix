@@ -6,6 +6,7 @@
     ./git.nix
     ./helix
     ./tmux
+    ./zellij
     ./zsh
   ];
 }

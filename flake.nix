@@ -7,13 +7,10 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    dev-cli-utils = {
-      url = "github:ggazzi/dev-cli-utils";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    sub.url = "github:juanibiapina/sub";
   };
 
-  outputs = { nixpkgs, home-manager, dev-cli-utils, ... }@inputs:
+  outputs = { nixpkgs, home-manager, sub, ... }:
     {
 
       homeConfigurations.gazzi =
@@ -21,7 +18,12 @@
           system = "aarch64-darwin";
           overlays = [
             (self: super: {
-              dev-cli-utils = dev-cli-utils.packages.${system}.default;
+              dev-utils = sub.lib.${system}.mkSubDerivation {
+                pname = "dev-utils";
+                cmd = "dev";
+                version = "0.1.0";
+                src = ./dev-utils;
+              };
             })
           ];
         in

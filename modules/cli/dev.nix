@@ -1,12 +1,12 @@
 { pkgs, config, lib, ... }:
 
 let
-  inherit (config) xdg home;
+  inherit (config) home;
 in
 {
   home.packages = with pkgs; [
     gh # Client for working with GitHub projects
-    dev-cli-utils
+    dev-utils
   ];
 
   home.sessionVariables = {
@@ -15,7 +15,7 @@ in
   };
 
   programs.zsh.initExtraBeforeCompInit =
-    ''source "${home.homeDirectory}/.nix-profile/opt/dev-cli-utils/completions.zsh"'';
+    ''source "${home.homeDirectory}/.nix-profile/opt/dev-utils/completions.zsh"'';
 
   programs.tmux = {
     enable = true;

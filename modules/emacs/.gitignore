@@ -1,4 +1,0 @@
-# Ignore any transpiled configuration
-config.el
-init.el
-packages.el

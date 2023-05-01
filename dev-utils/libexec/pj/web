@@ -17,12 +17,6 @@ fi
 
 project="$1"
 
-# Extract last component for the name
-name="${project##*/}"
-
-# Remove characters that can't appear in the tmux session name
-name="${name//./-}"
-
 # Change into project directory
 cd "$WORKSPACE/$project"
 

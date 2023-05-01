@@ -16,8 +16,4 @@ in
 
   programs.zsh.initExtraBeforeCompInit =
     ''source "${home.homeDirectory}/.nix-profile/opt/dev-utils/completions.zsh"'';
-
-  programs.tmux = {
-    enable = true;
-  };
 }

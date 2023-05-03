@@ -9,7 +9,10 @@ layout {
 		}
 	}
 	tab name="editor" {
-		pane edit="."
+		pane {
+			command "direnv"
+			args "exec" "." "hx"
+		}
 	}
 	tab name="shell" {
 		pane

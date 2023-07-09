@@ -2,15 +2,30 @@
 
 {
   config = {
-    home.packages = with pkgs; [ helix ];
+    programs.helix = {
+      enable = true;
+      defaultEditor = true;
 
-    xdg.configFile = {
-      "helix/config.toml".source = ./config.toml;
-    };
+      settings = {
+        theme = "catppuccin_mocha";
 
-    home.sessionVariables = {
-      EDITOR = "hx";
-      VISUAL = "hx";
+        editor = {
+          line-number = "relative";
+          gutters = ["diff" "diagnostics" "line-numbers" "spacer"];
+          soft-wrap.enable = true;
+
+          cursor-shape = {
+            insert = "bar";
+            normal = "block";
+            select = "underline";
+          };
+
+          statusline = {
+            left = ["diagnostics" "spinner" "file-name"];
+            right = ["selections" "position" "workspace-diagnostics"];
+          };
+        };        
+      };
     };
   };
 }

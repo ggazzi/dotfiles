@@ -37,7 +37,7 @@ title = ARGV.join(" ")
 diff = `git diff --cached`
 
 # create prompt from the ERB template
-template = ERB.new(File.read(File.join(ENV["_DEV_ROOT"], "libexec/openai/prompts/commit.txt.erb")))
+template = ERB.new(File.read(File.join(ENV["_DEV_ROOT"], "lib/prompts/commit.txt.erb")))
 prompt = template.result(Repository.new(title, diff, options[:conventional]).get_binding)
 
 # call the OpenAI completions API with the prompt

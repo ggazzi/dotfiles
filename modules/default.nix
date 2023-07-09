@@ -2,7 +2,7 @@
 {
   imports = [
     ./cli
-    ./golang.nix
+    ./langs
     ./home.nix
     ./nix.nix
   ];

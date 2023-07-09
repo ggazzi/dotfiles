@@ -4,5 +4,6 @@
     ./awk
     ./bash
     ./golang
+    ./ruby
   ];
 }

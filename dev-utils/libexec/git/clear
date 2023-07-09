@@ -4,37 +4,16 @@
 #
 # Usage: {cmd}
 
-ask_yes_or_no() {
-  local default=$2
-  local prompt=$1
-
-  case $default in
-    [Yy]* ) prompt="$prompt [Y/n]";;
-    [Nn]* ) prompt="$prompt [y/N]";;
-    * ) prompt="$prompt [y/n]";;
-  esac
-
-  local choice
-  while true; do
-    read -rp "$prompt " choice
-    case $choice in
-      [Yy]* ) return 0;;
-      [Nn]* ) return 1;;
-      * ) 
-        case $default in
-          [Yy]* ) return 0;;
-          [Nn]* ) return 1;;
-          * ) echo "Please answer yes or no.";;
-        esac
-      ;;
-    esac
-  done
-}
-
 set -e
 
+# Include utilities to interactive with the user
+# shellcheck disable=SC1091 # _DEV_ROOT will be set appropriately
+source "${_DEV_ROOT}/lib/interactive.sh"
+
+# Make sure we are up to date with origin
 git fetch --prune --tags
 
+# Figure out the name of the main branch
 if git rev-parse --verify "origin/main" &>/dev/null; then
   BRANCH="main"
 elif git rev-parse --verify "origin/published" &>/dev/null; then
@@ -43,12 +22,19 @@ else
   BRANCH="master"
 fi
 
+# Remove untracked files, but confirm first
 changed_files="$(git clean -fdn | sed 's/^Would remove /  /')"
 if [ -n "$changed_files" ]; then
   echo "Following files will be removed:"
   echo "$changed_files"
 
-  if ! ask_yes_or_no "Are you sure they should be removed?" N; then
+  if ask_yes_or_no "Are you sure they should be removed?" N; then
+    git clean -fd
+  else
     exit 1
   fi
 fi
+
+git checkout "$BRANCH"
+git clean-branches
+git pull --rebase

@@ -11,7 +11,7 @@
 
         editor = {
           line-number = "relative";
-          gutters = ["diff" "diagnostics" "line-numbers" "spacer"];
+          gutters = [ "diff" "diagnostics" "line-numbers" "spacer" ];
           soft-wrap.enable = true;
 
           cursor-shape = {
@@ -21,10 +21,10 @@
           };
 
           statusline = {
-            left = ["diagnostics" "spinner" "file-name"];
-            right = ["selections" "position" "workspace-diagnostics"];
+            left = [ "diagnostics" "spinner" "file-name" ];
+            right = [ "selections" "position" "workspace-diagnostics" ];
           };
-        };        
+        };
       };
     };
   };

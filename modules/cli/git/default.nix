@@ -9,6 +9,8 @@
       userName = "Guilherme Grochau Azzi";
       userEmail = "gazzi@babbel.com";
 
+      lfs.enable = true;
+
       aliases = {
         a = "add";
         b = "branch";
@@ -44,5 +46,13 @@
         ".vscode/*"
       ];
     };
+
+    # Add custom git commands
+    home.packages = [
+      (pkgs.buildEnv {
+        name = "custom-git-commands";
+        paths = [ ./commands ];
+      })
+    ];
   };
 }

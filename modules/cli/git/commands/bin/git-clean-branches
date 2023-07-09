@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+#
+# Remove all local branches without an associated remote branch
+
+REMOTES_TO_REGEX='
+  BEGIN { prefix="(" }
+  match($0, /[^/]+\/([^ ]+)/, capt) {
+    printf "%s%s", prefix, capt[1];
+	prefix="|"	
+  }
+  END {
+    if (prefix == "(")
+	  print "*"
+	else
+	  print ")"
+  }
+'
+
+remote_branches_regex="$(git branch -r | gawk "$REMOTES_TO_REGEX")"
+orphan_branches="$(git branch | sed 's/^..//' | egrep -v "$remote_branches_regex")"
+
+if [ -z "$orphan_branches" ]; then
+  echo "No orphan branches to remove."
+else
+  git branch -d $orphan_branches
+fi

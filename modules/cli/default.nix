@@ -3,7 +3,7 @@
   imports = [
     ./alacritty
     ./dev.nix
-    ./git.nix
+    ./git
     ./helix
     ./zellij
     ./zsh

@@ -2,7 +2,7 @@
 #
 # Summary: Opens a project for development
 #
-# Usage: {cmd} <project>
+# Usage: {cmd} [<project>]
 #
 # Changes into the project directory and opens a zellij session 
 # named after that project
@@ -13,34 +13,54 @@
 
 set -e
 
+open_project() {
+  local project="$1"
+
+  # Extract last component for the name
+  local name="${project##*/}"
+
+  # Remove characters that can't appear in the zellij session name
+  name="${name//./-}"
+
+  # Truncate the name to avoid zellij hanging
+  # See: https://github.com/zellij-org/zellij/issues/2591
+  MAX_LEN=35
+  if [ ${#name} -gt $MAX_LEN ]; then
+    name="$(echo "$name" | head -c "$(( MAX_LEN - 1 ))")~"
+  fi
+
+  # Change into project directory
+  cd "$WORKSPACE/$project"
+
+  # Determine the approprate layout
+  layout="$WORKSPACE/$project/.config/zellij.kdl"
+  if ! [ -f "$layout" ]; then
+    layout="dev-utils"
+  fi
+
+  # Create or attach to zellij session
+  zellij --session "$name" --layout "$layout" \
+    || zellij attach "$name"
+}
+
 # Provide completions
 if [ "$1" = "--complete" ]; then
   dev pj list
   exit 0
 fi
 
-project="$1"
-
-# Extract last component for the name
-name="${project##*/}"
-
-# Remove characters that can't appear in the zellij session name
-name="${name//./-}"
-
-# Truncate the name to avoid zellij hanging
-# See: https://github.com/zellij-org/zellij/issues/2591
-name="$(echo $name | head -c35)~"
-
-# Change into project directory
-cd "$WORKSPACE/$project"
-
-# Determine the approprate layout
-layout="$WORKSPACE/$project/.config/zellij.kdl"
-if ! [ -f "$layout" ]; then
-  layout="dev-utils"
+# Open specific project if it was given
+if [ -n "$1" ]; then
+  open_project "$1"
 fi
 
-# Create or attach to zellij session
-zellij --session "$name" --layout "$layout" \
-  || zellij attach "$name"
+# Let the user pick a project whenever zellij exits
+while true; do
+  project="$( \
+    dev pj list \
+    | fzf --reverse --prompt "Pick a project: " --header "Press ESC to exit" \
+  )"
+
+  open_project "$project"
+done
 

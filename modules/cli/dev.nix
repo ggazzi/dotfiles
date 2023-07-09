@@ -6,6 +6,7 @@ in
 {
   home.packages = with pkgs; [
     gh # Client for working with GitHub projects
+    fzf
     dev-utils
   ];
 

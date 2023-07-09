@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+#
+# Summary: Reset current git repository for development.
+#
+# Usage: {cmd}
+
+ask_yes_or_no() {
+  local default=$2
+  local prompt=$1
+
+  case $default in
+    [Yy]* ) prompt="$prompt [Y/n]";;
+    [Nn]* ) prompt="$prompt [y/N]";;
+    * ) prompt="$prompt [y/n]";;
+  esac
+
+  local choice
+  while true; do
+    read -rp "$prompt " choice
+    case $choice in
+      [Yy]* ) return 0;;
+      [Nn]* ) return 1;;
+      * ) 
+        case $default in
+          [Yy]* ) return 0;;
+          [Nn]* ) return 1;;
+          * ) echo "Please answer yes or no.";;
+        esac
+      ;;
+    esac
+  done
+}
+
+set -e
+
+git fetch --prune --tags
+
+if git rev-parse --verify "origin/main" &>/dev/null; then
+  BRANCH="main"
+elif git rev-parse --verify "origin/published" &>/dev/null; then
+  BRANCH="published"
+else
+  BRANCH="master"
+fi
+
+changed_files="$(git clean -fdn | sed 's/^Would remove /  /')"
+if [ -n "$changed_files" ]; then
+  echo "Following files will be removed:"
+  echo "$changed_files"
+
+  if ! ask_yes_or_no "Are you sure they should be removed?" N; then
+    exit 1
+  fi
+fi

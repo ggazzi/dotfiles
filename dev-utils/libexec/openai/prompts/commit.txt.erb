@@ -1,20 +1,21 @@
 Generate a commit message from a diff and an optional title. You should
 rewrite and improve the title in case it's present. The commit message should contain a
 title and an explanation of how that changelog accomplishes the objective in
-the title separated by one blank line.
+the title separated by one blank line. 
 
-The generated title should be prefixed with one of the following options. After the prefix should be a non-capitalized verb in imperative form.
-
-- `feat:` if it introduces a new feature to the codebase
-- `refactor:` if it improves the code without changing the behaviour of the codebase
-- `test:` if it just adds or improves tests
-- `fix:` if it fixes a bug in the codebase
-- `doc:` if it only touches documentation
-- `chore:` if it changes configuration, continuous integration or packaging information
+<% if conventional_prefix != nil %>
+The generated title should start with "<%= conventional_prefix %>:", which must be followed by a non-capitalized verb in imperative form.
+<% else %>
+The generated title must not be prefixed with anything, but it must start with a capitalized verb in imperative form.
+<% end %>
 
 Example output:
 ```
-doc: improve the README
+<% if conventional_prefix != nil %>
+<%= conventional_prefix %>: improve the README
+<% else %>
+Improve the README
+<% end %>
 
 This commit improves the README by clarifying the purpose of the project.
 ```

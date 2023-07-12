@@ -1,9 +1,11 @@
 
 #!/usr/bin/env bash
 #
-# Summary: Open the GitHub page for a project
+# Summary: Open the GitHub page for a repository
 #
-# Usage: {cmd} <project>
+# Usage: {cmd} [project]
+#
+# If no project is given, use the current github repository
 
 set -e
 
@@ -18,7 +20,9 @@ fi
 project="$1"
 
 # Change into project directory
-cd "$WORKSPACE/$project"
+if [ -n "$project" ]; then
+  cd "$WORKSPACE/$project"
+fi
 
 # Open the GitHub page
 gh repo view --web

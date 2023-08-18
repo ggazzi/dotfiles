@@ -83,9 +83,24 @@ return {
     },
   },
 
+  -- Toggling between single- and multiline expressions/statements
+  {
+    'Wansmer/treesj',
+    keys = { '<space>cj', '<space>cs' },
+    dependencies = { 'nvim-treesitter/nvim-treesitter' },
+    config = function()
+      require('treesj').setup {
+        use_default_keymaps = false,
+      }
+      require('which-key').register({
+        s = { ':TSJSplit<CR>', 'Split into multiline expression/statement' },
+        j = { ':TSJJoin<CR>', 'Join into single line expression/statement' },
+      }, { prefix = '<Leader>c' })
+    end
+  },
+
   -- Smarter editing commands
   "AndrewRadev/sideways.vim", -- move items left and right in lists
-  "AndrewRadev/splitjoin.vim", -- switch between single- and multiline expressions/statements
   "godlygeek/tabular", -- align text in multiple lines
   "tpope/vim-repeat", -- make sure the repeat key '.' works well with the following
   "tpope/vim-abolish", -- case-coercion; case-smart substitution

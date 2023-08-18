@@ -78,8 +78,6 @@ wk.register({
 for _, chord in ipairs({
     'C', -- TODO: map soft capslock
     'F',
-    'J', -- TODO: map something to "join lines"
-    'S', -- TODO: map something to this
 }) do
     wk.register({ g = { [chord] = 'which_key_ignore' } })
     local status, err = pcall(function() vim.api.nvim_del_keymap('n', 'g' .. chord) end)

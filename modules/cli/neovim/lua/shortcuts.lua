@@ -1,7 +1,8 @@
 local wk = require('which-key');
 
 -- Trigger auto-completion
-vim.api.nvim_set_keymap('i', '<C-Space>', 'pumvisible() ? "\\<C-n>" : "\\<Cmd>lua require(\'cmp\').complete()<CR>"', {expr = true, noremap = true, silent = true})
+vim.api.nvim_set_keymap('i', '<C-Space>', 'pumvisible() ? "\\<C-n>" : "\\<Cmd>lua require(\'cmp\').complete()<CR>"',
+    { expr = true, noremap = true, silent = true })
 
 
 -- Buffer management (depends on vim-bbye)
@@ -156,4 +157,3 @@ wk.register({
 -- map('<Leader>vx', ':call TermInterrupt()', 'Test: Interrupt runner')
 -- map('<leader>vL', ':call TermRun(getline("."))', 'Test: Send current line to terminal')
 -- map('<leader>vT', ':call TermRun(runner#file())', 'Test: Run tests for current file')
-

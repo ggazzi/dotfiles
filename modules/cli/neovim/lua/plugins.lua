@@ -73,7 +73,7 @@ return {
   "tpope/vim-abolish", -- case-coercion; case-smart substitution
   "tpope/vim-capslock", -- soft-capslock
   "tpope/vim-surround", -- operate on surrounding pairs (parens, quotes, tags...)
-  "tpope/vim-unimpaired", -- navigate with '[X' to previous X and ']X' to next X
+  "Tummetott/unimpaired.nvim", -- commands that come in pairs bound to '[X' and ']X'
   'wellle/targets.vim', -- additional "targets" (pairs, quotes, arguments...)
 
   -- Open files into specific locations if :line:col suffix is given

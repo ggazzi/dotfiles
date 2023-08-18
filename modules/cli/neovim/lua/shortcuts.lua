@@ -89,26 +89,8 @@ for _, chord in ipairs({
     end
 end
 
-wk.register({
-    [']'] = { name = '+Go to next' },
-    ['['] = { name = '+Go to previous' },
-})
-local nav_pairs = {
-    w = { 'trailing whitespace', ':NextTrailingWhitespace', ':PrevTrailingWhitespace' },
-}
-for key, def in pairs(nav_pairs) do
-    if type(def) == 'string' then
-        wk.register({
-            [']'] = { [key] = 'Next ' .. def },
-            ['['] = { [key] = 'Previous ' .. def },
-        })
-    else
-        wk.register({
-            [']'] = { [key] = { def[2], 'Next ' .. def[1] } },
-            ['['] = { [key] = { def[3], 'Previous ' .. def[1] } },
-        })
-    end
-end
+-- Commands that come in pairs
+require('unimpaired').setup {}
 
 -- Git integration (depends on plugins I don't have)
 -- map('<Leader>gb', ':Git blame', 'Activate git blame for current buffer')

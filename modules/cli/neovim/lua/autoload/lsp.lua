@@ -39,9 +39,23 @@ require('neodev').setup()
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
 
+-- Language servers that are not managed by mason
+local servers = {
+    nil_ls = {}
+}
+
+local lspconfig = require('lspconfig');
+for lsp, settings in pairs(servers) do
+  lspconfig[lsp].setup {
+    capabilities = capabilities,
+    on_attach = on_attach,
+    settings = settings,
+  }
+end
+
 -- Language servers to be installed using mason
 -- https://github.com/williamboman/mason-lspconfig.nvim#available-lsp-servers
-local servers = {
+local mason_servers = {
   tsserver = {},
   -- Do not install solargraph since it's a gem. Do this per project instead.
   -- solargraph = {},
@@ -55,14 +69,14 @@ local servers = {
 
 require('mason').setup()
 require('mason-lspconfig').setup({
-  ensure_installed = vim.tbl_keys(servers),
+  ensure_installed = vim.tbl_keys(mason_servers),
 
   handlers = {
     function(server_name)
       require('lspconfig')[server_name].setup {
         capabilities = capabilities,
         on_attach = on_attach,
-        settings = servers[server_name],
+        settings = mason_servers[server_name],
       }
     end,
   }

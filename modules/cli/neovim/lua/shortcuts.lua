@@ -73,10 +73,9 @@ wk.register({
     u = 'which_key_ignore',
     U = 'which_key_ignore',
 }, { prefix = 'g', noremap = false })
+-- TODO: map 'gX' for visual mode too
 
 for _, chord in ipairs({
-    'b', -- TODO: map something to comment toggle (blockwise)
-    'c', -- TODO: map something to comment toggle (linewise)
     'C', -- TODO: map soft capslock
     'F',
     'J', -- TODO: map something to "join lines"
@@ -91,6 +90,16 @@ end
 
 -- Commands that come in pairs
 require('unimpaired').setup {}
+
+-- Code
+wk.register({
+    name = "+Code",
+    c = {
+        name = "+Comments",
+        l = 'Toggle line comments (takes target)',
+        b = 'Toggle block comments (takes target)',
+    },
+}, { prefix = '<Leader>c' })
 
 -- Git integration (depends on plugins I don't have)
 -- map('<Leader>gb', ':Git blame', 'Activate git blame for current buffer')

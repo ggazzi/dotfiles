@@ -64,11 +64,29 @@ return {
     build = ":TSUpdate",
   },
 
+  -- Comments
+  { 'numToStr/Comment.nvim',
+    opts = {
+        toggler = {
+           line = 'ccll',
+           block = 'ccbb',
+        },
+        opleader = {
+            line = 'ccl',
+            block = 'ccb',
+        },
+        extra = {
+            above = 'cclO',
+            below = 'cclo',
+            eol = 'cclA',
+        },
+    },
+  },
+
   -- Smarter editing commands
   "AndrewRadev/sideways.vim", -- move items left and right in lists
   "AndrewRadev/splitjoin.vim", -- switch between single- and multiline expressions/statements
   "godlygeek/tabular", -- align text in multiple lines
-  { 'numToStr/Comment.nvim', config = true }, -- manipulation of comments
   "tpope/vim-repeat", -- make sure the repeat key '.' works well with the following
   "tpope/vim-abolish", -- case-coercion; case-smart substitution
   "tpope/vim-capslock", -- soft-capslock

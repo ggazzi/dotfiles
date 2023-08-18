@@ -10,8 +10,9 @@ set -e
 # shellcheck disable=SC1091 # _DEV_ROOT will be set appropriately
 source "${_DEV_ROOT}/lib/interactive.sh"
 
-# Make sure we are up to date with origin
+# Make sure we are up to date with origin, clean branches
 git fetch --prune --tags
+git clean-branches
 
 # Figure out the name of the main branch
 if git rev-parse --verify "origin/main" &>/dev/null; then
@@ -36,5 +37,4 @@ if [ -n "$changed_files" ]; then
 fi
 
 git checkout "$BRANCH"
-git clean-branches
 git pull --rebase

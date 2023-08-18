@@ -33,7 +33,7 @@
             config = {
               allowUnfree = true;
               ggazzi = {
-                helix.defaultEditor = true;
+                neovim.defaultEditor = true;
               };
             };
           };

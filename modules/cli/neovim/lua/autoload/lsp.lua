@@ -41,7 +41,7 @@ capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
 
 -- Language servers that are not managed by mason
 local servers = {
-    nil_ls = {}
+  nil_ls = {}
 }
 
 local lspconfig = require('lspconfig');

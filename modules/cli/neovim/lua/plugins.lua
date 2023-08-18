@@ -3,16 +3,16 @@ return {
   "tpope/vim-sensible",
 
   -- Nice colour theme
-  { "catppuccin/nvim", name = "catppuccin", priority = 1000 },
+  { "catppuccin/nvim",    name = "catppuccin", priority = 1000 },
 
   -- Contextual configuration
   { "folke/neoconf.nvim", config = true }, -- neovim config per project/directory
-  "editorconfig/editorconfig-vim", -- editor-agnostic config per directory
-  "tpope/vim-sleuth", -- detect tabstop and shiftwidth automatically
+  "editorconfig/editorconfig-vim",         -- editor-agnostic config per directory
+  "tpope/vim-sleuth",                      -- detect tabstop and shiftwidth automatically
 
   -- Make keymaps more usable and discoverable
   { "folke/which-key.nvim", config = true }, -- popup to help navigate chords
-  "sunaku/vim-shortcut", -- make shortcuts searchable
+  "sunaku/vim-shortcut",                     -- make shortcuts searchable
 
   -- LSP
   {
@@ -35,12 +35,12 @@ return {
 
   -- Autocompletion
   {
-    'hrsh7th/nvim-cmp', -- engine that accepts multiple sources
+    'hrsh7th/nvim-cmp',           -- engine that accepts multiple sources
     dependencies = {
-      'hrsh7th/cmp-nvim-lsp', -- LSP source
-      'onsails/lspkind.nvim', -- icons for lsp
+      'hrsh7th/cmp-nvim-lsp',     -- LSP source
+      'onsails/lspkind.nvim',     -- icons for lsp
       'saadparwaiz1/cmp_luasnip', -- snippets source
-      'L3MON4D3/LuaSnip', -- snippets plugin
+      'L3MON4D3/LuaSnip',         -- snippets plugin
     },
   },
 
@@ -65,21 +65,22 @@ return {
   },
 
   -- Comments
-  { 'numToStr/Comment.nvim',
+  {
+    'numToStr/Comment.nvim',
     opts = {
-        toggler = {
-           line = 'ccll',
-           block = 'ccbb',
-        },
-        opleader = {
-            line = 'ccl',
-            block = 'ccb',
-        },
-        extra = {
-            above = 'cclO',
-            below = 'cclo',
-            eol = 'cclA',
-        },
+      toggler = {
+        line = 'ccll',
+        block = 'ccbb',
+      },
+      opleader = {
+        line = 'ccl',
+        block = 'ccb',
+      },
+      extra = {
+        above = 'cclO',
+        below = 'cclo',
+        eol = 'cclA',
+      },
     },
   },
 
@@ -100,14 +101,14 @@ return {
   },
 
   -- Smarter editing commands
-  "AndrewRadev/sideways.vim", -- move items left and right in lists
-  "godlygeek/tabular", -- align text in multiple lines
-  "tpope/vim-repeat", -- make sure the repeat key '.' works well with the following
-  "tpope/vim-abolish", -- case-coercion; case-smart substitution
-  "tpope/vim-capslock", -- soft-capslock
-  "tpope/vim-surround", -- operate on surrounding pairs (parens, quotes, tags...)
+  "AndrewRadev/sideways.vim",  -- move items left and right in lists
+  "godlygeek/tabular",         -- align text in multiple lines
+  "tpope/vim-repeat",          -- make sure the repeat key '.' works well with the following
+  "tpope/vim-abolish",         -- case-coercion; case-smart substitution
+  "tpope/vim-capslock",        -- soft-capslock
+  "tpope/vim-surround",        -- operate on surrounding pairs (parens, quotes, tags...)
   "Tummetott/unimpaired.nvim", -- commands that come in pairs bound to '[X' and ']X'
-  'wellle/targets.vim', -- additional "targets" (pairs, quotes, arguments...)
+  'wellle/targets.vim',        -- additional "targets" (pairs, quotes, arguments...)
 
   -- Open files into specific locations if :line:col suffix is given
   "kopischke/vim-fetch",

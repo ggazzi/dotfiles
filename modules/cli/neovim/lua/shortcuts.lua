@@ -2,88 +2,88 @@ local wk = require('which-key');
 
 -- Trigger auto-completion
 vim.api.nvim_set_keymap('i', '<C-Space>', 'pumvisible() ? "\\<C-n>" : "\\<Cmd>lua require(\'cmp\').complete()<CR>"',
-    { expr = true, noremap = true, silent = true })
+  { expr = true, noremap = true, silent = true })
 
 
 -- Buffer management (depends on vim-bbye)
 wk.register({
-    name = '+Buffer',
-    c = { ':let @+=expand("%")<CR>', 'Copy relative filename to clipboard', silent = false },
-    C = { ':let @+=expand("%:p")<CR>', 'Copy absolute filename to clipboard', silent = false },
-    d = { ':Bwipeout<CR>', 'Wipeout current buffer keeping window layout' },
-    l = { ':b#<CR>', 'Switch to last used buffer' },
-    o = { ':%bd \\| :e #<CR>', 'Close all other buffers' },
-    D = { ':bwipeout<CR>', 'Wipeout current buffer' },
+  name = '+Buffer',
+  c = { ':let @+=expand("%")<CR>', 'Copy relative filename to clipboard', silent = false },
+  C = { ':let @+=expand("%:p")<CR>', 'Copy absolute filename to clipboard', silent = false },
+  d = { ':Bwipeout<CR>', 'Wipeout current buffer keeping window layout' },
+  l = { ':b#<CR>', 'Switch to last used buffer' },
+  o = { ':%bd \\| :e #<CR>', 'Close all other buffers' },
+  D = { ':bwipeout<CR>', 'Wipeout current buffer' },
 }, { prefix = '<Leader>b' })
 
 -- Window management
 wk.register({
-    name = '+Window',
-    s = { ':split<CR>', 'Split window horizontally' },
-    v = { ':vsplit<CR>', 'Split window vertically' },
-    h = { '<C-w>h', 'Jump to window on the left' },
-    j = { '<C-w>j', 'Jump to window below' },
-    k = { '<C-w>k', 'Jump to window above' },
-    l = { '<C-w>l', 'Jump to window on the right' },
-    H = { '<C-w>H', 'Swap window with next to the left' },
-    J = { '<C-w>J', 'Swap window with next below' },
-    K = { '<C-w>K', 'Swap window with next above' },
-    L = { '<C-w>L', 'Swap window with next to the right' },
-    p = { '<C-w>p', 'Jump to previous (last accessed) window' },
-    q = { '<C-w>q', 'Close current window' },
-    -- TODO: o = { '???', 'Close all other windows' },
-    ['='] = { '<C-w>=', 'Equalize size of windows' },
-    ['-'] = { '<C-w>-', 'Decrease window height' },
-    ['+'] = { '<C-w>+', 'Increase window height' },
-    ['<'] = { '<C-w><lt>', 'Decrease window height' },
-    ['>'] = { '<C-w>>', 'Increase window height' },
+  name = '+Window',
+  s = { ':split<CR>', 'Split window horizontally' },
+  v = { ':vsplit<CR>', 'Split window vertically' },
+  h = { '<C-w>h', 'Jump to window on the left' },
+  j = { '<C-w>j', 'Jump to window below' },
+  k = { '<C-w>k', 'Jump to window above' },
+  l = { '<C-w>l', 'Jump to window on the right' },
+  H = { '<C-w>H', 'Swap window with next to the left' },
+  J = { '<C-w>J', 'Swap window with next below' },
+  K = { '<C-w>K', 'Swap window with next above' },
+  L = { '<C-w>L', 'Swap window with next to the right' },
+  p = { '<C-w>p', 'Jump to previous (last accessed) window' },
+  q = { '<C-w>q', 'Close current window' },
+  -- TODO: o = { '???', 'Close all other windows' },
+  ['='] = { '<C-w>=', 'Equalize size of windows' },
+  ['-'] = { '<C-w>-', 'Decrease window height' },
+  ['+'] = { '<C-w>+', 'Increase window height' },
+  ['<'] = { '<C-w><lt>', 'Decrease window height' },
+  ['>'] = { '<C-w>>', 'Increase window height' },
 }, { prefix = '<Leader>w' })
 
 -- Fuzzy finder (depends on telescope.nvim)
 wk.register({
-    name = '+Find (fuzzy)',
-    b = { ':Telescope buffers<CR>', 'Find buffer' },
-    c = { ':Telescope commands<CR>', 'Find command' },
-    d = { ':Telescope diagnostics<CR>', 'Find diagnostics' },
-    f = { ':Telescope find_files hidden=true<CR>', 'Find files' },
-    g = { ':Telescope live_grep<CR>', 'Find files' },
-    h = { ':Telescope help_tags<CR>', 'Find help tags' },
-    m = { ':Telescope keymaps<CR>', 'Find keymaps' },
-    ['/'] = { ':Telescope current_buffer_fuzzy_find<CR>', 'Find in current buffer' },
+  name = '+Find (fuzzy)',
+  b = { ':Telescope buffers<CR>', 'Find buffer' },
+  c = { ':Telescope commands<CR>', 'Find command' },
+  d = { ':Telescope diagnostics<CR>', 'Find diagnostics' },
+  f = { ':Telescope find_files hidden=true<CR>', 'Find files' },
+  g = { ':Telescope live_grep<CR>', 'Find files' },
+  h = { ':Telescope help_tags<CR>', 'Find help tags' },
+  m = { ':Telescope keymaps<CR>', 'Find keymaps' },
+  ['/'] = { ':Telescope current_buffer_fuzzy_find<CR>', 'Find in current buffer' },
 }, { prefix = '<Leader>f' })
 
 -- Navigation
 wk.register({
-    name = '+Go to',
-    h = { '^', 'Start of line' },
-    l = { '$', 'End of line' },
-    g = 'First line',
-    e = { 'G', 'Last line' },
-    ['%'] = 'Matching brackets',
-    i = 'Last insertion (and insert mode)',
-    v = 'Last selection (and visual mode)',
-    f = 'File under cursor',
-    -- TODO: bind 'gF' to open file externally
-    n = 'Next search result',
-    N = 'which_key_ignore',
-    P = { 'GN', 'Previous search result' },
+  name = '+Go to',
+  h = { '^', 'Start of line' },
+  l = { '$', 'End of line' },
+  g = 'First line',
+  e = { 'G', 'Last line' },
+  ['%'] = 'Matching brackets',
+  i = 'Last insertion (and insert mode)',
+  v = 'Last selection (and visual mode)',
+  f = 'File under cursor',
+  -- TODO: bind 'gF' to open file externally
+  n = 'Next search result',
+  N = 'which_key_ignore',
+  P = { 'GN', 'Previous search result' },
 
-    -- TODO: figure out who maps the following and remove those mappings
-    ['~'] = 'which_key_ignore',
-    u = 'which_key_ignore',
-    U = 'which_key_ignore',
+  -- TODO: figure out who maps the following and remove those mappings
+  ['~'] = 'which_key_ignore',
+  u = 'which_key_ignore',
+  U = 'which_key_ignore',
 }, { prefix = 'g', noremap = false })
 -- TODO: map 'gX' for visual mode too
 
 for _, chord in ipairs({
-    'C', -- TODO: map soft capslock
-    'F',
+  'C',   -- TODO: map soft capslock
+  'F',
 }) do
-    wk.register({ g = { [chord] = 'which_key_ignore' } })
-    local status, err = pcall(function() vim.api.nvim_del_keymap('n', 'g' .. chord) end)
-    if not status then
-        print(string.format('WARN: cannot remove mapping for "g%s": %s', chord, err))
-    end
+  wk.register({ g = { [chord] = 'which_key_ignore' } })
+  local status, err = pcall(function() vim.api.nvim_del_keymap('n', 'g' .. chord) end)
+  if not status then
+    print(string.format('WARN: cannot remove mapping for "g%s": %s', chord, err))
+  end
 end
 
 -- Commands that come in pairs
@@ -92,12 +92,12 @@ require('unimpaired').setup {}
 
 -- Code
 wk.register({
-    name = "+Code",
-    c = {
-        name = "+Comments",
-        l = 'Toggle line comments (takes target)',
-        b = 'Toggle block comments (takes target)',
-    },
+  name = "+Code",
+  c = {
+    name = "+Comments",
+    l = 'Toggle line comments (takes target)',
+    b = 'Toggle block comments (takes target)',
+  },
 }, { prefix = '<Leader>c' })
 
 -- Git integration (depends on plugins I don't have)
@@ -108,17 +108,17 @@ wk.register({
 
 -- Spell-checking
 wk.register({
-    name = '+Spell checking',
-    e = { ':setlocal spell spelllang=en_gb<CR>', 'Enable spellcheck for English' },
-    n = { ':setlocal nospell<CR>', 'Disable spellcheck' },
-    p = { ':setlocal spell spelllang=pt_br<CR>', 'Enable spellcheck for Portuguese' },
-    d = { ':setlocal spell spelllang=de<CR>', 'Enable spellcheck for German' },
+  name = '+Spell checking',
+  e = { ':setlocal spell spelllang=en_gb<CR>', 'Enable spellcheck for English' },
+  n = { ':setlocal nospell<CR>', 'Disable spellcheck' },
+  p = { ':setlocal spell spelllang=pt_br<CR>', 'Enable spellcheck for Portuguese' },
+  d = { ':setlocal spell spelllang=de<CR>', 'Enable spellcheck for German' },
 }, { prefix = '<Leader>s' })
 
 -- highlight
 wk.register({
-    ['*'] = { ":let @/='\\<<C-R>=expand(\"<cword>\")<CR>\\>'<CR>:set hlsearch<CR>", 'Highlight word under cursor' },
-    ['<Ctrl>*'] = { ':set nohlsearch<CR>', 'Disable highlighted word' },
+  ['*'] = { ":let @/='\\<<C-R>=expand(\"<cword>\")<CR>\\>'<CR>:set hlsearch<CR>", 'Highlight word under cursor' },
+  ['<Ctrl>*'] = { ':set nohlsearch<CR>', 'Disable highlighted word' },
 })
 
 -- format JSON

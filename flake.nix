@@ -30,7 +30,12 @@
         home-manager.lib.homeManagerConfiguration {
           pkgs = import nixpkgs {
             inherit system overlays;
-            config = { allowUnfree = true; };
+            config = {
+              allowUnfree = true;
+              ggazzi = {
+                helix.defaultEditor = true;
+              };
+            };
           };
           modules = [ ./modules ];
         };

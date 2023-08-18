@@ -30,14 +30,14 @@
         home-manager.lib.homeManagerConfiguration {
           pkgs = import nixpkgs {
             inherit system overlays;
-            config = {
-              allowUnfree = true;
-              ggazzi = {
-                neovim.defaultEditor = true;
-              };
-            };
+            config.allowUnfree = true;
           };
-          modules = [ ./modules ];
+          modules = [
+            ./modules
+            {
+              ggazzi.neovim.defaultEditor = true;
+            }
+          ];
         };
     };
 }

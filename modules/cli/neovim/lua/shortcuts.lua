@@ -19,11 +19,16 @@ local function map(chord, command, description, options)
   end
 end
 
+local wk = require('which-key');
+
 -- Trigger auto-completion
 vim.api.nvim_set_keymap('i', '<C-Space>', 'pumvisible() ? "\\<C-n>" : "\\<Cmd>lua require(\'cmp\').complete()<CR>"', {expr = true, noremap = true, silent = true})
 
 
 -- Buffer management (depends on vim-bbye)
+wk.register({
+    name = '+Buffer',
+}, { prefix = '<Leader>b' })
 map('<Leader>bc', ':let @+=expand("%")', 'Copy relative filename to clipboard', { silent = false })
 map('<Leader>bC', ':let @+=expand("%:p")', 'Copy absolute filename to clipboard', { silent = false })
 map('<Leader>bd', ':Bwipeout', 'Wipeout current buffer keeping window layout')
@@ -32,6 +37,9 @@ map('<Leader>bo', ':%bd \\| :e #', 'Close all other buffers')
 map('<Leader>bD', ':bwipeout', 'Wipeout current buffer')
 
 -- Window management
+wk.register({
+    name = '+Window',
+}, { prefix = '<Leader>w' })
 map('<Leader>ws', ':split', 'Split window horizontally')
 map('<Leader>wv', ':vsplit', 'Split window vertically')
 map('<Leader>wh', '<C-w>h', 'Jump to window on the left')
@@ -52,6 +60,9 @@ map('<Leader>w<lt>', '<C-w><lt>', 'Decrease window height')
 map('<Leader>w>', '<C-w>>', 'Increase window height')
 
 -- Fuzzy finder (depends on telescope.nvim)
+wk.register({
+    name = '+Find (fuzzy)',
+}, { prefix = '<Leader>f' })
 map('<Leader>fb', ':Telescope buffers', 'Find buffer')
 map('<Leader>fc', ':Telescope commands', 'Find command')
 map('<Leader>fd', ':Telescope diagnostics', 'Find diagnostics')
@@ -73,6 +84,9 @@ map('[w', ':PrevTrailingWhitespace', 'Previous trailing whitespace')
 -- map('<Leader>gr', ':silent ! hub browse', 'Browse current branch in git repository')
 
 -- Spell-checking
+wk.register({
+    name = '+Spell checking',
+}, { prefix = '<Leader>s' })
 map('<Leader>se', ':setlocal spell spelllang=en_gb', 'Enable spellcheck for English')
 map('<Leader>sn', ':setlocal nospell', 'Disable spellcheck')
 map('<Leader>sp', ':setlocal spell spelllang=pt_br', 'Enable spellcheck for Portuguese')

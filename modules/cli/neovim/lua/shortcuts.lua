@@ -1,24 +1,3 @@
--- Helper function to map a key/chord
---
--- ## Options:
---   - silent (default: true)
---   - no_cr (default: false)
---   - modes (default: 'n')
-local function map(chord, command, description, options)
-  options = options or {}
-  local silent = options.silent == nil and true or options.silent
-  local no_cr = options.no_cr or false
-  local modes = options.modes or {'n'}
-
-  if not no_cr and not command:match('^<Plug>') then
-    command = command .. '<CR>'
-  end
-
-  for _, mode in ipairs(modes) do
-    vim.api.nvim_set_keymap(mode, chord, command, {noremap = true, silent = silent, desc = description})
-  end
-end
-
 local wk = require('which-key');
 
 -- Trigger auto-completion

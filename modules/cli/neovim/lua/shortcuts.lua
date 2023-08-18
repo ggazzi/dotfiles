@@ -31,7 +31,7 @@ wk.register({
     L = { '<C-w>L', 'Swap window with next to the right' },
     p = { '<C-w>p', 'Jump to previous (last accessed) window' },
     q = { '<C-w>q', 'Close current window' },
-    -- o = { '???', 'Close all other windows' },
+    -- TODO: o = { '???', 'Close all other windows' },
     ['='] = { '<C-w>=', 'Equalize size of windows' },
     ['-'] = { '<C-w>-', 'Decrease window height' },
     ['+'] = { '<C-w>+', 'Increase window height' },
@@ -87,6 +87,7 @@ for _, chord in ipairs({
 end
 
 -- Commands that come in pairs
+-- TODO: find a better version of this
 require('unimpaired').setup {}
 
 -- Code

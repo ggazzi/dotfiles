@@ -73,9 +73,62 @@ wk.register({
 }, { prefix = '<Leader>f' })
 
 -- Navigation
-map('ge', 'G', 'Last line')
-map(']w', ':NextTrailingWhitespace', 'Next trailing whitespace')
-map('[w', ':PrevTrailingWhitespace', 'Previous trailing whitespace')
+wk.register({
+    name = '+Go to',
+    h = { '^', 'Start of line' },
+    l = { '$', 'End of line' },
+    g = 'First line',
+    e = { 'G', 'Last line' },
+    ['%'] = 'Matching brackets',
+    i = 'Last insertion (and insert mode)',
+    v = 'Last selection (and visual mode)',
+    f = 'File under cursor',
+    -- TODO: bind 'gF' to open file externally
+    n = 'Next search result',
+    N = 'which_key_ignore',
+    P = { 'GN', 'Previous search result' },
+
+    -- TODO: figure out who maps the following and remove those mappings
+    ['~'] = 'which_key_ignore',
+    u = 'which_key_ignore',
+    U = 'which_key_ignore',
+}, { prefix = 'g', noremap = false })
+
+for _, chord in ipairs({
+    'b', -- TODO: map something to comment toggle (blockwise)
+    'c', -- TODO: map something to comment toggle (linewise)
+    'C', -- TODO: map soft capslock
+    'F',
+    'J', -- TODO: map something to "join lines"
+    'S', -- TODO: map something to this
+}) do
+    wk.register({ g = { [chord] = 'which_key_ignore' } })
+    local status, err = pcall(function() vim.api.nvim_del_keymap('n', 'g' .. chord) end)
+    if not status then
+        print(string.format('WARN: cannot remove mapping for "g%s": %s', chord, err))
+    end
+end
+
+wk.register({
+    [']'] = { name = '+Go to next' },
+    ['['] = { name = '+Go to previous' },
+})
+local nav_pairs = {
+    w = { 'trailing whitespace', ':NextTrailingWhitespace', ':PrevTrailingWhitespace' },
+}
+for key, def in pairs(nav_pairs) do
+    if type(def) == 'string' then
+        wk.register({
+            [']'] = { [key] = 'Next ' .. def },
+            ['['] = { [key] = 'Previous ' .. def },
+        })
+    else
+        wk.register({
+            [']'] = { [key] = { def[2], 'Next ' .. def[1] } },
+            ['['] = { [key] = { def[3], 'Previous ' .. def[1] } },
+        })
+    end
+end
 
 -- Git integration (depends on plugins I don't have)
 -- map('<Leader>gb', ':Git blame', 'Activate git blame for current buffer')

@@ -146,7 +146,10 @@ wk.register({
 }, { prefix = '<Leader>s' })
 
 -- highlight
-map('*', ":let @/='\\<<C-R>=expand(\"<cword>\")<CR>\\>'<CR>:set hls", 'Highlight word under cursor')
+wk.register({
+    ['*'] = { ":let @/='\\<<C-R>=expand(\"<cword>\")<CR>\\>'<CR>:set hlsearch<CR>", 'Highlight word under cursor' },
+    ['<Ctrl>*'] = { ':set nohlsearch<CR>', 'Disable highlighted word' },
+})
 
 -- format JSON
 -- map('<Leader>fj', ':%!jq .', 'Format JSON')

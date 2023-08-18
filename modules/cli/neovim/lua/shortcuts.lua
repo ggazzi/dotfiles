@@ -28,49 +28,49 @@ vim.api.nvim_set_keymap('i', '<C-Space>', 'pumvisible() ? "\\<C-n>" : "\\<Cmd>lu
 -- Buffer management (depends on vim-bbye)
 wk.register({
     name = '+Buffer',
+    c = { ':let @+=expand("%")<CR>', 'Copy relative filename to clipboard', silent = false },
+    C = { ':let @+=expand("%:p")<CR>', 'Copy absolute filename to clipboard', silent = false },
+    d = { ':Bwipeout<CR>', 'Wipeout current buffer keeping window layout' },
+    l = { ':b#<CR>', 'Switch to last used buffer' },
+    o = { ':%bd \\| :e #<CR>', 'Close all other buffers' },
+    D = { ':bwipeout<CR>', 'Wipeout current buffer' },
 }, { prefix = '<Leader>b' })
-map('<Leader>bc', ':let @+=expand("%")', 'Copy relative filename to clipboard', { silent = false })
-map('<Leader>bC', ':let @+=expand("%:p")', 'Copy absolute filename to clipboard', { silent = false })
-map('<Leader>bd', ':Bwipeout', 'Wipeout current buffer keeping window layout')
-map('<Leader>bl', ':b#', 'Switch to last used buffer')
-map('<Leader>bo', ':%bd \\| :e #', 'Close all other buffers')
-map('<Leader>bD', ':bwipeout', 'Wipeout current buffer')
 
 -- Window management
 wk.register({
     name = '+Window',
+    s = { ':split<CR>', 'Split window horizontally' },
+    v = { ':vsplit<CR>', 'Split window vertically' },
+    h = { '<C-w>h', 'Jump to window on the left' },
+    j = { '<C-w>j', 'Jump to window below' },
+    k = { '<C-w>k', 'Jump to window above' },
+    l = { '<C-w>l', 'Jump to window on the right' },
+    H = { '<C-w>H', 'Swap window with next to the left' },
+    J = { '<C-w>J', 'Swap window with next below' },
+    K = { '<C-w>K', 'Swap window with next above' },
+    L = { '<C-w>L', 'Swap window with next to the right' },
+    p = { '<C-w>p', 'Jump to previous (last accessed) window' },
+    q = { '<C-w>q', 'Close current window' },
+    -- o = { '???', 'Close all other windows' },
+    ['='] = { '<C-w>=', 'Equalize size of windows' },
+    ['-'] = { '<C-w>-', 'Decrease window height' },
+    ['+'] = { '<C-w>+', 'Increase window height' },
+    ['<'] = { '<C-w><lt>', 'Decrease window height' },
+    ['>'] = { '<C-w>>', 'Increase window height' },
 }, { prefix = '<Leader>w' })
-map('<Leader>ws', ':split', 'Split window horizontally')
-map('<Leader>wv', ':vsplit', 'Split window vertically')
-map('<Leader>wh', '<C-w>h', 'Jump to window on the left')
-map('<Leader>wj', '<C-w>j', 'Jump to window below')
-map('<Leader>wk', '<C-w>k', 'Jump to window above')
-map('<Leader>wl', '<C-w>l', 'Jump to window on the right')
-map('<Leader>wH', '<C-w>H', 'Swap window with next to the left')
-map('<Leader>wJ', '<C-w>J', 'Swap window with next below')
-map('<Leader>wK', '<C-w>K', 'Swap window with next above')
-map('<Leader>wL', '<C-w>L', 'Swap window with next to the right')
-map('<Leader>wp', '<C-w>p', 'Jump to previous (last accessed) window')
-map('<Leader>wq', '<C-w>q', 'Close current window')
--- map('<Leader>wo', '???', 'Close all other windows')
-map('<Leader>w=', '<C-w>=', 'Equalize size of windows')
-map('<Leader>w-', '<C-w>-', 'Decrease window height')
-map('<Leader>w+', '<C-w>+', 'Increase window height')
-map('<Leader>w<lt>', '<C-w><lt>', 'Decrease window height')
-map('<Leader>w>', '<C-w>>', 'Increase window height')
 
 -- Fuzzy finder (depends on telescope.nvim)
 wk.register({
     name = '+Find (fuzzy)',
+    b = { ':Telescope buffers<CR>', 'Find buffer' },
+    c = { ':Telescope commands<CR>', 'Find command' },
+    d = { ':Telescope diagnostics<CR>', 'Find diagnostics' },
+    f = { ':Telescope find_files hidden=true<CR>', 'Find files' },
+    g = { ':Telescope live_grep<CR>', 'Find files' },
+    h = { ':Telescope help_tags<CR>', 'Find help tags' },
+    m = { ':Telescope keymaps<CR>', 'Find keymaps' },
+    ['/'] = { ':Telescope current_buffer_fuzzy_find<CR>', 'Find in current buffer' },
 }, { prefix = '<Leader>f' })
-map('<Leader>fb', ':Telescope buffers', 'Find buffer')
-map('<Leader>fc', ':Telescope commands', 'Find command')
-map('<Leader>fd', ':Telescope diagnostics', 'Find diagnostics')
-map('<Leader>ff', ':Telescope find_files hidden=true', 'Find files')
-map('<Leader>fg', ':Telescope live_grep', 'Find files')
-map('<Leader>fh', ':Telescope help_tags', 'Find help tags')
-map('<Leader>fm', ':Telescope keymaps', 'Find keymaps')
-map('<Leader>f/', ':Telescope current_buffer_fuzzy_find', 'Find in current buffer')
 
 -- Navigation
 map('ge', 'G', 'Last line')
@@ -86,11 +86,11 @@ map('[w', ':PrevTrailingWhitespace', 'Previous trailing whitespace')
 -- Spell-checking
 wk.register({
     name = '+Spell checking',
+    e = { ':setlocal spell spelllang=en_gb<CR>', 'Enable spellcheck for English' },
+    n = { ':setlocal nospell<CR>', 'Disable spellcheck' },
+    p = { ':setlocal spell spelllang=pt_br<CR>', 'Enable spellcheck for Portuguese' },
+    d = { ':setlocal spell spelllang=de<CR>', 'Enable spellcheck for German' },
 }, { prefix = '<Leader>s' })
-map('<Leader>se', ':setlocal spell spelllang=en_gb', 'Enable spellcheck for English')
-map('<Leader>sn', ':setlocal nospell', 'Disable spellcheck')
-map('<Leader>sp', ':setlocal spell spelllang=pt_br', 'Enable spellcheck for Portuguese')
-map('<Leader>sd', ':setlocal spell spelllang=de', 'Enable spellcheck for German')
 
 -- highlight
 map('*', ":let @/='\\<<C-R>=expand(\"<cword>\")<CR>\\>'<CR>:set hls", 'Highlight word under cursor')

@@ -32,7 +32,6 @@ local function process_pair(opts)
   return { cmd1, description1 }, { cmd2, description2 }
 end
 
-
 -- Register pairs of commands that are triggered by pressing `[key` and `]key`.
 --
 -- The argument `pair_defs` must be a table of keybindings with the form
@@ -42,24 +41,31 @@ end
 --     by choosing `foo` for `[key` and `bar` for `]key`.
 --   - `cmd1` and `cmd2` are the commands to run when `[key` and `]key`
 --      are pressed, respectively.
-function M.register_pairs(pair_defs)
+function M.register_pairs(pair_defs, opts)
+  local bindings = {}
+
   for key, binding1, binding2 in process_defs(pair_defs, process_pair) do
-    wk.register({
-      ['[' .. key] = binding1,
-      [']' .. key] = binding2,
-    }, { noremap = false })
+    bindings['[' .. key] = binding1
+    bindings[']' .. key] = binding2
   end
+
+  wk.register(bindings, opts or { noremap = false })
 end
 
 local function process_toggle(opts, key)
   local description, turn_on, turn_off, toggle
-  if #opts == 2 and type(opts[1]) == 'string' then
+  if #opts == 1 and type(opts.option) == 'string' then
     -- case `{description, option}` where `option` is a global vim option
     local option
     description, option = unpack(opts)
     turn_on = function() vim.o[option] = true end
     turn_off = function() vim.o[option] = false end
     toggle = function() vim.o[option] = not vim.o[option] end
+  elseif #opts == 2 then
+    -- case `{description, toggle}` where `toggle` is a command
+    --   we return early due to missing bindings for `[key` and `]key`
+    description, toggle = unpack(opts)
+    return { toggle, 'Toggle ' .. description }
   elseif #opts == 3 and type(opts.is_on) == 'function' then
     -- case `{description, turn_on, turn_off, is_on = function}`
     --   where `turn_on` and `turn_off` are commands
@@ -74,9 +80,10 @@ local function process_toggle(opts, key)
     error(string.format('Invalid toggle definition for "%k"', key))
   end
 
-  return { turn_on, 'Enable ' .. description },
-      { turn_off, 'Disable ' .. description },
-      { toggle, 'Toggle ' .. description }
+  return
+      { toggle, 'Toggle ' .. description },
+      { turn_on, 'Enable ' .. description },
+      { turn_off, 'Disable ' .. description }
 end
 
 -- Registers options that can be turned on and off with `[key` and `]key` or
@@ -85,8 +92,11 @@ end
 -- The argument `toggle_defs` must be a table of keybindings with the form
 -- `{ [key] = options, ... }` where `options` is either:
 --
---  - a table of the form `{ description, option }` where `option` is a global
---  vim option that can be turned on and off with `true` and `false`.
+--  - a table of the form `{ description, option = string }`
+--  where `option` is a global boolean option.
+--
+--  - a table of the form `{ description, toggle }` where `toggle` is a
+--  command. In this case, bindings for `[key` and `]key` will not be created.
 --
 --  - a table of the form `{ description, turn_on, turn_off, is_on = function }`
 --  where `turn_on` and `turn_off` are commands. In this case, toggle will
@@ -95,17 +105,19 @@ end
 --
 --  - a table of the form `{ description, turn_on, turn_off, toggle }` where
 --  where `turn_on`, `turn_off` and `toggle` are commands.
-function M.register_toggles(toggle_defs)
-  for key, binding_on, binding_off, binding_toggle in process_defs(
+function M.register_toggles(toggle_defs, opts)
+  local bindings = {}
+
+  for key, binding_toggle, binding_on, binding_off in process_defs(
     toggle_defs,
     process_toggle
   ) do
-    wk.register({
-      ['[' .. key] = binding_off,
-      [']' .. key] = binding_on,
-      ['<Leader>t' .. key] = binding_toggle,
-    }, { noremap = false })
+    if binding_toggle then bindings['<Leader>t' .. key] = binding_toggle end
+    if binding_off then bindings['[' .. key] = binding_off end
+    if binding_on then bindings[']' .. key] = binding_on end
   end
+
+  wk.register(bindings, opts or { noremap = false })
 end
 
 return M

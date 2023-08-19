@@ -96,6 +96,11 @@ wk.register({
   name = "+Code",
   s = { ':TSJSplit<CR>', 'Split into multiline expression/statement' },
   j = { ':TSJJoin<CR>', 'Join into single line expression/statement' },
+  d = {
+    name = "+Diagnostics",
+    d = { vim.diagnostic.open_float, 'Open diagnostics in float window' },
+    q = { vim.diagnostic.setloclist, 'Open diagnostics in quickfix list' },
+  },
   c = {
     name = "+Comments",
     l = 'Toggle line comments (takes target)',
@@ -109,6 +114,15 @@ wk.register({
     C = { ':Copilot panel<CR>', 'Show panel with up to 10 completions' },
   },
 }, { prefix = '<Leader>c', noremap = false })
+
+wk.register {
+  ['['] = {
+    d = { vim.diagnostic.goto_prev, 'Go to previous diagnostic' },
+  },
+  [']'] = {
+    d = { vim.diagnostic.goto_next, 'Go to next diagnostic' },
+  },
+}
 
 -- Git integration (depends on plugins I don't have)
 -- map('<Leader>gb', ':Git blame', 'Activate git blame for current buffer')

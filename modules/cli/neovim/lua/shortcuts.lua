@@ -117,10 +117,7 @@ wk.register({
 }, { prefix = 'g', noremap = false })
 -- TODO: map 'gX' for visual mode too
 
-for _, chord in ipairs({
-  'C',   -- TODO: map soft capslock
-  'F',
-}) do
+for _, chord in ipairs({ 'C', 'F' }) do
   wk.register({ g = { [chord] = 'which_key_ignore' } })
   local status, err = pcall(function() vim.api.nvim_del_keymap('n', 'g' .. chord) end)
   if not status then
@@ -132,6 +129,11 @@ end
 -- TODO: find a better version of this
 require('unimpaired').setup {}
 
+register_toggle('C', 'soft Caps lock', {
+  '<Plug>CapsLockEnable',
+  '<Plug>CapsLockDisable',
+  '<Plug>CapsLockToggle',
+})
 register_toggle('n', 'line numbers', {
   -- When enabling, turn only absolute line numbers on
   function() vim.o.number, vim.o.relativenumber = true, false end,

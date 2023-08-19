@@ -50,6 +50,9 @@ return {
   -- Linters
   "dense-analysis/ale",
 
+  -- GitHub Copilot
+  "github/copilot.vim",
+
   -- Fuzzy finders and pickers
   {
     "nvim-telescope/telescope.nvim",

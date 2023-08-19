@@ -99,6 +99,13 @@ wk.register({
     b = 'Toggle block comments (takes target)',
     s = { ':TSJSplit<CR>', 'Split into multiline expression/statement' },
     j = { ':TSJJoin<CR>', 'Join into single line expression/statement' },
+    C = {
+      name = "+Copilot",
+      e = { ':Copilot enable<CR>', 'Enable Copilot' },
+      d = { ':Copilot disable<CR>', 'Disable Copilot' },
+      s = { ':Copilot status<CR>', 'Show Copilot status' },
+      C = { ':Copilot panel<CR>', 'Show panel with up to 10 completions' },
+    },
   },
 }, { prefix = '<Leader>c' })
 

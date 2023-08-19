@@ -1,46 +1,5 @@
 local wk = require('which-key');
-
--- Utilities for toggles and command pairs
-wk.register {
-  ['['] = { name = '+Backwards, disable' },
-  [']'] = { name = '+Forwards, enable' },
-  ['<Leader>t'] = { name = '+Toggle' },
-}
-
-local function register_pair(key, description, fn1, fn2)
-  local pattern = '%((.*)|(.*)%)'
-  local description1, _ = description:gsub(pattern, '%1')
-  local description2, _ = description:gsub(pattern, '%2')
-  wk.register({
-    ['[' .. key] = { fn1, description1 },
-    [']' .. key] = { fn2, description2 },
-  }, { noremap = false })
-end
-
-local function register_toggle(key, description, opts)
-  local turn_on, turn_off, toggle
-  if type(opts) == 'string' then
-    turn_on = function() vim.o[opts] = true end
-    turn_off = function() vim.o[opts] = false end
-    toggle = function() vim.o[opts] = not vim.o[opts] end
-  elseif type(opts) == 'table' and #opts == 3 then
-    turn_on, turn_off, toggle = unpack(opts)
-  elseif type(opts) == 'table' and #opts == 2 and type(opts.is_on) == 'function' then
-    local is_on = opts.is_on
-    turn_on, turn_off = unpack(opts)
-    toggle = function()
-      if is_on() then turn_off() else turn_on() end
-    end
-  else
-    error('Invalid opts for register_toggle')
-  end
-
-  wk.register({
-    ['<Leader>t' .. key] = { toggle, 'Toggle ' .. description },
-    ['[' .. key] = { turn_off, 'Disable ' .. description },
-    [']' .. key] = { turn_on, 'Enable ' .. description },
-  }, { noremap = false })
-end
+local tp = require('toggles_and_pairs');
 
 -- Trigger auto-completion
 vim.api.nvim_set_keymap('i', '<C-Space>', 'pumvisible() ? "\\<C-n>" : "\\<Cmd>lua require(\'cmp\').complete()<CR>"',
@@ -129,26 +88,30 @@ end
 -- TODO: find a better version of this
 require('unimpaired').setup {}
 
-register_toggle('C', 'soft Caps lock', {
-  '<Plug>CapsLockEnable',
-  '<Plug>CapsLockDisable',
-  '<Plug>CapsLockToggle',
-})
-register_toggle('n', 'line numbers', {
-  -- When enabling, turn only absolute line numbers on
-  function() vim.o.number, vim.o.relativenumber = true, false end,
-  -- When disabling, turn both absolute and relative line numbers off
-  function() vim.o.number, vim.o.relativenumber = false, false end,
-  -- It's only considered on when relative numbers are not
-  is_on = function() return vim.o.number and not vim.o.relativenumber end,
-})
-register_toggle('N', 'relative line numbers', {
-  -- When enabling, turn both absolute and relative line numbers on
-  function() vim.o.number, vim.o.relativenumber = true, true end,
-  -- When disabling, turn only relative line numbers off
-  function() vim.o.relativenumber = false end,
-  -- It's considered on regardless of absolute line numbers
-  is_on = function() return vim.o.relativenumber end,
+tp.register_toggles({
+  C = { 'soft Caps lock',
+    '<Plug>CapsLockEnable',
+    '<Plug>CapsLockDisable',
+    '<Plug>CapsLockToggle',
+  },
+  n = {
+    'line numbers',
+    -- When enabling, turn only absolute line numbers on
+    function() vim.o.number, vim.o.relativenumber = true, false end,
+    -- When disabling, turn both absolute and relative line numbers off
+    function() vim.o.number, vim.o.relativenumber = false, false end,
+    -- It's only considered on when relative numbers are not
+    is_on = function() return vim.o.number and not vim.o.relativenumber end,
+  },
+  N = {
+    'relative line numbers',
+    -- When enabling, turn both absolute and relative line numbers on
+    function() vim.o.number, vim.o.relativenumber = true, true end,
+    -- When disabling, turn only relative line numbers off
+    function() vim.o.relativenumber = false end,
+    -- It's considered on regardless of absolute line numbers
+    is_on = function() return vim.o.relativenumber end,
+  },
 })
 
 -- Code
@@ -176,7 +139,13 @@ wk.register({
   },
 }, { prefix = '<Leader>c', noremap = false })
 
-register_pair('d', 'Go to (previous|next) diagnostic', vim.diagnostic.goto_prev, vim.diagnostic.goto_next)
+tp.register_pairs({
+  d = {
+    'Go to (previous|next) diagnostic',
+    vim.diagnostic.goto_prev,
+    vim.diagnostic.goto_next,
+  },
+})
 
 -- Git integration (depends on plugins I don't have)
 -- map('<Leader>gb', ':Git blame', 'Activate git blame for current buffer')

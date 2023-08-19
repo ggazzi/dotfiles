@@ -90,13 +90,7 @@ return {
     keys = { '<space>cj', '<space>cs' },
     dependencies = { 'nvim-treesitter/nvim-treesitter' },
     config = function()
-      require('treesj').setup {
-        use_default_keymaps = false,
-      }
-      require('which-key').register({
-        s = { ':TSJSplit<CR>', 'Split into multiline expression/statement' },
-        j = { ':TSJJoin<CR>', 'Join into single line expression/statement' },
-      }, { prefix = '<Leader>c' })
+      require('treesj').setup { use_default_keymaps = false }
     end
   },
 

@@ -97,6 +97,8 @@ wk.register({
     name = "+Comments",
     l = 'Toggle line comments (takes target)',
     b = 'Toggle block comments (takes target)',
+    s = { ':TSJSplit<CR>', 'Split into multiline expression/statement' },
+    j = { ':TSJJoin<CR>', 'Join into single line expression/statement' },
   },
 }, { prefix = '<Leader>c' })
 

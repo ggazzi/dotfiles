@@ -11,8 +11,11 @@ return {
   "tpope/vim-sleuth",                      -- detect tabstop and shiftwidth automatically
 
   -- Make keymaps more usable and discoverable
-  { "folke/which-key.nvim", config = true }, -- popup to help navigate chords
-  "sunaku/vim-shortcut",                     -- make shortcuts searchable
+  { "folke/which-key.nvim",      config = true }, -- popup to help navigate chords
+  "sunaku/vim-shortcut",                          -- make shortcuts searchable
+
+  -- Better status line
+  { "nvim-lualine/lualine.nvim", dependencies = { "nvim-tree/nvim-web-devicons" } },
 
   -- LSP
   {

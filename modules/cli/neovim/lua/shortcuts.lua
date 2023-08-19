@@ -40,6 +40,16 @@ wk.register({
   ['>'] = { '<C-w>>', 'Increase window height' },
 }, { prefix = '<Leader>w' })
 
+-- Tab management
+wk.register({
+  name = '+Tab',
+  n = { ':tabnew<CR>', 'New tab' },
+  c = { ':tabclose<CR>', 'Close tab' },
+  o = { ':tabonly<CR>', 'Close all other tabs' },
+  h = { ':tabprevious<CR>', 'Previous tab' },
+  l = { ':tabnext<CR>', 'Next tab' },
+}, { prefix = '<Leader>T' })
+
 -- Fuzzy finder (depends on telescope.nvim)
 wk.register({
   name = '+Find (fuzzy)',

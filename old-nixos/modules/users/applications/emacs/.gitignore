@@ -1,7 +1,0 @@
-# The following files are generated from config.org and should not be versioned
-
-cli.el
-config.el
-init.el
-packages.el
-setup.sh

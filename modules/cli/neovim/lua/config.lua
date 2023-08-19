@@ -9,6 +9,10 @@ vim.o.modelines = 2
 vim.o.laststatus = 2
 vim.o.ruler = true
 
+-- Enable relative line numbers (absolute number for current line)
+vim.o.number = true
+vim.o.relativenumber = true
+
 -- Use spaces instead of tabs
 vim.o.expandtab = true
 vim.o.smarttab = true

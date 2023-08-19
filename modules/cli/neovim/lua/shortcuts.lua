@@ -1,5 +1,22 @@
 local wk = require('which-key');
 
+-- Utilities for toggles and command pairs
+wk.register {
+  ['['] = { name = '+Backwards, disable' },
+  [']'] = { name = '+Forwards, enable' },
+  ['<Leader>t'] = { name = '+Toggle' },
+}
+
+local function register_pair(key, description, fn1, fn2)
+  local pattern = '%((.*)|(.*)%)'
+  local description1, _ = description:gsub(pattern, '%1')
+  local description2, _ = description:gsub(pattern, '%2')
+  wk.register {
+    ['[' .. key] = { fn1, description1 },
+    [']' .. key] = { fn2, description2 },
+  }
+end
+
 -- Trigger auto-completion
 vim.api.nvim_set_keymap('i', '<C-Space>', 'pumvisible() ? "\\<C-n>" : "\\<Cmd>lua require(\'cmp\').complete()<CR>"',
   { expr = true, noremap = true, silent = true })
@@ -115,14 +132,7 @@ wk.register({
   },
 }, { prefix = '<Leader>c', noremap = false })
 
-wk.register {
-  ['['] = {
-    d = { vim.diagnostic.goto_prev, 'Go to previous diagnostic' },
-  },
-  [']'] = {
-    d = { vim.diagnostic.goto_next, 'Go to next diagnostic' },
-  },
-}
+register_pair('d', 'Go to (previous|next) diagnostic', vim.diagnostic.goto_prev, vim.diagnostic.goto_next)
 
 -- Git integration (depends on plugins I don't have)
 -- map('<Leader>gb', ':Git blame', 'Activate git blame for current buffer')

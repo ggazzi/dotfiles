@@ -91,23 +91,24 @@ end
 require('unimpaired').setup {}
 
 -- Code
+require('treesj').setup { use_default_keymaps = false }
 wk.register({
   name = "+Code",
+  s = { ':TSJSplit<CR>', 'Split into multiline expression/statement' },
+  j = { ':TSJJoin<CR>', 'Join into single line expression/statement' },
   c = {
     name = "+Comments",
     l = 'Toggle line comments (takes target)',
     b = 'Toggle block comments (takes target)',
-    s = { ':TSJSplit<CR>', 'Split into multiline expression/statement' },
-    j = { ':TSJJoin<CR>', 'Join into single line expression/statement' },
-    C = {
-      name = "+Copilot",
-      e = { ':Copilot enable<CR>', 'Enable Copilot' },
-      d = { ':Copilot disable<CR>', 'Disable Copilot' },
-      s = { ':Copilot status<CR>', 'Show Copilot status' },
-      C = { ':Copilot panel<CR>', 'Show panel with up to 10 completions' },
-    },
   },
-}, { prefix = '<Leader>c' })
+  C = {
+    name = "+Copilot",
+    e = { ':Copilot enable<CR>', 'Enable Copilot' },
+    d = { ':Copilot disable<CR>', 'Disable Copilot' },
+    s = { ':Copilot status<CR>', 'Show Copilot status' },
+    C = { ':Copilot panel<CR>', 'Show panel with up to 10 completions' },
+  },
+}, { prefix = '<Leader>c', noremap = false })
 
 -- Git integration (depends on plugins I don't have)
 -- map('<Leader>gb', ':Git blame', 'Activate git blame for current buffer')

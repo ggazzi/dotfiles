@@ -93,11 +93,7 @@ return {
   -- Toggling between single- and multiline expressions/statements
   {
     'Wansmer/treesj',
-    keys = { '<space>cj', '<space>cs' },
     dependencies = { 'nvim-treesitter/nvim-treesitter' },
-    config = function()
-      require('treesj').setup { use_default_keymaps = false }
-    end
   },
 
   -- Smarter editing commands

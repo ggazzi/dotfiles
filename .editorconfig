@@ -8,5 +8,6 @@ indent_style = space
 indent_size = 4
 trim_trailing_whitespace = true
 
-[*.nix]
+[*.{nix,lua}]
 indent_size = 2
+

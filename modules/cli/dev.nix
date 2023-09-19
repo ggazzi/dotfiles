@@ -8,6 +8,8 @@ in
     gh # Client for working with GitHub projects
     fzf
     dev-utils
+
+    jq # Great utility for handling JSON files
   ];
 
   home.sessionVariables = {

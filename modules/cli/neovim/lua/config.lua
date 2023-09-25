@@ -53,6 +53,9 @@ vim.o.incsearch = true
 vim.o.breakindent = true
 vim.o.breakindentopt = "shift:2"
 
+-- Use the system clipboard
+vim.o.clipboard = 'unnamedplus'
+
 -- Configure folding by indent, nothing folded by default
 vim.o.foldmethod = 'indent'
 vim.o.foldnestmax = 10

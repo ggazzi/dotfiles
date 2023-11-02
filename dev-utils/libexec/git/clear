@@ -6,7 +6,7 @@
 
 set -e
 
-# Include utilities to interactive with the user
+# Include utilities to interact with the user
 # shellcheck disable=SC1091 # _DEV_ROOT will be set appropriately
 source "${_DEV_ROOT}/lib/interactive.sh"
 
@@ -31,10 +31,10 @@ if [ -n "$changed_files" ]; then
 
   if ask_yes_or_no "Are you sure they should be removed?" N; then
     git clean -fd
-  else
-    exit 1
   fi
 fi
 
+# Checkout main branch and pull latest changes
 git checkout "$BRANCH"
 git pull --rebase
+git clean-branches # necessary if previous HEAD should be deleted

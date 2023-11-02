@@ -33,7 +33,7 @@ then
   mkdir -p "$scope"
   cd "$scope"
 
-  gh repo clone "$url"
+  gh repo clone "$url" "$name"
 fi
 
 # Open the project for development

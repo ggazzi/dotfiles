@@ -17,7 +17,7 @@ wk.register({
   D = { ':bwipeout<CR>', 'Wipeout current buffer' },
 }, { prefix = '<Leader>b' })
 
--- Window management
+-- Window management (depends on neotree)
 wk.register({
   name = '+Window',
   s = { ':split<CR>', 'Split window horizontally' },
@@ -32,6 +32,7 @@ wk.register({
   L = { '<C-w>L', 'Swap window with next to the right' },
   p = { '<C-w>p', 'Jump to previous (last accessed) window' },
   q = { '<C-w>q', 'Close current window' },
+  t = { ':Neotree<CR>', 'Open filesystem tree as a sidebar' },
   -- TODO: o = { '???', 'Close all other windows' },
   ['='] = { '<C-w>=', 'Equalize size of windows' },
   ['-'] = { '<C-w>-', 'Decrease window height' },

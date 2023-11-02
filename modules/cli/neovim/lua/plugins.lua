@@ -117,14 +117,13 @@ return {
   },
 
   -- Smarter editing commands
-  "AndrewRadev/sideways.vim",  -- move items left and right in lists
-  "godlygeek/tabular",         -- align text in multiple lines
-  "tpope/vim-repeat",          -- make sure the repeat key '.' works well with the following
-  "tpope/vim-abolish",         -- case-coercion; case-smart substitution
-  "tpope/vim-capslock",        -- soft-capslock
-  "tpope/vim-surround",        -- operate on surrounding pairs (parens, quotes, tags...)
-  "Tummetott/unimpaired.nvim", -- commands that come in pairs bound to '[X' and ']X'
-  'wellle/targets.vim',        -- additional "targets" (pairs, quotes, arguments...)
+  "AndrewRadev/sideways.vim", -- move items left and right in lists
+  "godlygeek/tabular",        -- align text in multiple lines
+  "tpope/vim-repeat",         -- make sure the repeat key '.' works well with the following
+  "tpope/vim-abolish",        -- case-coercion; case-smart substitution
+  "tpope/vim-capslock",       -- soft-capslock
+  "tpope/vim-surround",       -- operate on surrounding pairs (parens, quotes, tags...)
+  'wellle/targets.vim',       -- additional "targets" (pairs, quotes, arguments...)
 
   -- Open files into specific locations if :line:col suffix is given
   "kopischke/vim-fetch",

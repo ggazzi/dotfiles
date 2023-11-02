@@ -96,9 +96,6 @@ for _, chord in ipairs({ 'C', 'F' }) do
 end
 
 -- Commands that come in pairs
--- TODO: find a better version of this
-require('unimpaired').setup {}
-
 tp.register_toggles({
   C = { 'soft Caps lock',
     '<Plug>CapsLockEnable',

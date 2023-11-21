@@ -20,14 +20,14 @@ REMOTES_TO_REGEX='
 
 current_branch="$(git rev-parse --abbrev-ref HEAD)"
 remote_branches_regex="$(git branch -r | gawk "$REMOTES_TO_REGEX")"
-orphan_branches="$(git branch | sed 's/^..//' | grep -Ev "$remote_branches_regex")"
+readarray -t orphan_branches < <(git branch | sed 's/^..//' | grep -Ev "$remote_branches_regex")
 
-if [ -z "$orphan_branches" ]; then
+if [ "${#orphan_branches[@]}" -eq 0 ]; then
   echo "No orphan branches to remove." >&2
   exit 0
 fi
 
-orphan_branches_without_current="$(echo "$orphan_branches" | grep -Fv "$current_branch")"
+readarray -t orphan_branches_without_current < <(echo "${orphan_branches[@]}" | grep -Fv "$current_branch")
 if [ ${#orphan_branches[@]} -eq ${#orphan_branches_without_current[@]} ]; then
   echo "Skipping removal of branch '$current_branch', as it is checked out." >&2
 fi

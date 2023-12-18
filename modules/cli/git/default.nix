@@ -38,6 +38,7 @@
       extraConfig = {
         branch.autosetuprebase = "always";
         init.defaultBranch = "main";
+        commit.template = "${config.xdg.configHome}/git/commit-template.txt";
       };
 
       ignores = [
@@ -45,6 +46,10 @@
         "*.code-workspace"
         ".vscode/*"
       ];
+    };
+
+    xdg.configFile = {
+      "git/commit-template.txt".source = ./commit-template.txt;
     };
 
     # Add custom git commands

@@ -4,6 +4,6 @@
     ./cli
     ./langs
     ./home.nix
-    ./nix.nix
+    ./nix
   ];
 }

@@ -3,6 +3,9 @@
 {
   config = {
     home.packages = with pkgs; [
+      cachix
+      devenv
+
       # Development tools
       nil
       nixpkgs-fmt

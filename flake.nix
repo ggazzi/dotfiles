@@ -8,9 +8,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     sub.url = "github:juanibiapina/sub";
+    devenv.url = "github:cachix/devenv";
   };
 
-  outputs = { nixpkgs, home-manager, sub, ... }:
+  # TODO: can I move `substituters` and `trusted-public-keys` to `nixConfig` here?
+
+  outputs = inputs@{ nixpkgs, home-manager, sub, ... }:
     {
 
       homeConfigurations.gazzi =
@@ -24,6 +27,7 @@
                 version = "0.1.0";
                 src = ./dev-utils;
               };
+              devenv = inputs.devenv.packages.${system}.devenv;
             })
           ];
         in

@@ -13,29 +13,33 @@
 
   # TODO: can I move `substituters` and `trusted-public-keys` to `nixConfig` here?
 
-  outputs = inputs@{ nixpkgs, home-manager, sub, ... }:
+  outputs = inputs@{ nixpkgs, home-manager, sub, devenv, ... }:
+    let
+      system = "aarch64-darwin";
+
+      overlays = [
+        (self: super: {
+          dev-utils = sub.lib.${system}.mkSubDerivation {
+            pname = "dev-utils";
+            cmd = "dev";
+            version = "0.1.0";
+            src = ./dev-utils;
+          };
+          devenv = devenv.packages.${system}.devenv;
+        })
+      ];
+
+      pkgs = import nixpkgs {
+        inherit system overlays;
+        config.allowUnfree = true;
+      };
+
+    in
     {
 
       homeConfigurations.gazzi =
-        let
-          system = "aarch64-darwin";
-          overlays = [
-            (self: super: {
-              dev-utils = sub.lib.${system}.mkSubDerivation {
-                pname = "dev-utils";
-                cmd = "dev";
-                version = "0.1.0";
-                src = ./dev-utils;
-              };
-              devenv = inputs.devenv.packages.${system}.devenv;
-            })
-          ];
-        in
         home-manager.lib.homeManagerConfiguration {
-          pkgs = import nixpkgs {
-            inherit system overlays;
-            config.allowUnfree = true;
-          };
+          inherit pkgs;
           modules = [
             ./modules
             {
@@ -43,5 +47,25 @@
             }
           ];
         };
+
+      devShell.${system} = devenv.lib.mkShell {
+        inherit inputs pkgs;
+        modules = [
+          ({ pkgs, config, ... }: {
+            languages.nix.enable = true;
+
+            packages = with pkgs; [
+              nixpkgs-fmt
+              shellcheck
+            ];
+
+            pre-commit.hooks = {
+              shellcheck.enable = true;
+              nixpkgs-fmt.enable = true;
+            };
+          })
+        ];
+      };
+
     };
 }

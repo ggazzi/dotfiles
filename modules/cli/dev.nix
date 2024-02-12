@@ -1,22 +1,33 @@
 { pkgs, config, lib, ... }:
 
-let
+with lib; let
+  cfg = config.ggazzi.dev;
   inherit (config) home;
 in
 {
-  home.packages = with pkgs; [
-    gh # Client for working with GitHub projects
-    fzf
-    dev-utils
-
-    jq # Great utility for handling JSON files
-  ];
-
-  home.sessionVariables = {
-    # Directory into which all GitHub repositories are cloned
-    WORKSPACE = "${home.homeDirectory}/workspace";
+  options.ggazzi.dev = {
+    workspace = mkOption {
+      default = "${home.homeDirectory}/workspace";
+      type = types.str;
+      description = "Directory into which GitHub repositories are cloned";
+    };
   };
 
-  programs.zsh.initExtraBeforeCompInit =
-    ''source "${home.homeDirectory}/.nix-profile/opt/dev-utils/completions.zsh"'';
+  config = {
+    home.packages = with pkgs; [
+      gh # Client for working with GitHub projects
+      fzf
+      dev-utils
+
+      jq # Great utility for handling JSON files
+    ];
+
+    home.sessionVariables = {
+      # Directory into which all GitHub repositories are cloned
+      WORKSPACE = cfg.workspace;
+    };
+
+    programs.zsh.initExtraBeforeCompInit =
+      ''source "${home.homeDirectory}/.nix-profile/opt/dev-utils/completions.zsh"'';
+  };
 }

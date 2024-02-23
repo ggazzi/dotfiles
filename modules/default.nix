@@ -1,6 +1,7 @@
 { ... }:
 {
   imports = [
+    ./babbel
     ./cli
     ./langs
     ./home.nix

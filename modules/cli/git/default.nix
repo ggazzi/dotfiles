@@ -40,11 +40,6 @@
         extraConfig = {
           branch.autosetuprebase = "always";
           init.defaultBranch = "main";
-          # commit.template = "${config.xdg.configHome}/git/commit-template.txt";
-
-          "includeIf \"gitdir:${config.ggazzi.dev.workspace}/babbel/\"".path = "${xdg.configHome}/git/babbel-config.inc";
-          "includeIf \"gitdir:${config.ggazzi.dev.workspace}/babbel-didactics/\"".path = "${xdg.configHome}/git/babbel-config.inc";
-          "includeIf \"gitdir:${config.ggazzi.dev.workspace}/lessonnine/\"".path = "${xdg.configHome}/git/babbel-config.inc";
         };
 
         ignores = [
@@ -52,11 +47,6 @@
           "*.code-workspace"
           ".vscode/*"
         ];
-      };
-
-      xdg.configFile = {
-        "git/babbel-config.inc".source = ./babbel-config.inc;
-        "git/commit-template.txt".source = ./commit-template.txt;
       };
 
       # Add custom git commands

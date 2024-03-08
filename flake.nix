@@ -18,14 +18,15 @@
       system = "aarch64-darwin";
 
       overlays = [
-        (self: super: {
+        (_self: _super: {
+          inherit (devenv.packages.${system}) devenv;
+
           dev-utils = sub.lib.${system}.mkSubDerivation {
             pname = "dev-utils";
             cmd = "dev";
             version = "0.1.0";
             src = ./dev-utils;
           };
-          devenv = devenv.packages.${system}.devenv;
         })
       ];
 
@@ -51,7 +52,7 @@
       devShell.${system} = devenv.lib.mkShell {
         inherit inputs pkgs;
         modules = [
-          ({ pkgs, config, ... }: {
+          ({ pkgs, ... }: {
             languages.nix.enable = true;
 
             packages = with pkgs; [

@@ -14,14 +14,15 @@
         lfs.enable = true;
 
         aliases = {
-          a = "add";
-          b = "branch";
-
-          cm = "commit";
-          co = "checkout";
           st = "status -s -- .";
+          a = "add";
+          c = "commit";
+          r = "restore";
 
-          unstage = "reset HEAD";
+          b = "branch";
+          sw = "switch";
+
+          unstage = "restore --staged";
 
           l = "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%ad) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative";
           ls = "log --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%ad) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative";

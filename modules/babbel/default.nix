@@ -1,6 +1,7 @@
 { ... }:
 {
   imports = [
+    ./aws
     ./git
   ];
 }

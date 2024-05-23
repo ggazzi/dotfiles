@@ -2,9 +2,9 @@
 #
 # Summary: Opens a project for development
 #
-# Usage: {cmd} [<project>]
+# Usage: {cmd} [project]
 #
-# Changes into the project directory and opens a zellij session 
+# Changes into the project directory and opens a zellij session
 # named after that project
 #
 # If a .config/zellij.kdl file exists in the project, it will be used to

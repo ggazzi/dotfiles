@@ -1,8 +1,5 @@
 { pkgs, config, lib, ... }:
 
-let
-  inherit (config) xdg;
-in
 {
   programs.zsh = {
     enable = true;
@@ -15,7 +12,7 @@ in
       let
         cfgFiles = readDir ./config;
         readCfg = name: _: readFile (./config + "/${name}");
-        cfgContents = (attrValues (mapAttrs readCfg cfgFiles));
+        cfgContents = attrValues (mapAttrs readCfg cfgFiles);
       in
       concatStringsSep "\n" cfgContents;
   };

@@ -50,12 +50,14 @@
         ];
       };
 
-      # Add custom git commands
-      home.packages = [
+      home.packages = with pkgs; [
+        # Add custom git commands
         (pkgs.buildEnv {
           name = "custom-git-commands";
           paths = [ ./commands ];
         })
+
+        lazygit
       ];
     };
 }

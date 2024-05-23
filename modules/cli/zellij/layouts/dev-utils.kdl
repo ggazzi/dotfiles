@@ -8,6 +8,11 @@ layout {
 			plugin location="zellij:status-bar"
 		}
 	}
+    tab name="git" {
+        pane {
+            command "lazygit"
+        }
+    }
 	tab name="editor" {
 		pane {
 			command "direnv"

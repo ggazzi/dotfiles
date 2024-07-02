@@ -49,7 +49,7 @@
           ];
         };
 
-      devShell.${system} = devenv.lib.mkShell {
+      devShells.${system}.default = devenv.lib.mkShell {
         inherit inputs pkgs;
         modules = [
           ({ pkgs, ... }: {
@@ -61,7 +61,11 @@
             ];
 
             pre-commit.hooks = {
-              shellcheck.enable = true;
+              shellcheck = {
+                enable = true;
+                excludes = [ "\\.zsh" ];
+              };
+
               nixpkgs-fmt.enable = true;
             };
           })

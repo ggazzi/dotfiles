@@ -10,7 +10,8 @@ layout {
 	}
     tab name="git" {
         pane {
-            command "lazygit"
+            command "direnv"
+            args "exec" "." "lazygit"
         }
     }
 	tab name="editor" {

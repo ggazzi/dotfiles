@@ -3,6 +3,10 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nix-darwin = {
+      url = "github:LnL7/nix-darwin";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -43,6 +47,13 @@
 
     in
     {
+      darwinConfigurations."Guilhermes-MacBook-Air" =
+        inputs.nix-darwin.lib.darwinSystem {
+          system = "aarch64-darwin";
+          modules = [
+            ./Guilhermes-MacBook-Air/configuration.nix 
+          ];
+        };
 
       homeConfigurations.gazzi =
         home-manager.lib.homeManagerConfiguration {

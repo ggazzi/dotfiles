@@ -2,7 +2,7 @@
 #
 # Summary: Create a commit whose message is suggested by the OpenAI API
 #
-# Usage: {cmd} [-c | --[no-]-conventional] [message]
+# Usage: {cmd} [-c] [--conventional] [message]
 
 require 'erb'
 require 'json'

@@ -3,6 +3,8 @@
 # Summary: Opens a project for development
 #
 # Usage: {cmd} [project]
+# Options:
+#   project (script): Name of the project as `owner/projectname`
 #
 # Changes into the project directory and opens a zellij session
 # named after that project

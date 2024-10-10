@@ -1,6 +1,7 @@
 {
   imports = [
     ./bufferline.nix
+    ./coding
     ./keys.nix
     ./navigation
   ];

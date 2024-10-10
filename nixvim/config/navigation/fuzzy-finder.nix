@@ -1,7 +1,21 @@
 { mylib, ... }:
 
 {
-  plugins.telescope.enable = true;
+  plugins.telescope = {
+    enable = true;
+    settings.defaults = {
+      selection_caret = "> ";
+      sorting_strategy = "ascending";
+      layout_config.prompt_position = "top";
+      mappings = {
+        i = {
+          "<esc>" = { __raw = "require('telescope.actions').close"; };
+          "<C-j>" = { __raw = "require('telescope.actions').move_selection_next"; };
+          "<C-k>" = { __raw = "require('telescope.actions').move_selection_previous"; };
+        };
+      };
+    };
+  };
 
   plugins.which-key.settings.spec = [
     {

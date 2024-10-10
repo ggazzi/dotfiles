@@ -13,9 +13,9 @@
     { __unkeyed-1 = "<leader>gN"; desc = "which_key_ignore"; }
 
     # TODO: figure out who maps the following and remove those mappings
-    #{ __unkeyed-1 = "<leader>g~"; desc = "which_key_ignore"; }
-    #{ __unkeyed-1 = "<leader>gu"; desc = "which_key_ignore"; }
-    #{ __unkeyed-1 = "<leader>gU"; desc = "which_key_ignore"; }
+    { __unkeyed-1 = "<leader>g~"; desc = "which_key_ignore"; }
+    { __unkeyed-1 = "<leader>gu"; desc = "which_key_ignore"; }
+    { __unkeyed-1 = "<leader>gU"; desc = "which_key_ignore"; }
   ];
 
   keymaps = mylib.keymapGroup "<leader>g" [

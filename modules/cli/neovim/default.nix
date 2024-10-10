@@ -17,6 +17,7 @@ in
   config = {
     home.packages = with pkgs; [
       nixvim
+      ripgrep
     ];
 
     home.sessionVariables = lib.optionalAttrs cfg.defaultEditor {

@@ -9,6 +9,10 @@
     };
     sub.url = "github:juanibiapina/sub";
     devenv.url = "github:cachix/devenv";
+    nixvim = {
+      url = "path:./nixvim";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   # TODO: can I move `substituters` and `trusted-public-keys` to `nixConfig` here?
@@ -20,6 +24,8 @@
       overlays = [
         (_self: _super: {
           inherit (devenv.packages.${system}) devenv;
+
+          nixvim = inputs.nixvim.packages.${system}.default;
 
           dev-utils = sub.lib.${system}.mkSubDerivation {
             pname = "dev-utils";

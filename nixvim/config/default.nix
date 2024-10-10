@@ -1,5 +1,6 @@
 {
   imports = [
+    ../plugins
     ./bufferline.nix
     ./coding
     ./keys.nix

@@ -1,6 +1,8 @@
 { mylib, ... }:
 
 {
+  plugins.vim-bbye.enable = true;
+
   plugins.which-key.settings.spec = [
     {
       __unkeyed-1 = "<leader>b";

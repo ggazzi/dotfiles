@@ -3,6 +3,7 @@
   imports = [
     ./bufferline.nix
     ./buffers-windows.nix
+    ./filetree.nix
     ./keys.nix
   ];
 

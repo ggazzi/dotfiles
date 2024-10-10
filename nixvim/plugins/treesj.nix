@@ -2,18 +2,16 @@
 
 let cfg = config.plugins.treesj;
 in {
-  options = with lib; {
-    plugins.treesj = {
-      enable = mkOption {
-        default = false;
-        description = "Enable treesj plugin";
-        type = types.bool;
-      };
-      useDefaultKeymaps = mkOption {
-        default = true;
-        description = "Use default keymaps";
-        type = types.bool;
-      };
+  options.plugins.treesj = with lib; {
+    enable = mkOption {
+      default = false;
+      description = "Enable treesj plugin";
+      type = types.bool;
+    };
+    useDefaultKeymaps = mkOption {
+      default = true;
+      description = "Use default keymaps";
+      type = types.bool;
     };
   };
 

@@ -1,6 +1,9 @@
 {
-  config = {
-    plugins.lsp = {
+  plugins = {
+    # Status updates for LSP
+    fidget.enable = true;
+
+    lsp = {
       enable = true;
 
       keymaps = {
@@ -9,15 +12,15 @@
           "[d" = "goto_prev";
         };
         lspBuf = {
-          "<leader>ca" = "code_action";
-          "<leader>cF" = "format";
-          "<leader>ck" = "hover";
-          "<leader>cK" = "signature_help";
-          "<leader>cr" = "rename";
-          "<leader>gd" = "definition";
-          "<leader>gD" = "declaration";
-          "<leader>gI" = "implementation";
-          "<leader>gt" = "type_definition";
+          "gd" = { action = "definition"; desc = "Definition (LSP)"; };
+          "gD" = { action = "declaration"; desc = "Declaration (LSP)"; };
+          "gI" = { action = "implementation"; desc = "Implementation (LSP)"; };
+          "gt" = { action = "type_definition"; desc = "Type definition (LSP)"; };
+          "<leader>ca" = { action = "code_action"; desc = "Code action (LSP)"; };
+          "<leader>cF" = { action = "format"; desc = "Format (LSP)"; };
+          "<leader>ck" = { action = "hover"; desc = "Hover documentation (LSP)"; };
+          "<leader>cK" = { action = "signature_help"; desc = "Signature documentation (LSP)"; };
+          "<leader>cr" = { action = "rename"; desc = "Rename (LSP)"; };
         };
         extra = [
           { key = "<leader>fs"; action = { __raw = "require('telescope.builtin').lsp_document_symbols"; }; options.desc = "Document symbols (LSP)"; }

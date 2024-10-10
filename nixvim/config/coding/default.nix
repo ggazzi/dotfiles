@@ -1,9 +1,13 @@
 {
   imports = [
+    ./comments.nix
     ./completion.nix
     ./copilot.nix
+    ./diagnostics.nix
+    ./folding.nix
     ./langs
     ./lsp.nix
+    ./treesitter.nix
   ];
 
   config = {

@@ -20,7 +20,7 @@ in
       ripgrep
     ];
 
-    home.sessionVariables = lib.optionalAttrs cfg.defaultEditor {
+    home.sessionVariables = lib.mkIf cfg.defaultEditor {
       EDITOR = "nvim";
       VISUAL = "nvim";
     };

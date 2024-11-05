@@ -1,6 +1,10 @@
 { mylib, ... }:
 
 {
+  # Process line and column specifications when jumping to file paths,
+  # in the form of `file:line:column`.
+  plugins.vim-fetch.enable = true;
+
   plugins.which-key.settings.spec = [
     { __unkeyed-1 = "g"; group = "Go to"; mode = [ "n" "v" ]; }
     { __unkeyed-1 = "gi"; desc = "Last insertion (and insert mode)"; }

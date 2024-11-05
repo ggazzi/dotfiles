@@ -1,7 +1,7 @@
 { pkgs, lib, config, ... }:
 
 let
-  cfg = config.plugins.nvim-surround;
+  cfg = config.plugins.targets-vim;
 in
 {
   options.plugins.targets-vim = with lib; {

@@ -1,6 +1,6 @@
 {
   imports = [
+    ./targets-vim.nix
     ./treesj.nix
-    ./nvim-surround.nix
   ];
 }

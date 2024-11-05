@@ -1,4 +1,8 @@
 {
+  plugins.which-key.settings.spec = [
+    { __unkeyed-1 = "<leader>m"; group = "Comment"; mode = [ "n" "v" ]; }
+  ];
+
   plugins.comment = {
     enable = true;
 

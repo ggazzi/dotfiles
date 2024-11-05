@@ -4,10 +4,7 @@
   plugins.vim-bbye.enable = true;
 
   plugins.which-key.settings.spec = [
-    {
-      __unkeyed-1 = "<leader>b";
-      group = "Buffer";
-    }
+    { __unkeyed-1 = "<leader>b"; group = "Buffer"; mode = [ "n" "v" ]; }
   ];
 
   keymaps = mylib.keymapGroup "<leader>b" [

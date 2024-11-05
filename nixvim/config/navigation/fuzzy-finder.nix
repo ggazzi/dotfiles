@@ -18,10 +18,7 @@
   };
 
   plugins.which-key.settings.spec = [
-    {
-      __unkeyed-1 = "<leader>f";
-      group = "Find (fuzzy)";
-    }
+    { __unkeyed-1 = "<leader>f"; group = "Find (fuzzy)"; mode = [ "n" "v" ]; }
   ];
 
   keymaps = mylib.keymapGroup "<leader>f" [

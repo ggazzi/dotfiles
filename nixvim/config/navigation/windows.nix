@@ -2,10 +2,7 @@
 
 {
   plugins.which-key.settings.spec = [
-    {
-      __unkeyed-1 = "<leader>w";
-      group = "Window";
-    }
+    { __unkeyed-1 = "<leader>w"; group = "Window"; mode = [ "n" "v" ]; }
   ];
 
   keymaps = mylib.keymapGroup "<leader>w" [

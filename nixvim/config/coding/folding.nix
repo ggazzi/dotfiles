@@ -8,7 +8,7 @@
   };
 
   plugins.which-key.settings.spec = [
-    { __unkeyed-1 = "<leader>l"; group = "Folding"; icon = " "; }
+    { __unkeyed-1 = "<leader>l"; group = "Folding"; icon = " "; mode = [ "n" "v" ]; }
   ];
 
   keymaps = mylib.keymapGroup "<leader>l" [

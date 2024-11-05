@@ -15,7 +15,7 @@
   config = {
     plugins = {
       which-key.settings.spec = [
-        { __unkeyed-1 = "<leader>c"; group = "Code"; }
+        { __unkeyed-1 = "<leader>c"; group = "Code"; mode = [ "n" "v" ]; }
       ];
     };
   };

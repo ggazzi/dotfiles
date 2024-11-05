@@ -2,7 +2,8 @@
 
 {
   plugins.which-key.settings.spec = [
-    { __unkeyed-1 = "g"; group = "Go to"; }
+    { __unkeyed-1 = "g"; group = "Go to"; mode = [ "n" "v" ]; }
+    { __unkeyed-1 = "<leader>g"; group = "Go to"; mode = [ "n" "v" ]; }
     { __unkeyed-1 = "<leader>gi"; desc = "Last insertion (and insert mode)"; }
     { __unkeyed-1 = "<leader>gg"; desc = "First line"; }
     { __unkeyed-1 = "<leader>g%"; desc = "Matching brackets"; }

@@ -7,8 +7,4 @@
     ./keys.nix
     ./navigation
   ];
-
-  plugins = {
-    lualine.enable = true;
-  };
 }

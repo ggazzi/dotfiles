@@ -1,4 +1,8 @@
 {
+  imports = [
+    ./statusline.nix
+  ];
+
   colorschemes.catppuccin.enable = true;
 
   plugins = {

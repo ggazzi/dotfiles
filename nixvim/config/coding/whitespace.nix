@@ -13,4 +13,19 @@
       };
     };
   };
+
+  opts = {
+    # Use 2 spaces for indentation, by default
+    expandtab = true;
+    smarttab = true;
+    tabstop = 2;
+    shiftwidth = 2;
+
+    # Use only one space after period/exclamation/question mark
+    joinspaces = false;
+
+    # Indent soft-wrapped lines properly
+    breakindent = true;
+    breakindentopt = "shift:2";
+  };
 }

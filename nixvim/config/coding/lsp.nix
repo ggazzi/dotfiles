@@ -25,7 +25,7 @@
         extra = [
           { key = "<leader>fs"; action = { __raw = "require('telescope.builtin').lsp_document_symbols"; }; options.desc = "Document symbols (LSP)"; }
           { key = "<leader>fS"; action = { __raw = "require('telescope.builtin').lsp_workspace_symbols"; }; options.desc = "Workspace symbols (LSP)"; }
-          { key = "<leader>gr"; action = { __raw = "require('telescope.builtin').lsp_references"; }; options.desc = "References (LSP)"; }
+          { key = "gr"; action = { __raw = "require('telescope.builtin').lsp_references"; }; options.desc = "References (LSP)"; }
         ];
       };
     };

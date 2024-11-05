@@ -1,5 +1,6 @@
 {
   imports = [
+    ./line-numbers.nix
     ./statusline.nix
   ];
 

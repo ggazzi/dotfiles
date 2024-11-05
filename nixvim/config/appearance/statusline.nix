@@ -10,7 +10,12 @@
       };
 
       sections = {
-        lualine_a = [ "mode" ];
+        lualine_a = [
+          {
+            __unkeyed-1 = "mode";
+            fmt = "function(s) return mode_map[s] or s end";
+          }
+        ];
         lualine_b = [ "diagnostics" ];
         lualine_c = [ "filename" ];
         lualine_x = [ "encoding" "fileformat" "filetype" ];
@@ -27,5 +32,22 @@
         lualine_z = [ ];
       };
     };
+
+    luaConfig.pre = ''
+      local mode_map = {
+        ['NORMAL'] = '·',
+        ['O-PENDING'] = '·',
+        ['INSERT'] = '',
+        ['VISUAL'] = '󰩬',
+        ['V-BLOCK'] = '󰾂',
+        ['V-LINE'] = '󰉸',
+        ['V-REPLACE'] = '󰩬 ',
+        ['REPLACE'] = '',
+        ['COMMAND'] = '',
+        ['SHELL'] = '',
+        ['TERMINAL'] = '',
+        ['CONFIRM'] = '',
+      }
+    '';
   };
 }

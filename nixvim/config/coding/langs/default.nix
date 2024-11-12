@@ -1,6 +1,7 @@
 {
   imports = [
-    ./nix.nix
     ./javascript.nix
+    ./nix.nix
+    ./ruby.nix
   ];
 }

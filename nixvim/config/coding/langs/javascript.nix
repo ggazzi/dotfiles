@@ -10,5 +10,13 @@
       ];
     };
     lsp.servers.eslint.enable = true;
+
+    none-ls = {
+      enable = true;
+      sources.formatting.prettier = {
+        enable = true;
+        disableTsServerFormatter = true;
+      };
+    };
   };
 }

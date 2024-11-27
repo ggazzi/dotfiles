@@ -39,8 +39,11 @@ open_project() {
   fi
 
   # Create or attach to zellij session
-  zellij --session "$name" --layout "$layout" \
-    || zellij attach "$name"
+  if zellij list-sessions -n | cut -d' ' -f1 | grep -q "^$name$"; then
+    zellij attach "$name"
+  else
+    zellij --session "$name" && zellij --session "$name" --layout "$layout" # only applies layout to existing session
+  fi
 }
 
 # Provide completions
@@ -65,4 +68,3 @@ while true; do
 
   open_project "$project"
 done
-

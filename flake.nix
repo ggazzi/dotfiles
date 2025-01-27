@@ -13,6 +13,10 @@
     };
     sub.url = "github:juanibiapina/sub";
     devenv.url = "github:cachix/devenv";
+    nixvim = {
+      url = "path:./nixvim";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   # TODO: can I move `substituters` and `trusted-public-keys` to `nixConfig` here?
@@ -24,6 +28,8 @@
       overlays = [
         (_self: _super: {
           inherit (devenv.packages.${system}) devenv;
+
+          nixvim = inputs.nixvim.packages.${system}.default;
 
           dev-utils = sub.lib.${system}.mkSubDerivation {
             pname = "dev-utils";
@@ -60,7 +66,7 @@
           ];
         };
 
-      devShell.${system} = devenv.lib.mkShell {
+      devShells.${system}.default = devenv.lib.mkShell {
         inherit inputs pkgs;
         modules = [
           ({ pkgs, ... }: {
@@ -72,7 +78,11 @@
             ];
 
             pre-commit.hooks = {
-              shellcheck.enable = true;
+              shellcheck = {
+                enable = true;
+                excludes = [ "\\.zsh" ];
+              };
+
               nixpkgs-fmt.enable = true;
             };
           })

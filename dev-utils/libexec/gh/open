@@ -4,6 +4,8 @@
 # Summary: Open the GitHub page for a repository
 #
 # Usage: {cmd} [project]
+# Options:
+#   project (`dev pj list`): The project to open
 #
 # If no project is given, use the current github repository
 
@@ -11,13 +13,9 @@ set -e
 
 # TODO: extract the code to cd into existing project
 
-# Provide completions
-if [ "$1" = "--complete" ]; then
-  dev pj list
-  exit 0
-fi
+declare -A args="($_DEV_ARGS)"
 
-project="$1"
+project="${args[project]}"
 
 # Change into project directory
 if [ -n "$project" ]; then

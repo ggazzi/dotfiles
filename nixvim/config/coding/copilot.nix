@@ -1,7 +1,24 @@
 { mylib, ... }:
 
 {
-  plugins.copilot-vim.enable = true;
+  # plugins.copilot-vim.enable = true;
+
+  plugins.copilot-lua = {
+    enable = true;
+
+    settings = {
+      panel.enabled = false;
+      suggestion = {
+        enabled = true;
+        auto_trigger = true;
+        debounce = 90;
+        hide_during_completion = true;
+        keymap = {
+          accept = "<C-l>";
+        };
+      };
+    };
+  };
 
   plugins.which-key.settings.spec = [
     { __unkeyed-1 = "<leader>cC"; group = "Copilot"; }

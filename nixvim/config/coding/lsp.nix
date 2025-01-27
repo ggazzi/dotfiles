@@ -6,6 +6,13 @@
     # Auto-format on save
     lsp-format.enable = true;
 
+    # Enable completions from LSP
+    cmp-nvim-lsp.enable = true;
+    cmp.settings.sources = [{ name = "nvim_lsp"; }];
+
+    # Add nice pictograms to LSP completions
+    lspkind.enable = true;
+
     lsp = {
       enable = true;
 

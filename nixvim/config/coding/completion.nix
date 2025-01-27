@@ -2,11 +2,17 @@
   plugins = {
     cmp = {
       enable = true;
-      autoEnableSources = true;
       settings = {
         completion.autocomplete = false;
       };
+
+      autoEnableSources = true;
+      settings.sources = [
+        { name = "nvim_lsp"; }
+      ];
     };
+
+    cmp-nvim-lsp.enable = true;
 
     lspkind.enable = true;
   };

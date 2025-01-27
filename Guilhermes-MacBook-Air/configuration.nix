@@ -9,6 +9,14 @@
     home-manager
   ];
 
+  homebrew = {
+    enable = true;
+
+    brews = [
+      "asdf"
+    ];
+  };
+
   users.users.gazzi.home = "/Users/gazzi";
 
   # Auto-upgrade nix package and the daemon service

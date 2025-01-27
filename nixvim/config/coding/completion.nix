@@ -1,13 +1,15 @@
 {
-  plugins.cmp = {
-    enable = true;
-    autoEnableSources = true;
-    settings = {
-      completion.autocomplete = false;
+  plugins = {
+    cmp = {
+      enable = true;
+      autoEnableSources = true;
+      settings = {
+        completion.autocomplete = false;
+      };
     };
-  };
 
-  plugins.lspkind.enable = true;
+    lspkind.enable = true;
+  };
 
   keymaps = [
     {

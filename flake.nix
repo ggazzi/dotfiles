@@ -19,8 +19,6 @@
     };
   };
 
-  # TODO: can I move `substituters` and `trusted-public-keys` to `nixConfig` here?
-
   outputs = inputs@{ nixpkgs, home-manager, sub, devenv, ... }:
     let
       system = "aarch64-darwin";

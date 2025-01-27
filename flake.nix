@@ -51,7 +51,7 @@
         inputs.nix-darwin.lib.darwinSystem {
           system = "aarch64-darwin";
           modules = [
-            ./Guilhermes-MacBook-Air/configuration.nix 
+            ./Guilhermes-MacBook-Air/configuration.nix
           ];
         };
 

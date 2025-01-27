@@ -24,7 +24,7 @@
 
   plugins.treesj = {
     enable = true;
-    useDefaultKeymaps = false;
+    settings.use_default_keymaps = false;
   };
 
   plugins.which-key.settings.spec = [

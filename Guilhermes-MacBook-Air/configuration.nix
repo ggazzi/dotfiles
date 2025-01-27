@@ -24,4 +24,6 @@
 
   nix.configureBuildUsers = true;
   nixpkgs.hostPlatform = "aarch64-darwin";
+
+  ids.gids.nixbld = 350;
 }

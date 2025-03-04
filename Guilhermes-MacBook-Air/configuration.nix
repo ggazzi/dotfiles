@@ -19,9 +19,8 @@
 
   users.users.gazzi.home = "/Users/gazzi";
 
-  # Auto-upgrade nix package and the daemon service
-  services.nix-daemon.enable = true;
 
+  nix.enable = true;
   nix.settings = rec {
     experimental-features = "nix-command flakes";
 
@@ -42,7 +41,6 @@
   # $ darwin-rebuild changelog
   system.stateVersion = 4;
 
-  nix.configureBuildUsers = true;
   nixpkgs.hostPlatform = "aarch64-darwin";
 
   ids.gids.nixbld = 350;

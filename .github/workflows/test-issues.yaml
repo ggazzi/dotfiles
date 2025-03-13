@@ -20,20 +20,34 @@ jobs:
             const issues = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              assignee: "ggazzi",
+              assignee,
               labels: "failure-tracker",
             });
 
-            if (issues.data.length !== 1) {
-              console.error(`Expected a single failure-tracker for ${assignee}, but found ${issues.data.length}`);
+            let trackingIssue;
+            if (issues.data.length === 1) {
+              trackingIssue = issues.data[0];
+              console.log(`Found tracking issue #${trackingIssue.number}: ${trackingIssue.title}`);
+            
+            } else if (issues.data.length === 0) {
+              const newIssue = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `Failure Tracker for ${assignee}`,
+                body: 'This issue tracks test failures that need attention.',
+                assignee,
+                labels: ['failure-tracker', 'bug']
+              });
+              trackingIssue = newIssue.data;
+              console.log(`Created tracking issue #${trackingIssue.number}`);
+            
+            } else {
+              console.error(`Found ${issues.data.length} failure tracker issues for ${assignee}, expected at most one.`);
               for (const issue of issues.data) {
               console.error(`Issue #${issue.number}: ${issue.title}`);
               }
               process.exit(1);
             }
-
-            const trackingIssue = issues.data[0];
-            console.log(`Found tracking issue #${trackingIssue.number}: ${trackingIssue.title}`);
 
             const now = new Date().toISOString();
             const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;

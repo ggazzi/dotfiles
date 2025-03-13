@@ -56,16 +56,6 @@ async function reportFailureAsComment(github, context, assignee, trackingIssue) 
  */
 async function reportTestFailure({ context, core, github }, assignee) {
   try {
-    // Get inputs
-    const assignee = core.getInput('assignee', { required: true });
-    
-    // Get octokit client
-    const token = process.env.GITHUB_TOKEN;
-    if (!token) {
-      throw new Error('GITHUB_TOKEN environment variable is required');
-    }
-    
-    // Report the error on a tracking issue
     const trackingIssue = await findOrCreateTrackingIssue(github, context, assignee);
     if (!trackingIssue) {
         core.setFailed('Failed to find or create tracking issue');

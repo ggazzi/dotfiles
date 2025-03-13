@@ -1,21 +1,19 @@
-async function findOrCreateTrackingIssue(github, context, assignee) {
-    const issues = await github.rest.issues.listForRepo({
-        owner: context.repo.owner,
-        repo: context.repo.repo,
-        labels: 'failure-tracker',
-    });
 
-    if (issues.data.length === 1) {
-        const issue = issues.data[0];
+async function findOrCreateTrackingIssue(github, context, trackerIssues, owner) {
+    const issueTitle = `Test Failures for ${owner}`;
+
+    const issues = trackerIssues.data.filter(issue => issue.title === issueTitle);
+    if (issues.length === 1) {
+        const issue = issues[0];
         console.log(`Found tracking issue #${issue.number}: ${issue.title}`);
         return issue;
     }
 
-    if (issues.data.length === 0) {
+    if (issues.length === 0) {
         const newIssue = await github.rest.issues.create({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            title: `Test Failures for ${assignee}`,
+            title: issueTitle,
             body: 'This issue tracks test failures from scenarios owned by @${assignee} (exclusively or shared).',
             assignees: [assignee],
             labels: ['failure-tracker', 'bug'],
@@ -24,15 +22,15 @@ async function findOrCreateTrackingIssue(github, context, assignee) {
         return newIssue.data;
     }
 
-    console.error(`Found ${issues.data.length} failure tracker issues for ${assignee}, expected at most one.`);
-    for (const issue of issues.data) {
+    console.error(`Found ${issues.length} failure tracker issues for ${assignee}, expected at most one.`);
+    for (const issue of issues) {
         console.error(`Issue #${issue.number}: ${issue.title}`);
     }
     return null;
 }
-
 function prepareCommentBody(context, owner, scenario, testOutput) {
-    return `@${owner}: scenario "${scenario}" failed.
+    const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+    return `@${owner}: scenario "${scenario}" failed ([workflow run](${runUrl})).
 
 <details>
 <summary>Failure Details</summary>
@@ -59,8 +57,14 @@ async function reportTestFailure({ context, core, github }, owners, scenario, te
   try {
     const commentBody = prepareCommentBody(context, owners, scenario, testOutput);
 
+    const trackerIssues = await github.rest.issues.listForRepo({
+        owner: context.repo.owner,
+        repo: context.repo.repo,
+        labels: 'failure-tracker',
+    });
+
     for (const owner of owners) {
-        const trackingIssue = await findOrCreateTrackingIssue(github, context, owner);
+        const trackingIssue = await findOrCreateTrackingIssue(github, context, trackerIssues, owner);
         if (!trackingIssue) {
             core.setFailed('Failed to find or create tracking issue');
             return;

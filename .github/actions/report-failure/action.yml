@@ -12,4 +12,5 @@ runs:
         result-encoding: string
         script: |
           const dependencies = { context, core, github };
-          return require('${{ github.action_path }}/report-failure.js')(dependencies, ${{ inputs.assignee }})
+          const assignee = "${{ inputs.assignee }}";
+          return require('${{ github.action_path }}/report-failure.js')(dependencies, assignee);

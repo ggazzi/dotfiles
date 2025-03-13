@@ -1,0 +1,10 @@
+{
+  "name": "failure-report-action",
+  "version": "1.0.0",
+  "description": "Reports test failures as GitHub issues",
+  "main": "index.js",
+  "dependencies": {
+    "@actions/core": "^1.10.0",
+    "@actions/github": "^5.1.1"
+  }
+}

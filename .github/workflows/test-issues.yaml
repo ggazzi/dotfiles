@@ -15,12 +15,22 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const response = await github.rest.issues.create({
+            const assignee = "ggazzi";
+
+            const issues = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: "Test issue",
-              body: "test issue body",
-              assignees: ["ggazzi"]  // Hardcoded username
+              assignee: "ggazzi",
+              labels: "failure-tracker",
             });
-            console.log(`Created issue #${response.data.number}: ${response.data.html_url}`);
-            return response.data;
+
+            if (issues.data.length !== 1) {
+              console.error(`Expected a single failure-tracker for ${assignee}, but found ${issues.data.length}`);
+              for (const issue of issues.data) {
+                console.error(`Issue #${issue.number}: ${issue.title}`);
+              }
+              process.exit(1);
+            }
+
+            const trackingIssue = issues.data[0];
+            console.log(`Found tracking issue #${trackingIssue.number}: ${trackingIssue.title}`);

@@ -4,8 +4,23 @@ on:
   workflow_dispatch:
 
 jobs:
-  placeholder:
+  create-issue:
     runs-on: ubuntu-latest
+    permissions:
+      issues: write
     steps:
-      - name: Output placeholder message
-        run: echo "This is a placeholder workflow that will be developed in another branch"
+      - name: Create issue
+        id: create-issue
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const response = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: "Test issue",
+              body: "test issue body",
+              assignees: ["ggazzi"]  // Hardcoded username
+            });
+            console.log(`Created issue #${response.data.number}: ${response.data.html_url}`);
+            return response.data;

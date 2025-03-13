@@ -2,7 +2,6 @@ async function findOrCreateTrackingIssue(github, context, assignee) {
     const issues = await github.rest.issues.listForRepo({
         owner: context.repo.owner,
         repo: context.repo.repo,
-        assignee,
         labels: 'failure-tracker',
     });
 
@@ -16,8 +15,8 @@ async function findOrCreateTrackingIssue(github, context, assignee) {
         const newIssue = await github.rest.issues.create({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            title: `Failure Tracker for ${assignee}`,
-            body: 'This issue tracks test failures that need attention.',
+            title: `Test Failures for ${assignee}`,
+            body: 'This issue tracks test failures from scenarios owned by @${assignee} (exclusively or shared).',
             assignees: [assignee],
             labels: ['failure-tracker', 'bug'],
         });
@@ -36,11 +35,20 @@ async function reportFailureAsComment(github, context, assignee, trackingIssue) 
     const now = new Date().toISOString();
     const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
 
+    const body = `@${assignee}: Test failure detected at ${now} in [workflow run](${runUrl}).
+
+<details>
+<summary>Failure Details</summary>
+
+Here we'll include a log of the tests that were run, or some other details.
+</details>
+`;
+
     await github.rest.issues.createComment({
         owner: context.repo.owner,
         repo: context.repo.repo,
         issue_number: trackingIssue.number,
-        body: `@${assignee}: Test failure detected at ${now} in [workflow run](${runUrl}).`
+        body,
     });
     console.log(`Added failure report to issue #${trackingIssue.number}`);
 }

@@ -24,33 +24,25 @@ async function findOrCreateTrackingIssue(github, context, assignee) {
         return newIssue.data;
     }
 
-    core.setFailed(`Found ${issues.data.length} failure tracker issues for ${assignee}, expected at most one.`);
+    console.error(`Found ${issues.data.length} failure tracker issues for ${assignee}, expected at most one.`);
     for (const issue of issues.data) {
         console.error(`Issue #${issue.number}: ${issue.title}`);
     }
     return null;
 }
 
-async function reportFailureAsComment(github, context, assignee, trackingIssue) {
-    const now = new Date().toISOString();
-    const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
-
-    const body = `@${assignee}: Test failure detected at ${now} in [workflow run](${runUrl}).
+function prepareCommentBody(context, owner, scenario, testOutput) {
+    return `@${owner}: scenario "${scenario}" failed.
 
 <details>
 <summary>Failure Details</summary>
 
-Here we'll include a log of the tests that were run, or some other details.
+Standard Output:
+\`\`\`
+${testOutput}
+\`\`\`
 </details>
 `;
-
-    await github.rest.issues.createComment({
-        owner: context.repo.owner,
-        repo: context.repo.repo,
-        issue_number: trackingIssue.number,
-        body,
-    });
-    console.log(`Added failure report to issue #${trackingIssue.number}`);
 }
 
 /**
@@ -59,20 +51,28 @@ Here we'll include a log of the tests that were run, or some other details.
  * @param {Context} context Workflow context 
  * @param {"@actions/core"} core @actions/core
  * @param {Octokit} github Octokit instance 
- * @param {string} assignee GitHub user or group that should be notified to the issue.
- * @returns {Promise<number>} The issue number of the tracking issue that was created or edited.
+ * @param {string[]} owners GitHub users or groups that should be notified to the issue.
+ * @param {string} scenario Name of the scenario that failed.
+ * @param {string} testOutput The output of the test that failed.
  */
-async function reportTestFailure({ context, core, github }, assignee) {
+async function reportTestFailure({ context, core, github }, owners, scenario, testOutput) {
   try {
-    const trackingIssue = await findOrCreateTrackingIssue(github, context, assignee);
-    if (!trackingIssue) {
-        core.setFailed('Failed to find or create tracking issue');
-        return;
+    const commentBody = prepareCommentBody(context, owners, scenario, testOutput);
+
+    for (const owner of owners) {
+        const trackingIssue = await findOrCreateTrackingIssue(github, context, owner);
+        if (!trackingIssue) {
+            core.setFailed('Failed to find or create tracking issue');
+            return;
+        }
+        await github.rest.issues.createComment({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: trackingIssue.number,
+            body: commentBody,
+        });
+        console.log(`Added failure report to issue #${trackingIssue.number}`);
     }
-    reportFailureAsComment(github, context, assignee, trackingIssue);
-    
-    // Set the issue number as output
-    return trackingIssue.number;
   } catch (error) {
     core.setFailed(error.message);
   }

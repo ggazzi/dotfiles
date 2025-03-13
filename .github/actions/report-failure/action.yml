@@ -1,9 +1,20 @@
-name: 'Failure Report'
-description: 'Reports a test failure by creating or updating an issue assigned to a specified user'
+name: 'Report failed scenario'
+description: |
+  Reports a that a test scenario has failed by creating or updating issues.
+
+  For each user or group, we'll maintain a single tracking issue,
+  where failed scenarios are reported as comments.
 inputs:
-  assignee:
-    description: 'GitHub username to assign the issue to'
+  owners:
+    description: 'List of GitHub usernames or groups reponsible for the scenario'
     required: true
+  scenario:
+    description: 'Name of the scenario that failed'
+    required: true
+  test-output:
+    description: 'Standard output of the failed test'
+    required: true
+  
 runs:
   using: 'composite'
   steps:
@@ -12,5 +23,8 @@ runs:
         result-encoding: string
         script: |
           const dependencies = { context, core, github };
-          const assignee = "${{ inputs.assignee }}";
-          return require('${{ github.action_path }}/report-failure.js')(dependencies, assignee);
+          const owners = ${{ inputs.owners }};
+          const scenario = "${{ inputs.scenario }}";
+          const testOutput = "${{ inputs.test-output }}";
+
+          return require('${{ github.action_path }}/report-failure.js')(dependencies, owners, scenario, testOutput);

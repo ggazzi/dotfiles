@@ -16,6 +16,8 @@ jobs:
         id: report-failure
         uses: ./.github/actions/report-failure
         with:
-          assignee: "ggazzi"
+          owners: ["ggazzi"]
+          scenario: "foo"
+          test-output: "logslogslogslogs"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

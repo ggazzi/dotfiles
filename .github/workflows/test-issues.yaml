@@ -34,3 +34,23 @@ jobs:
 
             const trackingIssue = issues.data[0];
             console.log(`Found tracking issue #${trackingIssue.number}: ${trackingIssue.title}`);
+
+            const now = new Date().toISOString();
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+
+            const subIssue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Test failure at ${now}`,
+              body: `Failure detected in [workflow run](${runUrl}).`,
+              labels: ['failure-instance']
+            });
+            github.rest.issues.addSubIssue({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: trackingIssue.number,
+              sub_issue_id: subIssue.data.number
+            });
+            
+
+            console.log(`Created sub-issue #${subIssue.data.number}: ${subIssue.data.title}`);

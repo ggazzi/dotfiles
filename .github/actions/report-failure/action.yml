@@ -6,7 +6,7 @@ description: |
   where failed scenarios are reported as comments.
 inputs:
   owners:
-    description: 'List of GitHub usernames or groups reponsible for the scenario'
+    description: 'Comma-separated list of GitHub usernames or groups reponsible for the scenario'
     required: true
   scenario:
     description: 'Name of the scenario that failed'
@@ -23,7 +23,7 @@ runs:
         result-encoding: string
         script: |
           const dependencies = { context, core, github };
-          const owners = ${{ inputs.owners }};
+          const owners = "${{ inputs.owners }}".split(',');
           const scenario = "${{ inputs.scenario }}";
           const testOutput = "${{ inputs.test-output }}";
 

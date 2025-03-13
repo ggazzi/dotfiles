@@ -16,7 +16,7 @@ jobs:
         id: report-failure
         uses: ./.github/actions/report-failure
         with:
-          owners: ["ggazzi"]
+          owners: "ggazzi"
           scenario: "foo"
           test-output: "logslogslogslogs"
         env:

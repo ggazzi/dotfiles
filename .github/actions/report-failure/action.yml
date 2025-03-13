@@ -1,0 +1,15 @@
+name: 'Failure Report'
+description: 'Reports a test failure by creating or updating an issue assigned to a specified user'
+inputs:
+  assignee:
+    description: 'GitHub username to assign the issue to'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - uses: actions/github-script@v7
+      with:
+        result-encoding: string
+        script: |
+          const dependencies = { context, core, github };
+          return require('${{ github.action_path }}/report-failure.js')(dependencies, ${{ inputs.assignee }})

@@ -14,7 +14,7 @@ jobs:
         
       - name: Report test failure
         id: report-failure
-        uses: ./.github/actions/failure-report
+        uses: ./.github/actions/report-failure
         with:
           assignee: "ggazzi"
         env:

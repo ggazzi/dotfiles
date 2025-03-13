@@ -1,8 +1,5 @@
-const core = require('@actions/core');
-const github = require('@actions/github');
-
-async function findOrCreateTrackingIssue(octokit, context, assignee) {
-    const issues = await octokit.rest.issues.listForRepo({
+async function findOrCreateTrackingIssue(github, context, assignee) {
+    const issues = await github.rest.issues.listForRepo({
         owner: context.repo.owner,
         repo: context.repo.repo,
         assignee,
@@ -16,7 +13,7 @@ async function findOrCreateTrackingIssue(octokit, context, assignee) {
     }
 
     if (issues.data.length === 0) {
-        const newIssue = await octokit.rest.issues.create({
+        const newIssue = await github.rest.issues.create({
             owner: context.repo.owner,
             repo: context.repo.repo,
             title: `Failure Tracker for ${assignee}`,
@@ -35,11 +32,11 @@ async function findOrCreateTrackingIssue(octokit, context, assignee) {
     return null;
 }
 
-async function reportFailureAsComment(octokit, context, assignee, trackingIssue) {
+async function reportFailureAsComment(github, context, assignee, trackingIssue) {
     const now = new Date().toISOString();
     const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
 
-    await octokit.rest.issues.createComment({
+    await github.rest.issues.createComment({
         owner: context.repo.owner,
         repo: context.repo.repo,
         issue_number: trackingIssue.number,
@@ -48,7 +45,16 @@ async function reportFailureAsComment(octokit, context, assignee, trackingIssue)
     console.log(`Added failure report to issue #${trackingIssue.number}`);
 }
 
-async function run() {
+/**
+ * Report a test failure to a tracking issue
+ * 
+ * @param {Context} context Workflow context 
+ * @param {"@actions/core"} core @actions/core
+ * @param {Octokit} github Octokit instance 
+ * @param {string} assignee GitHub user or group that should be notified to the issue.
+ * @returns {Promise<number>} The issue number of the tracking issue that was created or edited.
+ */
+async function reportTestFailure({ context, core, github }, assignee) {
   try {
     // Get inputs
     const assignee = core.getInput('assignee', { required: true });
@@ -59,19 +65,19 @@ async function run() {
       throw new Error('GITHUB_TOKEN environment variable is required');
     }
     
-    const octokit = github.getOctokit(token);
-    const context = github.context;
-    
     // Report the error on a tracking issue
-    const trackingIssue = await findOrCreateTrackingIssue(octokit, context, assignee);
-    if (!trackingIssue) return;
-    reportFailureAsComment(octokit, context, assignee, trackingIssue);
+    const trackingIssue = await findOrCreateTrackingIssue(github, context, assignee);
+    if (!trackingIssue) {
+        core.setFailed('Failed to find or create tracking issue');
+        return;
+    }
+    reportFailureAsComment(github, context, assignee, trackingIssue);
     
     // Set the issue number as output
-    core.setOutput('issue-number', trackingIssue.number);
+    return trackingIssue.number;
   } catch (error) {
     core.setFailed(error.message);
   }
 }
 
-run();
+module.exports = reportTestFailure;

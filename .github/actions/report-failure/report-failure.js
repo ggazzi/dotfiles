@@ -14,15 +14,14 @@ async function findOrCreateTrackingIssue(github, context, trackerIssues, owner) 
             owner: context.repo.owner,
             repo: context.repo.repo,
             title: issueTitle,
-            body: 'This issue tracks test failures from scenarios owned by @${assignee} (exclusively or shared).',
-            assignees: [assignee],
+            body: 'This issue tracks test failures from scenarios owned by @${owner} (exclusively or shared).',
             labels: ['failure-tracker', 'bug'],
         });
         console.log(`Created tracking issue #${newIssue.data.number}`);
         return newIssue.data;
     }
 
-    console.error(`Found ${issues.length} failure tracker issues for ${assignee}, expected at most one.`);
+    console.error(`Found ${issues.length} failure tracker issues for ${owner}, expected at most one.`);
     for (const issue of issues) {
         console.error(`Issue #${issue.number}: ${issue.title}`);
     }

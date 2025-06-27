@@ -40,6 +40,11 @@
 
           dt = "diff";
           di = "diff --cached";
+          dc = "diff-commit";
+          dlc = "diff-last-commit";
+
+          diff-commit = ''!f(){ git diff "$1^" "$1"; }; f'';
+          diff-last-commit = "diff HEAD^ HEAD";
         };
 
         delta.enable = true;

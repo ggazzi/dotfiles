@@ -7,14 +7,14 @@
     dotDir = ".config/zsh";
 
     # Add all files from ./config to the end of .zrc
-    initExtra =
+    initContent =
       with builtins;
       let
         cfgFiles = readDir ./config;
         readCfg = name: _: readFile (./config + "/${name}");
         cfgContents = attrValues (mapAttrs readCfg cfgFiles);
       in
-      concatStringsSep "\n" cfgContents;
+      lib.mkOrder 1000 (concatStringsSep "\n" cfgContents);
   };
 
   # Use direnv to manage environment variables on a per-directory basis

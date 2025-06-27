@@ -15,6 +15,7 @@
 
         aliases = {
           st = "status -s -- .";
+          sta = "status -s";
           a = "add";
           c = "commit";
           r = "restore";

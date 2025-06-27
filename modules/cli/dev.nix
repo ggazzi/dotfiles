@@ -27,7 +27,7 @@ in
       WORKSPACE = cfg.workspace;
     };
 
-    programs.zsh.initExtraBeforeCompInit =
-      ''source "${home.homeDirectory}/.nix-profile/opt/dev-utils/completions.zsh"'';
+    programs.zsh.initContent =
+      lib.mkOrder 550 ''source "${home.homeDirectory}/.nix-profile/opt/dev-utils/completions.zsh"'';
   };
 }

@@ -38,9 +38,7 @@
           lg = "ls --graph";
           la = "ls --graph --all";
 
-          diff-tree = "diff";
           dt = "diff";
-          diff-index = "diff --cached";
           di = "diff --cached";
         };
 

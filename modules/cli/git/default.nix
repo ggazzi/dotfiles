@@ -20,7 +20,16 @@
           r = "restore";
 
           b = "branch";
+          bd = "describe-branch";
+          bda = "describe-branches";
+          bdw = "branch --edit-description";
+          db = "bd";
+          dba = "bda";
+          dbw = "bdw";
           sw = "switch";
+
+          describe-branch = "!git config --get branch.$(git branch --show-current).description";
+          describe-branches = ''!git config --get-regexp branch.*.description | sed "s_branch\\.\\(.*\\)\\.description \\(.*\\)_\x1b[1;3;34m\\1\\x1b[0m\n\\2_g"'';
 
           unstage = "restore --staged";
 

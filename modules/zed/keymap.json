@@ -1,0 +1,10 @@
+[
+    {
+        "context": "Pane",
+        "bindings": {
+            "ctrl-t h": "pane::GoBack",
+            "ctrl-t l": "pane::GoForward",
+            "ctrl-t Q": "pane::CloseInactiveItems"
+        }
+    }
+]

@@ -6,5 +6,6 @@
     ./langs
     ./home.nix
     ./nix
+    ./zed
   ];
 }

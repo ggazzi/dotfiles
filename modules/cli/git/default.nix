@@ -15,25 +15,37 @@
 
         aliases = {
           st = "status -s -- .";
+          sta = "status -s";
           a = "add";
           c = "commit";
           r = "restore";
 
           b = "branch";
+          bd = "describe-branch";
+          bda = "describe-branches";
+          bdw = "branch --edit-description";
+          db = "bd";
+          dba = "bda";
+          dbw = "bdw";
           sw = "switch";
+
+          describe-branch = "!git config --get branch.$(git branch --show-current).description";
+          describe-branches = ''!git config --get-regexp branch.*.description | sed "s_branch\\.\\(.*\\)\\.description \\(.*\\)_\x1b[1;3;34m\\1\\x1b[0m\n\\2_g"'';
 
           unstage = "restore --staged";
 
-          l = "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%ad) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative";
           ls = "log --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%ad) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative";
-          ll = "log --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%ad) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative --numstat";
-          lg = "log --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%ad) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative --graph";
-          la = "log --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%ad) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative --graph --all";
+          ll = "ls --numstat";
+          lg = "ls --graph";
+          la = "ls --graph --all";
 
-          diff-tree = "diff";
           dt = "diff";
-          diff-index = "diff --cached";
           di = "diff --cached";
+          dc = "diff-commit";
+          dlc = "diff-last-commit";
+
+          diff-commit = ''!f(){ git diff "$1^" "$1"; }; f'';
+          diff-last-commit = "diff HEAD^ HEAD";
         };
 
         delta.enable = true;

@@ -10,6 +10,8 @@ in
 {
   imports = [
     ./${platform}.nix
+
+    ./asdf.nix
     ./git
     ./zellij
     ./zsh

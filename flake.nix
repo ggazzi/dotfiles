@@ -19,7 +19,14 @@
     };
   };
 
-  outputs = inputs@{ nixpkgs, home-manager, sub, devenv, ... }:
+  outputs =
+    inputs@{
+      nixpkgs,
+      home-manager,
+      sub,
+      devenv,
+      ...
+    }:
     let
       system = "aarch64-darwin";
 
@@ -45,45 +52,46 @@
 
     in
     {
-      darwinConfigurations."Guilhermes-MacBook-Air" =
-        inputs.nix-darwin.lib.darwinSystem {
-          system = "aarch64-darwin";
-          modules = [
-            ./Guilhermes-MacBook-Air/configuration.nix
-          ];
-        };
+      darwinConfigurations.Guis-wagon = inputs.nix-darwin.lib.darwinSystem {
+        system = "aarch64-darwin";
+        modules = [
+          ./Guilhermes-MacBook-Air/configuration.nix
+        ];
+      };
 
-      homeConfigurations.gazzi =
-        home-manager.lib.homeManagerConfiguration {
-          inherit pkgs;
-          modules = [
-            ./modules
-            {
-              ggazzi.neovim.defaultEditor = true;
-            }
-          ];
-        };
+      homeConfigurations.gazzi = home-manager.lib.homeManagerConfiguration {
+        inherit pkgs;
+        modules = [
+          ./modules
+          {
+            ggazzi.neovim.defaultEditor = true;
+          }
+        ];
+      };
 
       devShells.${system}.default = devenv.lib.mkShell {
         inherit inputs pkgs;
         modules = [
-          ({ pkgs, ... }: {
-            languages.nix.enable = true;
+          (
+            { pkgs, ... }:
+            {
+              languages.nix.enable = true;
 
-            packages = with pkgs; [
-              nixpkgs-fmt
-              shellcheck
-            ];
+              packages = with pkgs; [
+                nixpkgs-fmt
+                shellcheck
+              ];
 
-            pre-commit.hooks = {
-              shellcheck = {
-                enable = true;
-                excludes = [ "\\.zsh" ];
+              pre-commit.hooks = {
+                shellcheck = {
+                  enable = true;
+                  excludes = [ "\\.zsh" ];
+                };
+
+                nixpkgs-fmt.enable = true;
               };
-
-              nixpkgs-fmt.enable = true;
-            };
-          })
+            }
+          )
         ];
       };
 

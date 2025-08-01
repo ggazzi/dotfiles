@@ -1,6 +1,6 @@
 #############################################################
 #
-#  Wagon - Laptop
+#  Gui's Wagon - Laptop
 #  Mac OS running on a MacBook Air (13-inch, M3, 2024)
 #
 #############################################################
@@ -23,17 +23,8 @@
   #
 
   hostSpec = {
-    hostName = "wagon";
+    hostName = "Guis-wagon";
     username = "gazzi";
-  };
-
-  homebrew = {
-    # TODO: move away from this file (where?)
-    enable = true;
-
-    brews = [
-      "asdf"
-    ];
   };
 
   nix.settings = rec {

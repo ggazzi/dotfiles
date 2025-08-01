@@ -54,6 +54,7 @@
 
       # ========== shellscripts ==========
       shfmt.enable = true;
+      shellcheck.enable = true;
 
       end-of-file-fixer.enable = true;
     };

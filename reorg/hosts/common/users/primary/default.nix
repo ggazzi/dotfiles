@@ -29,22 +29,21 @@ in
       hostSpec = config.hostSpec;
     };
 
-    # TODO: add working home-manager configuration
-    # users.${hostSpec.username}.imports = lib.flatten (
-    #   lib.optional (!hostSpec.isMinimal) [
-    #     (
-    #       { config, ... }:
-    #       import (lib.custom.relativeToRoot "home/${hostSpec.username}/${hostSpec.hostName}.nix") {
-    #         inherit
-    #           pkgs
-    #           inputs
-    #           config
-    #           lib
-    #           hostSpec
-    #           ;
-    #       }
-    #     )
-    #   ]
-    # );
+    users.${hostSpec.username}.imports = lib.flatten (
+      lib.optional (!hostSpec.isMinimal) [
+        (
+          { config, ... }:
+          import (lib.custom.relativeToRoot "home/${hostSpec.username}/${hostSpec.hostName}.nix") {
+            inherit
+              pkgs
+              inputs
+              config
+              lib
+              hostSpec
+              ;
+          }
+        )
+      ]
+    );
   };
 }

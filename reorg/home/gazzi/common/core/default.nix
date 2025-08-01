@@ -11,6 +11,7 @@ in
   imports = [
     ./${platform}.nix
     ./git
+    ./zellij
     ./zsh
   ];
 

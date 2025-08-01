@@ -1,0 +1,30 @@
+#!/usr/bin/env ruby
+#
+# Remove all local branches without an associated remote branch
+
+require 'English'
+
+current_branch = `git rev-parse --abbrev-ref HEAD`.chomp
+exit 1 unless $CHILD_STATUS.success?
+
+remote_branches = `git branch -r`.each_line.map do |line|
+  match = line.match(%r{[^/]+/([^ ]+)})
+  match[1] if match
+end.compact
+
+orphan_branches = `git branch`.each_line.map do |line|
+  branch = line[2..].chomp
+  if branch == current_branch
+    puts "Skipping removal of current branch: #{branch}"
+    nil
+  else
+    branch unless remote_branches.include?(branch)
+  end
+end.compact
+
+if orphan_branches.empty?
+  puts 'No orphan branches to remove.'
+  exit 0
+end
+
+system 'git', 'branch', '-d', *orphan_branches

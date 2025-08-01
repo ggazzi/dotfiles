@@ -10,6 +10,7 @@ in
 {
   imports = [
     ./${platform}.nix
+    ./git
     ./zsh
   ];
 

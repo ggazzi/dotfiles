@@ -1,0 +1,29 @@
+Generate a commit message from a diff and an optional title. You should
+rewrite and improve the title in case it's present. The commit message should contain a
+title and an explanation of how that changelog accomplishes the objective in
+the title separated by one blank line.
+
+<% if conventional_prefix != nil %>
+The generated title should start with "<%= conventional_prefix %>:", which must be followed by a non-capitalized verb in imperative form.
+<% else %>
+The generated title must not be prefixed with anything, but it must start with a capitalized verb in imperative form.
+<% end %>
+
+Example output:
+```
+<% if conventional_prefix != nil %>
+<%= conventional_prefix %>: improve the README
+<% else %>
+Improve the README
+<% end %>
+
+This commit improves the README by clarifying the purpose of the project.
+```
+
+<% if title != "" %>
+Title: <%= title %>
+<% end %>
+
+```
+<%= diff %>
+```

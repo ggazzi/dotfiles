@@ -12,6 +12,7 @@ in
     ./${platform}.nix
 
     ./asdf.nix
+    ./dev.nix
     ./git
     ./zellij
     ./zsh

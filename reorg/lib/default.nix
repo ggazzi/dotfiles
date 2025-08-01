@@ -1,5 +1,5 @@
 # FIXME(lib.custom): Add some stuff from hmajid2301/dotfiles/lib/module/default.nix, as simplifies option declaration
-{ lib, inputs, ... }:
+{ lib, ... }:
 {
   # use path relative to the root of the project
   relativeToRoot = lib.path.append ../.;
@@ -17,5 +17,4 @@
         ) (builtins.readDir path)
       )
     );
-  mkSubDerivation = system: args: inputs.sub.lib.${system}.mkSubDerivation args;
 }

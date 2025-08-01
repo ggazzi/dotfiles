@@ -15,6 +15,12 @@ let
       sub = inputs.sub.packages.${final.system}.sub;
     };
 
+  modifications = final: prev: {
+    lib = prev.lib // {
+      mkSubDerivation = inputs.sub.lib.${final.system}.mkSubDerivation;
+    };
+  };
+
   stable-packages = final: _prev: {
     stable = import inputs.nixpkgs-stable {
       inherit (final) system;
@@ -38,5 +44,8 @@ in
   default =
     final: prev:
 
-    (additions final prev) // (stable-packages final prev) // (unstable-packages final prev);
+    (additions final prev)
+    // (modifications final prev)
+    // (stable-packages final prev)
+    // (unstable-packages final prev);
 }

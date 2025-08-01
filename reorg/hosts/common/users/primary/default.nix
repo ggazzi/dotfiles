@@ -30,7 +30,7 @@ in
     };
 
     users.${hostSpec.username}.imports = lib.flatten (
-      lib.optional (!hostSpec.isMinimal) [
+      lib.optional true [
         (
           { config, ... }:
           import (lib.custom.relativeToRoot "home/${hostSpec.username}/${hostSpec.hostName}.nix") {

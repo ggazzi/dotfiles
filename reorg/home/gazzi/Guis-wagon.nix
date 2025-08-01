@@ -1,5 +1,13 @@
-{ hostSpec, ... }:
+{ ... }:
 {
-  home.stateVersion = "25.05";
-  home.homeDirectory = hostSpec.home;
+  imports = [
+    #
+    # ========== Required Configs ==========
+    #
+    common/core
+
+    #
+    # ========== Host-specific Optional Configs ==========
+    #
+  ];
 }

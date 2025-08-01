@@ -9,5 +9,6 @@
     #
     # ========== Host-specific Optional Configs ==========
     #
+    common/optional/zed
   ];
 }

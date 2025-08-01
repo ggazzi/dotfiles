@@ -17,4 +17,5 @@
         ) (builtins.readDir path)
       )
     );
+  nixvim = import ./nixvim.nix;
 }

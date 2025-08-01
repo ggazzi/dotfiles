@@ -14,6 +14,7 @@ in
     ./asdf.nix
     ./dev.nix
     ./git
+    ./nixvim
     ./zellij
     ./zsh
   ];

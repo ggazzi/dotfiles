@@ -6,21 +6,29 @@
 #############################################################
 
 {
-  pkgs,
+  lib,
   ...
 }:
 
-# TODO: extract core host configuration
 {
-  environment.systemPackages = with pkgs; [
-    vim
-    wget
-    curl
-    gitAndTools.gitFull
-    home-manager
+  imports = map lib.custom.relativeToRoot [
+    #
+    # ========== Required Configs ==========
+    #
+    "hosts/common/core"
   ];
 
+  #
+  # ========== Host Specification ==========
+  #
+
+  hostSpec = {
+    hostName = "wagon";
+    username = "gazzi";
+  };
+
   homebrew = {
+    # TODO: move away from this file (where?)
     enable = true;
 
     brews = [
@@ -28,12 +36,8 @@
     ];
   };
 
-  users.users.gazzi.home = "/Users/gazzi";
-
-  nix.enable = true;
   nix.settings = rec {
-    experimental-features = "nix-command flakes";
-
+    # TODO: either remove or move away from this file (where?)
     substituters = trusted-substituters;
     trusted-substituters = [
       "https://cache.nixos.org"
@@ -45,15 +49,9 @@
     ];
   };
 
-  programs.zsh.enable = true;
-
   # Used for backwards compatibility, please read the changelog before changing.
   # $ darwin-rebuild changelog
   system.stateVersion = 4;
-
-  system.primaryUser = "gazzi";
-
-  nixpkgs.hostPlatform = "aarch64-darwin";
 
   ids.gids.nixbld = 350;
 }

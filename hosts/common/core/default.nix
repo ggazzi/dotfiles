@@ -49,6 +49,7 @@ in
     curl
     gitAndTools.gitFull
     openssh
+    ripgrep
     vim
     wget
   ];

@@ -14,7 +14,7 @@
       # ========= Architectures =========
       #
       forAllSystems = nixpkgs.lib.genAttrs [
-        # "x86_64-linux"
+        "x86_64-linux"
         "aarch64-darwin"
       ];
 
@@ -41,19 +41,19 @@
       #
       # ========= Host Configurations =========
       #
-      # Building configurations is available through `just rebuild` or `nixos-rebuild --flake .#hostname`
-      # nixosConfigurations = builtins.listToAttrs (
-      #   map (host: {
-      #     name = host;
-      #     value = nixpkgs.lib.nixosSystem {
-      #       specialArgs = {
-      #         inherit inputs outputs lib;
-      #         isDarwin = false;
-      #       };
-      #       modules = [ ./hosts/nixos/${host} ];
-      #     };
-      #   }) (builtins.attrNames (builtins.readDir ./hosts/nixos))
-      # );
+      # Building configurations is available through `nixos-rebuild --flake .#hostname`
+      nixosConfigurations = builtins.listToAttrs (
+        map (host: {
+          name = host;
+          value = nixpkgs.lib.nixosSystem {
+            specialArgs = {
+              inherit inputs outputs lib;
+              isDarwin = false;
+            };
+            modules = [ ./hosts/nixos/${host} ];
+          };
+        }) (builtins.attrNames (builtins.readDir ./hosts/nixos))
+      );
 
       darwinConfigurations = builtins.listToAttrs (
         map (host: {

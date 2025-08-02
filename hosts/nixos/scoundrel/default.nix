@@ -29,6 +29,7 @@
       #
       "hosts/common/optional/audio.nix"
       "hosts/common/optional/gnome.nix"
+      "hosts/common/optional/services/openssh.nix"
       "hosts/common/optional/services/printing.nix"
 
     ])
@@ -41,6 +42,9 @@
   hostSpec = {
     hostName = "scoundrel";
     username = "gazzi";
+    networking = {
+      ports.tcp.ssh = 22;
+    };
   };
 
   boot.loader = {

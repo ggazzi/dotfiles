@@ -15,5 +15,23 @@
         "mode": "dark",
         "light": "One Light",
         "dark": "Catppuccin Mocha"
+    },
+    "agent": {
+        "default_model": {
+            "provider": "copilot_chat",
+            "model": "claude-sonnet-4"
+        },
+        "inline_assistant_model": {
+            "provider": "copilot_chat",
+            "model": "gpt-4.1"
+        },
+        "commit_message_model": {
+            "provider": "copilot_chat",
+            "model": "gpt-4.1"
+        },
+        "thread_summary_model": {
+            "provider": "copilot_chat",
+            "model": "gpt-4.1"
+        }
     }
 }

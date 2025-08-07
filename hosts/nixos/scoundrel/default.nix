@@ -52,6 +52,23 @@
     efi.canTouchEfiVariables = true;
   };
 
+  virtualisation.docker.enable = true;
+
+  networking.firewall.allowedTCPPorts = [
+    53 # Necessary for DHCP server with pihole
+
+    # HTTP(S) ports
+    80
+    443
+
+    1883 # MQTT
+    8123 # Home Assistant Web UI
+
+    # Home Assistant (necessary for integrations/discovery)
+    1400
+    9999
+  ];
+
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
   # on your system were taken. It‘s perfectly fine and recommended to leave

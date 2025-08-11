@@ -125,13 +125,19 @@ home/             # User-level configurations (dotfiles)
 - Host configurations use actual hostnames
 - File names should be descriptive and follow established patterns
 
+## Workflow Tools
+
+### Just Command Runner
+- Use `just` commands for common operations (build, apply, update, format)
+- Commands automatically detect platform and hostname
+- Prefer `just` commands over manual rebuild commands in documentation
+- Add new workflow commands to `justfile` when appropriate
+
 ## Development Workflow
 
 ### Build and Apply Commands
-- **macOS**: `darwin-rebuild switch --flake .`
-- **NixOS**: `nixos-rebuild switch --flake .#<hostname>`
-- **Home Manager**: `home-manager switch --flake .#<user>@<host>`
-- **Formatting**: Use `nix fmt` for code formatting
+- Use `just` commands (`just build`, `just apply`, `just update`)
+- Use `just format` for code formatting before committing changes
 
 ### Dependency Management
 - All external dependencies declared in `flake.nix` inputs
@@ -153,10 +159,11 @@ home/             # User-level configurations (dotfiles)
 - Provide clear error messages when configuration issues arise
 
 ### Code Quality
-- Maintain consistent formatting and style
+- Maintain consistent formatting using `just format`
 - Use descriptive variable and function names
 - Comment complex logic and non-obvious decisions
 - Follow established patterns in the codebase
+- Use proper option types with ranges (e.g., `types.ints.between 0 23`)
 
 ## Special Considerations
 
@@ -240,5 +247,6 @@ When making changes:
 3. **Hardcoded Values**: Use variables and options instead of hardcoded paths/values
 4. **Duplicated Configuration**: Create shared modules instead of copying config
 5. **Monolithic Files**: Break large configurations into logical modules
+7. **Manual Command Documentation**: Don't document manual rebuild commands; prefer `just` commands
 
 Remember: This configuration prioritizes maintainability, clarity, and consistency over brevity or clever optimizations. When in doubt, favor the approach that makes the system more understandable and maintainable.

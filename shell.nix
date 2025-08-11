@@ -25,6 +25,7 @@
         nix
         home-manager
         git
+        just
         pre-commit
         ;
     };

@@ -7,22 +7,27 @@ This is heavily based on [EmergentMind's Nix Configs](https://github.com/Emergen
 
 ## Workflows
 
-To update the versions of all dependencies:
+This repository includes a `justfile` with convenient commands that work on both Darwin and NixOS:
 
 ```sh
-nix flake update
+# Build configuration without applying (test your changes)
+just build
+
+# Build and apply configuration to current host
+just apply
+
+# Update all flake dependencies, test them, and commit flake.lock
+just update
+
+# Quick sync: update dependencies and apply in one go
+just update apply
 ```
 
-To rebuild the nix-darwin configuration:
-
-```sh
-darwin-rebuild build --flake .
-```
-
-To apply the nix-darwin configuration (rebuilding if necessary):
-
-```sh
-sudo darwin-rebuild switch --flake .
-```
+The `just` commands automatically:
+- Detect your platform (Darwin/NixOS) and hostname
+- Use the correct rebuild command for your system
+- Handle `sudo` requirements with clear warnings
+- Provide colored output to track progress
+- Validate changes before committing (for `update`)
 
 The home-manager configuration gets built and applied together with the nix-darwin configuration.

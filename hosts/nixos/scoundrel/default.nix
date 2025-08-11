@@ -75,6 +75,10 @@
     1400
     9999
   ];
+  networking.firewall.allowedUDPPorts = [
+    1900 # uPNP
+    5353 # mDNS
+  ];
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions

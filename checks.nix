@@ -54,7 +54,10 @@
 
       # ========== shellscripts ==========
       shfmt.enable = true;
-      shellcheck.enable = true;
+      shellcheck = {
+        enable = true;
+        excludes = [ "\\.envrc$" ];
+      };
 
       end-of-file-fixer.enable = true;
     };

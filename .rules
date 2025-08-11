@@ -110,6 +110,12 @@ home/             # User-level configurations (dotfiles)
 
 ## Code Organization
 
+### README Formatting Guidelines
+
+- Use separate code blocks for each command to improve readability and copy-paste usability.
+- Place comments or explanations outside of code blocks to ensure commands remain clean and executable.
+- When commands are part of a list, indent the code blocks with four spaces to properly nest them under the list items in Markdown.
+
 ### Import Patterns
 - Use `lib.custom.relativeToRoot` for imports within the configuration
 - Maintain consistent import organization in configuration files

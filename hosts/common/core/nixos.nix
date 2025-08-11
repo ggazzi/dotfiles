@@ -1,5 +1,8 @@
 # Core functionality for every nixos host.
-{ lib, ... }:
+{
+  lib,
+  ...
+}:
 
 {
   # Database for aiding terminal-based programs

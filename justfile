@@ -21,9 +21,9 @@ _rebuild action:
     fi
 
     if [[ "$platform" == "Darwin" ]]; then
-        $sudo_prefix darwin-rebuild {{action}} --flake ".#$hostname"
+        $sudo_prefix darwin-rebuild {{action}} --flake ".#$hostname" --impure
     elif [[ "$platform" == "Linux" ]]; then
-        $sudo_prefix nixos-rebuild {{action}} --flake ".#$hostname"
+        $sudo_prefix nixos-rebuild {{action}} --flake ".#$hostname" --impure
     else
         echo "Error: Unsupported platform: $platform"
         exit 1
@@ -68,7 +68,7 @@ update:
     fi
 
     echo -e "\033[1;35m🔍 Checking flake validity...\033[0m"
-    nix flake check
+    nix flake check --impure
     echo -e "\033[1;32m✅ Flake check passed!\033[0m"
 
     echo -e "\033[1;35m🧪 Testing updated configuration...\033[0m"

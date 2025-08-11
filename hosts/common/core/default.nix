@@ -125,4 +125,15 @@ in
     enable = true;
     enableCompletion = true;
   };
+
+  #
+  # ========== Auto-update ==========
+  #
+  services.dotfiles-auto-update = {
+    enable = true;
+    weekday = 1;
+    hour = 3;
+    minute = 0;
+  };
+
 }

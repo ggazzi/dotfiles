@@ -49,6 +49,7 @@
             specialArgs = {
               inherit inputs outputs lib;
               isDarwin = false;
+              configPath = builtins.toString ./.;
             };
             modules = [ ./hosts/nixos/${host} ];
           };
@@ -62,6 +63,7 @@
             specialArgs = {
               inherit inputs outputs lib;
               isDarwin = true;
+              configPath = builtins.toString ./.;
             };
             modules = [ ./hosts/darwin/${host} ];
           };

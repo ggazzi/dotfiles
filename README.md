@@ -27,7 +27,41 @@ The `just` commands automatically:
 - Detect your platform (Darwin/NixOS) and hostname
 - Use the correct rebuild command for your system
 - Handle `sudo` requirements with clear warnings
-- Provide colored output to track progress
-- Validate changes before committing (for `update`)
 
 The home-manager configuration gets built and applied together with the nix-darwin configuration.
+
+## Automatic Updates
+
+This configuration includes automatic updates that run weekly on all hosts:
+
+- **What it does**: Updates flake dependencies, validates the configuration, and applies changes automatically
+- **Schedule**: Runs weekly according to a schedule (or on the next system startup, if the system is off during the scheduled time)
+- **Platforms**: Works on both Darwin (using launchd) and NixOS (using systemd)
+
+The auto-update schedule is configured in [`hosts/common/core/default.nix`](hosts/common/core/default.nix):
+
+### Monitoring
+
+**On Darwin (macOS):**
+```sh
+# Check if service is loaded
+sudo launchctl list | grep dotfiles-auto-update
+
+# View output logs
+sudo tail -f /var/log/dotfiles-update.log
+
+# View error logs
+sudo tail -f /var/log/dotfiles-update-error.log
+```
+
+**On NixOS:**
+```sh
+# Check service status
+systemctl status dotfiles-auto-update.service
+
+# Check timer status and next run
+systemctl list-timers dotfiles-auto-update.timer
+
+# View logs
+journalctl -u dotfiles-auto-update.service
+```

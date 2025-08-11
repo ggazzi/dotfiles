@@ -79,3 +79,12 @@ update:
     git add flake.lock
     git commit -m "chore: update dependencies"
     echo -e "\033[1;32m🎉 Dependencies updated and committed successfully!\033[0m"
+
+# Format all code files
+format:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    echo -e "\033[1;34m🎨 Formatting code...\033[0m"
+    nix fmt
+    echo -e "\033[1;32m✅ Code formatting completed!\033[0m"

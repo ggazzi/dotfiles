@@ -22,6 +22,7 @@ in
         "docker"
         "git"
         "networkmanager"
+        "bluetooth"
         "scanner" # for print/scan
         "lp" # for print/scan
       ])

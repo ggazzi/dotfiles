@@ -29,6 +29,7 @@
       #
       "hosts/common/optional/services/openssh.nix"
       "hosts/common/optional/services/printing.nix"
+      "hosts/common/optional/bluetooth.nix"
 
     ])
   ];

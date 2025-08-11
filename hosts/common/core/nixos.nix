@@ -26,4 +26,10 @@
     LC_TIME = "de_DE.UTF-8";
   };
 
+  # Time synchronization for all NixOS systems
+  services.timesyncd.enable = true;
+
+  # PolicyKit for privilege escalation - used by NetworkManager, systemd, and many other services
+  security.polkit.enable = true;
+
 }

@@ -27,8 +27,6 @@
       #
       # ========== Host Specific Configs ==========
       #
-      "hosts/common/optional/audio.nix"
-      "hosts/common/optional/gnome.nix"
       "hosts/common/optional/services/openssh.nix"
       "hosts/common/optional/services/printing.nix"
 
@@ -50,6 +48,15 @@
   boot.loader = {
     systemd-boot.enable = true;
     efi.canTouchEfiVariables = true;
+  };
+
+  networking.networkmanager.enable = true;
+
+  services = {
+    logind = {
+      powerKey = "hibernate";
+      powerKeyLongPress = "poweroff";
+    };
   };
 
   virtualisation.docker.enable = true;

@@ -12,6 +12,7 @@ in
     ./${platform}.nix
 
     ./asdf.nix
+    ./claude.nix
     ./dev.nix
     ./git
     ./nixvim

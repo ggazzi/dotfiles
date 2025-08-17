@@ -1,6 +1,11 @@
-{ lib, ... }:
+{ lib, pkgs, ... }:
 
 {
+  home.packages = with pkgs; [
+    # Necessary to compile treesitter parsers
+    gcc
+  ];
+
   programs.nixvim = {
     plugins.treesitter = {
       enable = true;

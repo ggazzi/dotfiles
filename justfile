@@ -1,6 +1,13 @@
 # Justfile for Nix dotfiles management
 # Run 'just --list' to see available commands
 
+
+# Build config for current host without applying
+build: (_rebuild "build")
+
+# Build and apply config for current host
+apply: (_rebuild "switch")
+
 # Internal function to run rebuild command for current host
 _rebuild action:
     #!/usr/bin/env bash
@@ -31,13 +38,6 @@ _rebuild action:
 
     echo "{{action}} completed successfully!"
 
-# Build config for current host without applying
-build:
-    just _rebuild build
-
-# Build and apply config for current host
-apply:
-    just _rebuild switch
 
 # Update flake inputs
 update:

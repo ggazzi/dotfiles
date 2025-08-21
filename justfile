@@ -44,8 +44,8 @@ update:
     #!/usr/bin/env bash
     set -euo pipefail
 
-    # Check if git working tree is clean
-    if ! git diff-index --quiet HEAD -- || [ -n "$(git ls-files --others --exclude-standard)" ]; then
+    # Check if git working tree has changes besides flake.lock
+    if ! git diff-index --quiet HEAD -- ':!flake.lock' || [ -n "$(git ls-files --others --exclude-standard)" ]; then
         echo -e "\033[1;31m❌ Error: Git working tree is dirty!\033[0m"
         echo -e "\033[1;33m⚠️  The update command requires a clean repository to safely commit flake.lock.\033[0m"
         echo -e "\033[1;36m💡 Suggestion: Stash your changes first:\033[0m"

@@ -55,6 +55,13 @@ update:
         exit 1
     fi
 
+    echo -e "\033[1;34m🔄 Pulling latest changes from remote...\033[0m"
+    if git pull; then
+        echo -e "\033[1;32m✅ Successfully pulled remote changes!\033[0m"
+    else
+        echo -e "\033[1;33m⚠️  Failed to pull remote changes, continuing anyway...\033[0m"
+    fi
+
     echo -e "\033[1;34m🔄 Updating flake inputs...\033[0m"
     nix flake update
 

@@ -48,6 +48,7 @@ in
   environment.systemPackages = with pkgs; [
     curl
     gitAndTools.gitFull
+    htop
     openssh
     ripgrep
     vim

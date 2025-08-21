@@ -64,7 +64,7 @@
             specialArgs = {
               inherit inputs outputs lib;
               isDarwin = true;
-              configPath = builtins.toString ./.;
+              configPath = builtins.getEnv "PWD";
             };
             modules = [ ./hosts/darwin/${host} ];
           };

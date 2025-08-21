@@ -64,7 +64,16 @@ in
       # Darwin-specific configuration
       darwinConfig = {
         launchd.daemons.dotfiles-auto-update = {
-          script = "${pkgs.just}/bin/just update apply";
+          script = "just update apply";
+          path = with pkgs; [
+            bash
+            git
+            just
+            nix
+          ];
+          environment = {
+            NIXPKGS_ALLOW_UNFREE = "1";
+          };
           serviceConfig = {
             StartCalendarInterval = [
               {
@@ -75,9 +84,10 @@ in
             ];
             StandardOutPath = "/var/log/dotfiles-update.log";
             StandardErrorPath = "/var/log/dotfiles-update-error.log";
-            RunAtLoad = false;
+            RunAtLoad = true;
             StartOnMount = true;
             WorkingDirectory = configPath;
+            UserName = config.hostSpec.username;
           };
         };
       };

@@ -50,7 +50,7 @@
             specialArgs = {
               inherit inputs outputs lib;
               isDarwin = false;
-              configPath = builtins.toString ./.;
+              configPath = builtins.getEnv "PWD";
             };
             modules = [ ./hosts/nixos/${host} ];
           };

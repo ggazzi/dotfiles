@@ -86,10 +86,20 @@ in
       nixosConfig = {
         systemd.services.dotfiles-auto-update = {
           description = "Auto-update dotfiles configuration";
-          script = "${pkgs.just}/bin/just update apply";
+          script = "just update apply";
+          path = with pkgs; [
+            bash
+            git
+            just
+            nix
+          ];
+          environment = {
+            NIXPKGS_ALLOW_UNFREE = "1";
+          };
           serviceConfig = {
             Type = "oneshot";
             WorkingDirectory = configPath;
+            User = config.hostSpec.username;
           };
         };
 

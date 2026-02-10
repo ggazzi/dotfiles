@@ -5,6 +5,8 @@
 }:
 
 {
+  nix.enable = true;
+
   # Database for aiding terminal-based programs
   environment.enableAllTerminfo = true;
 

@@ -76,7 +76,8 @@ in
   # ========== Nix Nix Nix ==========
   #
   nix = {
-    enable = true;
+    # I don't set `nix.enable` here, doing it per-platform instead.
+    # This is because in Darwin I let Determinate manage nix, while in nixos I don't.
 
     # This will add each flake input as a registry
     # To make nix3 commands consistent with your flake

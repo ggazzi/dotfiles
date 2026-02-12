@@ -16,6 +16,7 @@ in
     ./dev.nix
     ./git
     ./nixvim
+    ./proto.nix
     ./zellij
     ./zsh
   ];

@@ -54,3 +54,14 @@ Each `apt-get install -y <one-package>` succeeds or fails independently, so one 
 
 ## Related Issues
 - None yet.
+
+## Update (2026-09-03)
+
+Reverted back to a single batched `apt-get install -y $(cat apt-packages.txt)`
+call. The packages that originally motivated `-n1` (chezmoi, zellij, mise,
+proto) were removed from `apt-packages.txt` or given their own apt repo
+(mise) — every remaining entry is a genuine Ubuntu apt package, so batching
+is safe again and atomicity becomes a feature: a regression (a package
+silently dropped from Ubuntu's repos) now fails the whole install loudly
+instead of `-n1` letting it install everything else and skip that one
+silently.

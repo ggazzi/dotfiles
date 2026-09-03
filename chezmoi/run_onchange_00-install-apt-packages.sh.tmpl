@@ -8,17 +8,17 @@
 # for now -- see README.
 # run_onchange_: chezmoi re-runs when this hash changes.
 # apt-packages.txt hash: {{ include "../apt-packages.txt" | sha256sum }}
-set -uo pipefail
+set -euo pipefail
 
 sudo install -dm 755 /etc/apt/keyrings
 wget -qO - https://mise.jdx.dev/gpg-key.pub | gpg --dearmor | sudo tee /etc/apt/keyrings/mise-archive-keyring.gpg >/dev/null
 echo "deb [signed-by=/etc/apt/keyrings/mise-archive-keyring.gpg arch=$(dpkg --print-architecture)] https://mise.jdx.dev/deb stable main" | sudo tee /etc/apt/sources.list.d/mise.list >/dev/null
 
 sudo apt-get update
-# Install one package per invocation: a single unavailable package (see note
-# above) must not block every other package in the list.
-xargs -a "{{ .chezmoi.sourceDir }}/../apt-packages.txt" -n1 sudo apt-get install -y
+# Every package here must be genuinely installable -- one apt-get call, so a
+# regression (a package dropped from Ubuntu's repos) fails the whole script
+# instead of silently skipping just that package.
+sudo apt-get install -y $(cat "{{ .chezmoi.sourceDir }}/../apt-packages.txt")
 
-set -e
 command -v proto &>/dev/null || curl -fsSL https://moonrepo.dev/install/proto.sh | bash -s -- --yes < /dev/null
 {{ end -}}

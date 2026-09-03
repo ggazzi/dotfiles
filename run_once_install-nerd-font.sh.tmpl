@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# Installs the FiraCode Nerd Font (patched, icon glyphs).
+# run_once_ + this pinned VERSION: chezmoi re-runs only when VERSION changes.
+set -euo pipefail
+
+VERSION="v3.3.0"
+
+{{ if eq .chezmoi.os "darwin" -}}
+DEST="$HOME/Library/Fonts"
+{{ else -}}
+DEST="$HOME/.local/share/fonts"
+{{ end -}}
+MARKER="$DEST/.firacode-nerd-font-version"
+
+mkdir -p "$DEST"
+
+if [[ -f "$MARKER" && "$(cat "$MARKER")" == "$VERSION" ]]; then
+    exit 0
+fi
+
+TMP="$(mktemp -d)"
+trap 'rm -rf "$TMP"' EXIT
+
+curl -fsSL -o "$TMP/FiraCode.zip" \
+    "https://github.com/ryanoasis/nerd-fonts/releases/download/${VERSION}/FiraCode.zip"
+unzip -oq "$TMP/FiraCode.zip" -d "$DEST" -x "*.txt" "*.md" "LICENSE*"
+
+{{ if ne .chezmoi.os "darwin" -}}
+fc-cache -f "$DEST"
+{{ end -}}
+
+echo "$VERSION" > "$MARKER"

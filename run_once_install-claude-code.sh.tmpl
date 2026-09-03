@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Installs the Claude Code CLI, replacing the nix-built pkgs/common/claude-code derivation.
+set -euo pipefail
+
+if command -v claude &>/dev/null; then
+    exit 0
+fi
+
+npm install -g @anthropic-ai/claude-code

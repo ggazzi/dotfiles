@@ -5,6 +5,7 @@ export PATH="$HOME/.local/libexec/dev-utils:$HOME/.local/bin:$PATH"
 bindkey "^R" history-incremental-search-backward
 
 # Completion tuning
+autoload -Uz compinit && compinit
 unsetopt menu_complete  # do not autoselect the first completion entry
 setopt auto_menu        # show completion menu on successive tab press
 setopt complete_in_word # in-word completion allowed

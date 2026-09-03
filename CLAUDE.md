@@ -11,3 +11,7 @@ Default label vocabulary (`needs-triage`, `needs-info`, `ready-for-agent`, `read
 ### Domain docs
 
 Single-context: `CONTEXT.md` + `docs/adr/` at repo root. See `docs/agents/domain.md`.
+
+### Documented solutions
+
+`docs/solutions/` — documented solutions to past problems (bugs, best practices, workflow patterns), organized by category with YAML frontmatter (`module`, `tags`, `problem_type`). Relevant when implementing or debugging in documented areas.

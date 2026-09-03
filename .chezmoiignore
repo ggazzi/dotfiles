@@ -20,7 +20,9 @@ hosts
 modules
 pkgs
 result
+Brewfile
 Brewfile.lock.json
+apt-packages.txt
 
 {{ if ne .chezmoi.os "darwin" -}}
 .config/alacritty

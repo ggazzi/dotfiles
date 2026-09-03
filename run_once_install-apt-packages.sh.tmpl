@@ -1,0 +1,12 @@
+{{ if eq .chezmoi.os "linux" -}}
+#!/usr/bin/env bash
+# Installs Ubuntu packages listed in apt-packages.txt.
+# Note: git-delta, zellij, starship, lazygit, mise, and proto are not in
+# Ubuntu's default repos on all releases -- add the relevant PPA/third-party
+# apt repo first, or install those via their own release binaries, if
+# `apt-get install` fails for them.
+set -euo pipefail
+
+sudo apt-get update
+xargs -a "{{ .chezmoi.sourceDir }}/apt-packages.txt" sudo apt-get install -y
+{{ end -}}

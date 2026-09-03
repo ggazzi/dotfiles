@@ -1,0 +1,20 @@
+{{ if eq .chezmoi.os "linux" -}}
+#!/usr/bin/env bash
+# Installs Ubuntu packages listed in apt-packages.txt, plus mise and proto,
+# which aren't in Ubuntu's apt repos at all -- installed via their own
+# official scripts instead. chezmoi is also missing from apt, but installed
+# separately via snap (it can't bootstrap itself). zellij is missing too and
+# deliberately unmanaged for now -- see README.
+# run_onchange_: chezmoi re-runs when this hash changes.
+# apt-packages.txt hash: {{ include "../apt-packages.txt" | sha256sum }}
+set -uo pipefail
+
+sudo apt-get update
+# Install one package per invocation: a single unavailable package (see note
+# above) must not block every other package in the list.
+xargs -a "{{ .chezmoi.sourceDir }}/../apt-packages.txt" -n1 sudo apt-get install -y
+
+set -e
+command -v mise &>/dev/null || curl -fsSL https://mise.run | sh
+command -v proto &>/dev/null || curl -fsSL https://moonrepo.dev/install/proto.sh | bash
+{{ end -}}

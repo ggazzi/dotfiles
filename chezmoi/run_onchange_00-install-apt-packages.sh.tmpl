@@ -20,5 +20,13 @@ sudo apt-get update
 # instead of silently skipping just that package.
 sudo apt-get install -y $(cat "{{ .chezmoi.sourceDir }}/../apt-packages.txt")
 
-command -v proto &>/dev/null || curl -fsSL https://moonrepo.dev/install/proto.sh | bash -s -- --yes < /dev/null
+if ! command -v proto &>/dev/null; then
+    # Download first, then run with stdin from /dev/null: piping straight
+    # into `bash` would make any interactive prompt in the script race with
+    # bash still reading the piped script itself.
+    proto_installer="$(mktemp)"
+    curl -fsSL https://moonrepo.dev/install/proto.sh -o "$proto_installer"
+    bash "$proto_installer" < /dev/null
+    rm -f "$proto_installer"
+fi
 {{ end -}}

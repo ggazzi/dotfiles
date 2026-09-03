@@ -1,4 +1,5 @@
 # System-wide core tools
+brew "chezmoi"
 brew "curl"
 brew "git"
 brew "git-lfs"

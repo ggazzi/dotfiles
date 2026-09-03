@@ -9,17 +9,33 @@ Dotfiles for two machines: a macOS laptop and an Ubuntu host. Managed with:
 - **[proto](https://moonrepo.dev/proto)** — per-project toolchain versions inside moonrepo projects only, via their own `.prototools`. Not globally shell-activated (deliberate — see `chezmoi/dot_config/zsh/dot_zshrc.tmpl`, which has no `proto activate` line). `moon` invokes proto internally per-project; the `proto` binary just needs to be on `$PATH`, which the Brewfile/apt lockfile handle.
 - **nixvim** (temporary) — `flake.nix` still builds neovim via a minimal standalone home-manager flake, since `home/gazzi/common/core/nixvim/` hasn't been ported to plain Lua yet. Everything else nix-related has been removed.
 
+## Dependencies
+
+Install manually before bootstrapping — it *is* the package manager, so it
+can't be tracked in the Brewfile it's used to install:
+
+- **Homebrew** (macOS only) — [brew.sh install script](https://brew.sh)
+
 ## Bootstrap
 
-Install packages *before* `chezmoi apply` — the `run_once_` scripts chezmoi
-runs during apply (nerd font, claude-code, apt packages) assume `mise`,
-`git-lfs`, `unzip`, etc. are already on `$PATH`:
+Install system packages first, which includes `chezmoi` itself and anything the `run_once_` scripts need.
+
+- On macOS:
+```sh
+brew bundle --file=Brewfile
+```
+
+- On Ubuntu/Debian:
+```sh
+xargs -a apt-packages.txt -n1 sudo apt-get install -y
+```
+
+Symlink chezmoi's default source dir to wherever this repo is checked out, so
+`init`/`apply`/`edit`/etc. all find it without passing `--source` every time:
 
 ```sh
-brew bundle --file=Brewfile              # macOS only
-# or: xargs -a apt-packages.txt -n1 sudo apt-get install -y   # Ubuntu only
-
-chezmoi init --source .
+ln -s "$(pwd)" ~/.local/share/chezmoi
+chezmoi init
 chezmoi apply
 ```
 

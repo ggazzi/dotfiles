@@ -2,3 +2,5 @@
 *.code-workspace
 .vscode/*
 .direnv
+
+**/.claude/settings.local.json

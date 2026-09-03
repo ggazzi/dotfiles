@@ -2,6 +2,7 @@ export WORKSPACE="$HOME/workspace"
 export PATH="$HOME/.local/libexec/dev-utils:$HOME/.local/bin:$PATH"
 {{ if eq .chezmoi.os "linux" -}}
 export PATH="$HOME/.proto/bin:$PATH"
+export PATH="$PATH:/snap/bin"
 {{ end -}}
 
 # History search

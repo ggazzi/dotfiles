@@ -1,4 +1,3 @@
-chezmoi
 curl
 git
 git-lfs
@@ -13,9 +12,7 @@ jq
 ruby
 unzip
 git-delta
-zellij
 starship
 direnv
 lazygit
-mise
-proto
+zsh

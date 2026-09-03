@@ -5,8 +5,9 @@ Dotfiles for two machines: a macOS laptop and an Ubuntu host. Managed with:
 - **[chezmoi](https://www.chezmoi.io/)** — dotfiles, templated per-OS via `.chezmoi.os`. The chezmoi source root is the `chezmoi/` subdirectory (see `.chezmoiroot`), keeping dotfiles/templates/scripts separate from this repo's own config (`flake.nix`, `lib/`, `home/`, docs, package manifests).
 - **Homebrew (`Brewfile`)** — macOS packages
 - **apt (`apt-packages.txt`)** — Ubuntu packages
-- **[mise](https://mise.jdx.dev/)** — global toolchain versions (Node, etc.)
-- **[proto](https://moonrepo.dev/proto)** — per-project toolchain versions inside moonrepo projects only, via their own `.prototools`. Not globally shell-activated (deliberate — see `chezmoi/dot_config/zsh/dot_zshrc.tmpl`, which has no `proto activate` line). `moon` invokes proto internally per-project; the `proto` binary just needs to be on `$PATH`, which the Brewfile/apt lockfile handle.
+- **[mise](https://mise.jdx.dev/)** — global toolchain versions (Node, etc.). Not in apt/brew repos on all platforms, so it's installed via a `run_once_` script (`mise.run`), not a package manifest.
+- **[proto](https://moonrepo.dev/proto)** — per-project toolchain versions inside moonrepo projects only, via their own `.prototools`. Not globally shell-activated (deliberate — see `chezmoi/dot_config/zsh/dot_zshrc.tmpl`, which has no `proto activate` line). `moon` invokes proto internally per-project; the `proto` binary is installed via a `run_once_` script (moonrepo's official installer), same reasoning as mise.
+- **zellij** — not in Ubuntu's apt repos either; not currently installed by any script. Install manually (`cargo install zellij`, or a release binary from GitHub) if you want it on the Ubuntu machine.
 - **nixvim** (temporary) — `flake.nix` still builds neovim via a minimal standalone home-manager flake, since `home/gazzi/common/core/nixvim/` hasn't been ported to plain Lua yet. Everything else nix-related has been removed.
 
 ## Dependencies
@@ -27,8 +28,10 @@ brew bundle --file=Brewfile
 
 - On Ubuntu/Debian:
 ```sh
+sudo snap install chezmoi --classic
 xargs -a apt-packages.txt -n1 sudo apt-get install -y
 ```
+`chezmoi` isn't in Ubuntu's apt repos, so it's installed via snap instead.
 
 Symlink chezmoi's default source dir to wherever this repo is checked out, so
 `init`/`apply`/`edit`/etc. all find it without passing `--source` every time:

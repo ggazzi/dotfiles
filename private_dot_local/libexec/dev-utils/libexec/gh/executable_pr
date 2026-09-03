@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+#
+# Summary: Open the GitHub page to create a PR for the current branch
+#
+# Usage: {cmd}
+
+set -e
+gh pr create --web

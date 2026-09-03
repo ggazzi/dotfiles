@@ -22,5 +22,15 @@ alias g="git"
 alias ls="ls -G"
 {{ end -}}
 
+_dev_utils_complete() {
+    local root="$HOME/.local/libexec/dev-utils/libexec"
+    if (( CURRENT == 2 )); then
+        compadd -- "${(@f)$(ls "$root")}"
+    elif (( CURRENT == 3 )); then
+        compadd -- "${(@f)$(ls "$root/${words[2]}" 2>/dev/null | grep -v README)}"
+    fi
+}
+compdef _dev_utils_complete dev
+
 eval "$(direnv hook zsh)"
 eval "$(starship init zsh)"

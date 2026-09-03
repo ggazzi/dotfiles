@@ -4,9 +4,9 @@ Dotfiles for two machines: a macOS laptop and an Ubuntu host. Managed with:
 
 - **[chezmoi](https://www.chezmoi.io/)** — dotfiles, templated per-OS via `.chezmoi.os`. The chezmoi source root is the `chezmoi/` subdirectory (see `.chezmoiroot`), keeping dotfiles/templates/scripts separate from this repo's own config (`flake.nix`, `lib/`, `home/`, docs, package manifests).
 - **Homebrew (`Brewfile`)** — macOS packages
-- **apt (`apt-packages.txt`)** — Ubuntu packages
-- **[mise](https://mise.jdx.dev/)** — global toolchain versions (Node, etc.). Not in apt/brew repos on all platforms, so it's installed via a `run_once_` script (`mise.run`), not a package manifest.
-- **[proto](https://moonrepo.dev/proto)** — per-project toolchain versions inside moonrepo projects only, via their own `.prototools`. Not globally shell-activated (deliberate — see `chezmoi/dot_config/zsh/dot_zshrc.tmpl`, which has no `proto activate` line). `moon` invokes proto internally per-project; the `proto` binary is installed via a `run_once_` script (moonrepo's official installer), same reasoning as mise.
+- **apt (`apt-packages.txt`)** — Ubuntu packages. Includes `mise`, whose official apt repo is registered by the install script itself (see below), since Ubuntu's default repos don't have it.
+- **[mise](https://mise.jdx.dev/)** — global toolchain versions (Node, etc.). Installed via its official apt repo (registered by `run_onchange_00-install-apt-packages.sh.tmpl` before running `apt-get`), not the Brewfile-only curl installer.
+- **[proto](https://moonrepo.dev/proto)** — per-project toolchain versions inside moonrepo projects only, via their own `.prototools`. Not globally shell-activated (deliberate — see `chezmoi/dot_config/zsh/dot_zshrc.tmpl`, which has no `proto activate` line). `moon` invokes proto internally per-project; the `proto` binary is installed via `run_onchange_00-install-apt-packages.sh.tmpl` too (moonrepo's official installer script -- it has no apt repo of its own).
 - **zellij** — not in Ubuntu's apt repos either; not currently installed by any script. Install manually (`cargo install zellij`, or a release binary from GitHub) if you want it on the Ubuntu machine.
 - **nixvim** (temporary) — `flake.nix` still builds neovim via a minimal standalone home-manager flake, since `home/gazzi/common/core/nixvim/` hasn't been ported to plain Lua yet. Everything else nix-related has been removed.
 

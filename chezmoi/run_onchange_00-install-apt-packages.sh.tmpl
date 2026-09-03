@@ -1,13 +1,18 @@
 {{ if eq .chezmoi.os "linux" -}}
 #!/usr/bin/env bash
-# Installs Ubuntu packages listed in apt-packages.txt, plus mise and proto,
-# which aren't in Ubuntu's apt repos at all -- installed via their own
-# official scripts instead. chezmoi is also missing from apt, but installed
-# separately via snap (it can't bootstrap itself). zellij is missing too and
-# deliberately unmanaged for now -- see README.
+# Installs Ubuntu packages listed in apt-packages.txt, plus mise (via its
+# official apt repo) and proto (via its official install script -- it has
+# no apt repo of its own). Neither is in Ubuntu's default apt repos.
+# chezmoi is also missing from apt, but installed separately via snap (it
+# can't bootstrap itself). zellij is missing too and deliberately unmanaged
+# for now -- see README.
 # run_onchange_: chezmoi re-runs when this hash changes.
 # apt-packages.txt hash: {{ include "../apt-packages.txt" | sha256sum }}
 set -uo pipefail
+
+sudo install -dm 755 /etc/apt/keyrings
+wget -qO - https://mise.jdx.dev/gpg-key.pub | gpg --dearmor | sudo tee /etc/apt/keyrings/mise-archive-keyring.gpg >/dev/null
+echo "deb [signed-by=/etc/apt/keyrings/mise-archive-keyring.gpg arch=$(dpkg --print-architecture)] https://mise.jdx.dev/deb stable main" | sudo tee /etc/apt/sources.list.d/mise.list >/dev/null
 
 sudo apt-get update
 # Install one package per invocation: a single unavailable package (see note
@@ -15,6 +20,5 @@ sudo apt-get update
 xargs -a "{{ .chezmoi.sourceDir }}/../apt-packages.txt" -n1 sudo apt-get install -y
 
 set -e
-command -v mise &>/dev/null || curl -fsSL https://mise.run | sh
-command -v proto &>/dev/null || curl -fsSL https://moonrepo.dev/install/proto.sh | bash
+command -v proto &>/dev/null || curl -fsSL https://moonrepo.dev/install/proto.sh | bash -s -- --yes < /dev/null
 {{ end -}}

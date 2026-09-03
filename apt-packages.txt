@@ -15,4 +15,5 @@ git-delta
 starship
 direnv
 lazygit
+mise
 zsh

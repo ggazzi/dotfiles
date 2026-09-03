@@ -1,6 +1,6 @@
 [user]
-	name = Guilherme Grochau Azzi
-	email = gazzi@babbel.com
+	name = {{ .userFullName }}
+	email = {{ .email }}
 
 [core]
 	pager = delta
@@ -18,8 +18,11 @@
 [diff]
 	colorMoved = default
 
-[lfs]
-	enable = true
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
 
 [branch]
 	autosetuprebase = always

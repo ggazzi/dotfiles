@@ -11,7 +11,8 @@ set -e
 url="$1"
 
 if [ -z "$url" ]; then
-    dev help start
+    echo "Usage: dev pj start <url>" >&2
+    exit 1
 fi
 
 # Get project name by removing the github.com URL prefix

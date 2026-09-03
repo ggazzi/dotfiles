@@ -11,11 +11,16 @@ Dotfiles for two machines: a macOS laptop and an Ubuntu host. Managed with:
 
 ## Bootstrap
 
+Install packages *before* `chezmoi apply` — the `run_once_` scripts chezmoi
+runs during apply (nerd font, claude-code, apt packages) assume `mise`,
+`git-lfs`, `unzip`, etc. are already on `$PATH`:
+
 ```sh
+brew bundle --file=Brewfile              # macOS only
+# or: xargs -a apt-packages.txt -n1 sudo apt-get install -y   # Ubuntu only
+
 chezmoi init --source .
 chezmoi apply
-brew bundle              # macOS only
-# or: xargs -a apt-packages.txt sudo apt-get install -y   # Ubuntu only
 ```
 
 ## Verification before a real apply

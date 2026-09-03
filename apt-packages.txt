@@ -1,5 +1,6 @@
 curl
 git
+git-lfs
 htop
 openssh-client
 ripgrep
@@ -9,6 +10,7 @@ gh
 fzf
 jq
 ruby
+unzip
 git-delta
 zellij
 starship

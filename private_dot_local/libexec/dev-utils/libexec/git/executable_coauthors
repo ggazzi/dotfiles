@@ -12,11 +12,10 @@ formatCoauthor() {
     jq -r '"--trailer=Co-authored-by: " + .name + " <" + .email + ">"'
 }
 
-declare -A args="($_DEV_ARGS)"
 config=$(cat "$HOME/.config/git/coauthors.json")
 
 trailers=()
-for coauthor in ${args[coauthor]}; do
+for coauthor in "$@"; do
     entry="$(echo "$config" | jq ".[\"$coauthor\"]")"
 
     if [ "$entry" = "null" ]; then

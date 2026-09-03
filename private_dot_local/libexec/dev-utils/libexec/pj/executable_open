@@ -54,10 +54,8 @@ if [ "$1" = "--complete" ]; then
     exit 0
 fi
 
-declare -A args="($_DEV_ARGS)"
-
 # Open specific project if it was given
-if [ -n "${args[project]}" ]; then
+if [ -n "$1" ]; then
     open_project "$1"
 fi
 

@@ -12,9 +12,7 @@ set -e
 
 # TODO: extract the code to cd into existing project
 
-declare -A args="($_DEV_ARGS)"
-
-project="${args[project]}"
+project="$1"
 
 # Change into project directory
 if [ -n "$project" ]; then

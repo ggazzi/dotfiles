@@ -1,29 +1,30 @@
-# System-wide core tools (hosts/common/core/default.nix)
+# System-wide core tools
 brew "curl"
 brew "git"
+brew "git-lfs"
 brew "htop"
 brew "openssh"
 brew "ripgrep"
 brew "vim"
 brew "wget"
 
-# dev-utils runtime deps (home/gazzi/common/core/dev.nix, git/default.nix)
+# dev-utils runtime deps
 brew "gh"
 brew "fzf"
 brew "jq"
 brew "ruby"
 
-# shell/terminal tooling (home/gazzi/common/core/{zsh,zellij}/default.nix)
+# shell/terminal tooling
 brew "git-delta"
 brew "zellij"
 brew "starship"
 brew "direnv"
 brew "lazygit"
 
-# terminal emulator + font (home/gazzi/common/core/darwin/alacritty/default.nix)
+# terminal emulator + font
 cask "alacritty"
 
-# editor (home/gazzi/common/optional/zed/default.nix)
+# editor
 cask "zed"
 
 # toolchain managers (R6, R7)

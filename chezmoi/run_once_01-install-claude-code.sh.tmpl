@@ -9,5 +9,10 @@ if command -v claude &>/dev/null; then
     exit 0
 fi
 
+{{ if eq .chezmoi.os "linux" -}}
+# mise is brew-installed by run_onchange_00-install-packages.sh.tmpl, which
+# runs first, but this script's own process never sources .zshrc's shellenv.
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+{{ end -}}
 mise install
 mise exec -- npm install -g @anthropic-ai/claude-code

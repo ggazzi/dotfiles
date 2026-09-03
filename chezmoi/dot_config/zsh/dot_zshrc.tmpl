@@ -1,5 +1,8 @@
 export WORKSPACE="$HOME/workspace"
 export PATH="$HOME/.local/libexec/dev-utils:$HOME/.local/bin:$PATH"
+{{ if eq .chezmoi.os "linux" -}}
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+{{ end -}}
 
 # History search
 bindkey "^R" history-incremental-search-backward

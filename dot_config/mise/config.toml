@@ -1,0 +1,4 @@
+# Global toolchain versions (R6). mise falls back to the asdf plugin
+# ecosystem for any tool without a native mise backend.
+[tools]
+node = "lts"

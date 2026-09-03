@@ -21,12 +21,13 @@ sudo apt-get update
 sudo apt-get install -y $(cat "{{ .chezmoi.sourceDir }}/../apt-packages.txt")
 
 if ! command -v proto &>/dev/null; then
-    # Download first, then run with stdin from /dev/null: piping straight
-    # into `bash` would make any interactive prompt in the script race with
-    # bash still reading the piped script itself.
+    # Download first rather than curl|bash: the installer forwards trailing
+    # args to `proto setup`, and --yes/--no-modify-profile need to reach it.
+    # --no-modify-profile also matches R7/R8 (proto isn't globally
+    # shell-activated -- see README).
     proto_installer="$(mktemp)"
     curl -fsSL https://moonrepo.dev/install/proto.sh -o "$proto_installer"
-    bash "$proto_installer" < /dev/null
+    bash "$proto_installer" --yes --no-modify-profile
     rm -f "$proto_installer"
 fi
 {{ end -}}

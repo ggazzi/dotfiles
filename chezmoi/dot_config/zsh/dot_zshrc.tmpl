@@ -1,5 +1,8 @@
 export WORKSPACE="$HOME/workspace"
 export PATH="$HOME/.local/libexec/dev-utils:$HOME/.local/bin:$PATH"
+{{ if eq .chezmoi.os "linux" -}}
+export PATH="$HOME/.proto/bin:$PATH"
+{{ end -}}
 
 # History search
 bindkey "^R" history-incremental-search-backward

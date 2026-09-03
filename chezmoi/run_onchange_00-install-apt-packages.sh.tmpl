@@ -1,11 +1,9 @@
 {{ if eq .chezmoi.os "linux" -}}
 #!/usr/bin/env bash
-# Installs Ubuntu packages listed in apt-packages.txt, plus mise (via its
-# official apt repo) and proto (via its official install script -- it has
-# no apt repo of its own). Neither is in Ubuntu's default apt repos.
-# chezmoi is also missing from apt, but installed separately via snap (it
-# can't bootstrap itself). zellij is missing too and deliberately unmanaged
-# for now -- see README.
+# Installs Ubuntu packages listed in apt-packages.txt, plus mise via its
+# official apt repo (not in Ubuntu's default repos). chezmoi is also missing
+# from apt, but installed separately via snap (it can't bootstrap itself).
+# zellij is missing too and deliberately unmanaged for now -- see README.
 # run_onchange_: chezmoi re-runs when this hash changes.
 # apt-packages.txt hash: {{ include "../apt-packages.txt" | sha256sum }}
 set -euo pipefail
@@ -19,15 +17,4 @@ sudo apt-get update
 # regression (a package dropped from Ubuntu's repos) fails the whole script
 # instead of silently skipping just that package.
 sudo apt-get install -y $(cat "{{ .chezmoi.sourceDir }}/../apt-packages.txt")
-
-if ! command -v proto &>/dev/null; then
-    # Download first rather than curl|bash: the installer forwards trailing
-    # args to `proto setup`, and --yes/--no-modify-profile need to reach it.
-    # --no-modify-profile also matches R7/R8 (proto isn't globally
-    # shell-activated -- see README).
-    proto_installer="$(mktemp)"
-    curl -fsSL https://moonrepo.dev/install/proto.sh -o "$proto_installer"
-    bash "$proto_installer" --yes --no-modify-profile
-    rm -f "$proto_installer"
-fi
 {{ end -}}

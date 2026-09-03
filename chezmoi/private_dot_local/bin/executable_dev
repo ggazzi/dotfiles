@@ -1,25 +1,9 @@
 #!/usr/bin/env bash
-# Minimal replacement for the "sub" dispatcher (github.com/juanibiapina/sub):
-# `dev <namespace> <command> [args...]` execs libexec/<namespace>/<command>.
+# Dispatches to dev-utils/libexec/<namespace>/<command> via sub
+# (github.com/juanibiapina/sub), installed by run_once_install-sub.sh.tmpl.
 set -euo pipefail
 
 _DEV_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../libexec/dev-utils" && pwd)"
 export _DEV_ROOT
 
-namespace="${1:-}"
-command="${2:-}"
-
-if [[ -z "$namespace" || -z "$command" ]]; then
-    echo "usage: dev <namespace> <command> [args...]" >&2
-    echo "namespaces:" >&2
-    ls "$_DEV_ROOT/libexec" >&2
-    exit 1
-fi
-
-script="$_DEV_ROOT/libexec/$namespace/$command"
-if [[ ! -x "$script" ]]; then
-    echo "dev: no such command '$namespace $command'" >&2
-    exit 1
-fi
-
-exec "$script" "${@:3}"
+exec sub --name dev --absolute "$_DEV_ROOT" -- "$@"

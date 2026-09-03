@@ -1,81 +1,38 @@
-# Gui's Nix Configs
+# Gui's Dotfiles
 
-These are my nix configurations.
-If you're not me and are reading this, it might be useful, but I have no public ambitions with this repo.
+Dotfiles for two machines: a macOS laptop and an Ubuntu host. Managed with:
 
-This is heavily based on [EmergentMind's Nix Configs](https://github.com/EmergentMind/nix-config).
+- **[chezmoi](https://www.chezmoi.io/)** — dotfiles, templated per-OS via `.chezmoi.os`
+- **Homebrew (`Brewfile`)** — macOS packages
+- **apt (`apt-packages.txt`)** — Ubuntu packages
+- **[mise](https://mise.jdx.dev/)** — global toolchain versions (Node, etc.)
+- **[proto](https://moonrepo.dev/proto)** — per-project toolchain versions inside moonrepo projects only, via their own `.prototools`. Not globally shell-activated (deliberate — see `dot_config/zsh/dot_zshrc.tmpl`, which has no `proto activate` line). `moon` invokes proto internally per-project; the `proto` binary just needs to be on `$PATH`, which the Brewfile/apt lockfile handle.
+- **nixvim** (temporary) — `flake.nix` still builds neovim via a minimal standalone home-manager flake, since `home/gazzi/common/core/nixvim/` hasn't been ported to plain Lua yet. Everything else nix-related has been removed.
 
-## Workflows
+## Bootstrap
 
-This repository includes a `justfile` with convenient commands that work on both Darwin and NixOS:
+```sh
+chezmoi init --source .
+chezmoi apply
+brew bundle              # macOS only
+# or: xargs -a apt-packages.txt sudo apt-get install -y   # Ubuntu only
+```
 
-- Build configuration without applying (test your changes):
+## Verification before a real apply
+
+Two checks, per the plan's R14:
+
+1. **Native host dry-run** — exercises the machine's real OS branch end-to-end, including `run_once_` script pending-state:
     ```sh
-    just build
+    chezmoi apply --dry-run --verbose
     ```
 
-- Build and apply configuration to current host:
+2. **Other host's template branch** — chezmoi only exercises the OS it's actually running on, so review the other host's rendering as text via a fabricated `.chezmoi.os` override (no second physical machine needed):
     ```sh
-    just apply
+    chezmoi execute-template --source . --dry-run --override-data='{"chezmoi":{"os":"linux"}}' < some/template.tmpl
+    # or, for the whole tree:
+    chezmoi apply --dry-run --verbose --override-data='{"chezmoi":{"os":"linux"}}' --destination /tmp/chezmoi-preview
     ```
+    (Swap `"linux"` for `"darwin"` when checking from the Ubuntu machine.)
 
-- Update all flake dependencies, test them, and commit flake.lock:
-    ```sh
-    just update
-    ```
-
-- Quick sync: update dependencies and apply in one go:
-    ```sh
-    just update apply
-    ```
-
-The `just` commands automatically:
-- Detect your platform (Darwin/NixOS) and hostname
-- Use the correct rebuild command for your system
-- Handle `sudo` requirements with clear warnings
-
-The home-manager configuration gets built and applied together with the nix-darwin configuration.
-
-## Automatic Updates
-
-This configuration includes automatic updates that run weekly on all hosts:
-
-- **What it does**: Updates flake dependencies, validates the configuration, and applies changes automatically
-- **Schedule**: Runs weekly according to a schedule (or on the next system startup, if the system is off during the scheduled time)
-- **Platforms**: Works on both Darwin (using launchd) and NixOS (using systemd)
-
-The auto-update schedule is configured in [`hosts/common/core/default.nix`](hosts/common/core/default.nix):
-
-### Monitoring
-
-**On Darwin (macOS):**
-- Check if service is loaded:
-    ```sh
-    sudo launchctl list | grep dotfiles-auto-update
-    ```
-
-- View output logs:
-    ```sh
-    sudo tail -f /var/log/dotfiles-update.log
-    ```
-
-- View error logs:
-    ```sh
-    sudo tail -f /var/log/dotfiles-update-error.log
-    ```
-
-**On NixOS:**
-- Check service status:
-    ```sh
-    systemctl status dotfiles-auto-update.service
-    ```
-
-- Check timer status and next run:
-    ```sh
-    systemctl list-timers dotfiles-auto-update.timer
-    ```
-
-- View logs:
-    ```sh
-    journalctl -u dotfiles-auto-update.service
-    ```
+Both should show only the expected file creates/`run_once_` scripts for the target OS, with no template errors, before running a real `chezmoi apply` against either live machine.

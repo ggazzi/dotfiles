@@ -23,6 +23,9 @@ brew "lazygit"
 # terminal emulator + font (home/gazzi/common/core/darwin/alacritty/default.nix)
 cask "alacritty"
 
+# editor (home/gazzi/common/optional/zed/default.nix)
+cask "zed"
+
 # toolchain managers (R6, R7)
 brew "mise"
 brew "proto"

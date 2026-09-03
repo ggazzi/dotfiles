@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Installs mise (global toolchain version manager). Not in apt/brew repos on
+# all platforms, so it's installed via its official script instead.
+# Numbered before other run_once_ scripts that shell out to `mise`.
+set -euo pipefail
+
+if command -v mise &>/dev/null; then
+    exit 0
+fi
+
+curl -fsSL https://mise.run | sh

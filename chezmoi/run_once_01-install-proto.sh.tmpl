@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# Installs proto (per-project moonrepo toolchain manager). Not in apt/brew
+# repos on all platforms, so it's installed via its official script instead.
+# Not globally shell-activated -- see dot_zshrc.tmpl, which has no
+# `proto activate` line; moon invokes proto internally per-project.
+set -euo pipefail
+
+if command -v proto &>/dev/null; then
+    exit 0
+fi
+
+curl -fsSL https://moonrepo.dev/install/proto.sh | bash

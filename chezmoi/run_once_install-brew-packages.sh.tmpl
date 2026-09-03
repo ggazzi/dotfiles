@@ -1,0 +1,7 @@
+{{ if eq .chezmoi.os "darwin" -}}
+#!/usr/bin/env bash
+# Installs macOS packages listed in Brewfile.
+set -euo pipefail
+
+brew bundle --file="{{ .chezmoi.sourceDir }}/../Brewfile"
+{{ end -}}

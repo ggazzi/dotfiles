@@ -5,6 +5,8 @@
 # Ubuntu's default repos on all releases -- add the relevant PPA/third-party
 # apt repo first, or install those via their own release binaries, if
 # `apt-get install` fails for them.
+# run_onchange_: chezmoi re-runs when this hash changes.
+# apt-packages.txt hash: {{ include "../apt-packages.txt" | sha256sum }}
 set -uo pipefail
 
 sudo apt-get update

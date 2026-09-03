@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Restores global agent skills (~/.agents/skills) from the lockfile.
+# `skills experimental_install` only restores project-scoped lockfiles, so
+# for the global scope this re-adds every skill from each source repo the
+# lockfile references (coarser than the lockfile's per-skill pins, but the
+# CLI has no exact global restore).
+# run_onchange_: chezmoi re-runs when this hash changes. Hashes the set of
+# source repos rather than the whole lockfile, since `skills add` bumps
+# updatedAt on every run and a raw-file hash would never settle.
+# source repos hash: {{- $data := include "dot_agents/dot_skill-lock.json" | fromJson -}}
+{{- $sources := list -}}
+{{- range $k, $v := $data.skills -}}{{ $sources = append $sources $v.source }}{{- end }}
+# {{ $sources | uniq | sortAlpha | join "," | sha256sum }}
+set -euo pipefail
+
+mise exec -- npx --yes skills --help >/dev/null
+
+jq -r '.skills[].source' ~/.agents/.skill-lock.json | sort -u | while read -r source; do
+    mise exec -- npx --yes skills add "$source" -g --all -y
+done

@@ -1,0 +1,21 @@
+#!/bin/sh
+# Merges tracked keys into ~/.claude/settings.json without clobbering
+# machine-local state (enabledPlugins, extraKnownMarketplaces, autoMode)
+# that Claude Code itself writes to this file.
+set -eu
+
+current=$(cat)
+if [ -z "$current" ]; then
+  current='{}'
+fi
+
+echo "$current" | jq '
+  .hooks.PreToolUse = (.hooks.PreToolUse // []) |
+  .statusLine = {
+    "type": "command",
+    "command": "sh ~/.claude/statusline-command.sh"
+  } |
+  .effortLevel = "medium" |
+  .tui = "fullscreen" |
+  .agentPushNotifEnabled = true
+'

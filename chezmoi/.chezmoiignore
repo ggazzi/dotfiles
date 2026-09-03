@@ -1,7 +1,3 @@
-Brewfile
-Brewfile.lock.json
-apt-packages.txt
-
 {{ if ne .chezmoi.os "darwin" -}}
 .config/alacritty
 {{ end -}}

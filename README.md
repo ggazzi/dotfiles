@@ -2,9 +2,9 @@
 
 Dotfiles for two machines: a macOS laptop and an Ubuntu host. Managed with:
 
-- **[chezmoi](https://www.chezmoi.io/)** — dotfiles, templated per-OS via `.chezmoi.os`. The chezmoi source root is the `chezmoi/` subdirectory (see `.chezmoiroot`), keeping dotfiles/templates/scripts separate from this repo's own config (`flake.nix`, `lib/`, `home/`, docs).
-- **Homebrew (`chezmoi/Brewfile`)** — macOS packages
-- **apt (`chezmoi/apt-packages.txt`)** — Ubuntu packages
+- **[chezmoi](https://www.chezmoi.io/)** — dotfiles, templated per-OS via `.chezmoi.os`. The chezmoi source root is the `chezmoi/` subdirectory (see `.chezmoiroot`), keeping dotfiles/templates/scripts separate from this repo's own config (`flake.nix`, `lib/`, `home/`, docs, package manifests).
+- **Homebrew (`Brewfile`)** — macOS packages
+- **apt (`apt-packages.txt`)** — Ubuntu packages
 - **[mise](https://mise.jdx.dev/)** — global toolchain versions (Node, etc.)
 - **[proto](https://moonrepo.dev/proto)** — per-project toolchain versions inside moonrepo projects only, via their own `.prototools`. Not globally shell-activated (deliberate — see `chezmoi/dot_config/zsh/dot_zshrc.tmpl`, which has no `proto activate` line). `moon` invokes proto internally per-project; the `proto` binary just needs to be on `$PATH`, which the Brewfile/apt lockfile handle.
 - **nixvim** (temporary) — `flake.nix` still builds neovim via a minimal standalone home-manager flake, since `home/gazzi/common/core/nixvim/` hasn't been ported to plain Lua yet. Everything else nix-related has been removed.
@@ -16,8 +16,8 @@ runs during apply (nerd font, claude-code, apt packages) assume `mise`,
 `git-lfs`, `unzip`, etc. are already on `$PATH`:
 
 ```sh
-brew bundle --file=chezmoi/Brewfile              # macOS only
-# or: xargs -a chezmoi/apt-packages.txt -n1 sudo apt-get install -y   # Ubuntu only
+brew bundle --file=Brewfile              # macOS only
+# or: xargs -a apt-packages.txt -n1 sudo apt-get install -y   # Ubuntu only
 
 chezmoi init --source .
 chezmoi apply

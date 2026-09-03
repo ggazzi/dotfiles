@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# Installs sub (github.com/juanibiapina/sub), the dispatcher the `dev`
+# command uses to route to dev-utils/libexec/<namespace>/<command>. No apt
+# repo or brew formula, so pull the prebuilt binary from GitHub releases.
+set -euo pipefail
+
+if command -v sub &>/dev/null; then
+    exit 0
+fi
+
+version="v2.3.1"
+target="{{ if eq .chezmoi.os "darwin" }}aarch64-apple-darwin{{ else }}x86_64-unknown-linux-gnu{{ end }}"
+url="https://github.com/juanibiapina/sub/releases/download/${version}/sub-${version}-${target}.tar.gz"
+
+tmpdir="$(mktemp -d)"
+trap 'rm -rf "$tmpdir"' EXIT
+
+curl -fsSL "$url" -o "$tmpdir/sub.tar.gz"
+tar -xzf "$tmpdir/sub.tar.gz" -C "$tmpdir"
+
+mkdir -p "$HOME/.local/bin"
+install -m 755 "$tmpdir/sub" "$HOME/.local/bin/sub"

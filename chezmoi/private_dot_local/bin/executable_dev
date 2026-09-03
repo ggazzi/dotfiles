@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Dispatches to dev-utils/libexec/<namespace>/<command> via sub
+# (github.com/juanibiapina/sub), installed by run_once_install-sub.sh.tmpl.
+set -euo pipefail
+
+_DEV_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../libexec/dev-utils" && pwd)"
+export _DEV_ROOT
+
+exec sub --name dev --absolute "$_DEV_ROOT" -- "$@"

@@ -1,0 +1,21 @@
+{{ if eq .chezmoi.os "linux" -}}
+#!/usr/bin/env bash
+# Installs proto (moonrepo toolchain manager) on Linux via its official
+# install script -- it has no apt repo of its own. macOS gets it from the
+# Brewfile instead.
+set -euo pipefail
+
+if command -v proto &>/dev/null; then
+    exit 0
+fi
+
+# Download first rather than curl|bash: the installer forwards trailing
+# args to `proto setup`, and --yes/--no-modify-profile need to reach it.
+# --no-modify-profile also matches R7/R8 (proto isn't globally
+# shell-activated -- see README); ~/.proto/bin is added to $PATH directly
+# by dot_zshrc.tmpl instead.
+proto_installer="$(mktemp)"
+curl -fsSL https://moonrepo.dev/install/proto.sh -o "$proto_installer"
+bash "$proto_installer" --yes --no-modify-profile
+rm -f "$proto_installer"
+{{ end -}}

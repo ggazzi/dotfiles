@@ -1,0 +1,9 @@
+{{ if eq .chezmoi.os "darwin" -}}
+#!/usr/bin/env bash
+# Installs macOS packages listed in Brewfile.
+# run_onchange_: chezmoi re-runs when this hash changes.
+# Brewfile hash: {{ include "../Brewfile" | sha256sum }}
+set -euo pipefail
+
+brew bundle --file="{{ .chezmoi.sourceDir }}/../Brewfile"
+{{ end -}}

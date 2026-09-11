@@ -17,5 +17,11 @@
         "mode": "dark",
         "light": "One Light",
         "dark": "Catppuccin Mocha"
+    },
+    "auto_install_extensions": {
+        "catppuccin": true,
+        "toml": true,
+        "html": true,
+        "git-firefly": true
     }
 }

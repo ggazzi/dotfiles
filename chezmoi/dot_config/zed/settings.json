@@ -8,6 +8,21 @@
 // from the command palette or from `Zed` application menu.
 {
     "vim_mode": true,
+    "agent_servers": {
+        "claude-acp": {
+            "default_config_options": {
+                "model": "sonnet",
+                "mode": "auto"
+            },
+            "type": "registry"
+        }
+    },
+    // Show matching bindings while a multi-stroke binding is pending
+    // (Zed's built-in equivalent of which-key.nvim).
+    "which_key": {
+        "enabled": true,
+        "delay_ms": 0
+    },
     "ui_font_size": 14,
     "buffer_font_family": "FiraCode Nerd Font Mono",
     "buffer_font_size": 12,

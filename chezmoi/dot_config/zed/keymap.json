@@ -1,11 +1,253 @@
+// Zed keymap — vim mode, mirroring the nixvim config in
+// home/gazzi/common/core/nixvim/.
+//
+// Conventions:
+//   - "space" is the leader key (Zed has no leader concept; it is a literal key
+//     in a multi-key sequence).
+//   - "g" is reserved for *going* somewhere. Motions that come in pairs use
+//     "g n <x>" (next) and "g p <x>" (previous). Everything that acts on the
+//     code rather than moving the cursor lives under a leader group.
+//   - Zed waits 1s whenever a typed sequence is a strict prefix of a longer
+//     binding. The prefix form above parks that delay on "g n"/"g p", which are
+//     never pressed alone, keeping "g d"/"g t"/"g r" instant.
+//
+// Leader groups:
+//   space a   agent / threads      space c   coding actions
+//   space f   find (pickers)       space l   folding
+//   space m   comments             space k   hover
+//
+// "alt-w" (panes/panels/docks) and "alt-b" (tabs) are NOT under the "space"
+// leader — they use "alt" as their own leader instead, so the exact same
+// chord also works in Terminal and in panels, where "space" must stay a
+// literal space. See the "alt-w / alt-b" block below for why.
+//
 // Zed keymap -- kept equivalent to ~/.config/Code/User/keybindings.json.
 [
+    // ------------------------------------------------------------------
+    // Remove Zed defaults that clash with the conventions above.
+    // ------------------------------------------------------------------
     {
-        "context": "Pane",
+        "context": "VimControl && !menu",
         "bindings": {
-            "ctrl-t h": "pane::GoBack",
-            "ctrl-t l": "pane::GoForward",
-            "ctrl-t Q": "pane::CloseInactiveItems"
+            // "g" is for going: rename / code actions move to "space c".
+            "g r n": null,
+            "g r r": null,
+            "g r i": null,
+            "g r a": null,
+            "g .": null,
+            // Symbol pickers live under "space f" instead.
+            "g s": null,
+            "g shift-s": null,
+            // Type definition moves to "g t"; drop the duplicate.
+            "g y": null,
+            // Multicursor: unused.
+            "g shift-l": null,
+            "g a": null,
+            "g >": null,
+            "g <": null
+        }
+    },
+    {
+        // Comments move to "space m" (normal-mode operators).
+        "context": "vim_mode == normal",
+        "bindings": {
+            "g c": null,
+            "g b": null
+        }
+    },
+    {
+        // Comments move to "space m" (visual mode).
+        "context": "vim_mode == visual",
+        "bindings": {
+            "g c": null,
+            "g b": null
+        }
+    },
+
+    // ------------------------------------------------------------------
+    // Motions. Bound in VimControl so they compose with operators
+    // ("d g l") and work in visual mode.
+    // ------------------------------------------------------------------
+    {
+        "context": "VimControl && !menu",
+        "bindings": {
+            // Line / document motions (nixvim parity).
+            "g h": "vim::FirstNonWhitespace", // start of line
+            "g l": "vim::EndOfLine", // end of line
+            "g e": "vim::EndOfDocument", // last line (replaces word-end motion)
+
+            // LSP navigation. "g d" / "g shift-d" / "g shift-i" are Zed defaults.
+            "g t": "editor::GoToTypeDefinition",
+            "g r": "editor::FindAllReferences",
+
+            // Go to next / previous ...
+            "g n d": "editor::GoToDiagnostic",
+            "g p d": "editor::GoToPreviousDiagnostic",
+            "g n h": "editor::GoToHunk",
+            "g p h": "editor::GoToPreviousHunk",
+            "g n r": "vim::GoToNextReference",
+            "g p r": "vim::GoToPreviousReference",
+            "g n f": "vim::NextMethodStart",
+            "g p f": "vim::PreviousMethodStart",
+            "g n c": "vim::NextComment",
+            "g p c": "vim::PreviousComment",
+            "g n s": "vim::NextSectionStart",
+            "g p s": "vim::PreviousSectionStart",
+            "g n i": "vim::NextSameIndent",
+            "g p i": "vim::PreviousSameIndent",
+
+            // Grow / shrink the syntax-node selection (nixvim's gnn/gnN).
+            "g n n": "editor::SelectLargerSyntaxNode",
+            "g n m": "editor::SelectSmallerSyntaxNode"
+        }
+    },
+
+    // ------------------------------------------------------------------
+    // Leader bindings.
+    //
+    // Deliberately NOT bound in VimControl: that includes operator-pending
+    // mode, where "space" must stay a motion (d<space> deletes a character).
+    // ------------------------------------------------------------------
+    {
+        "context": "(vim_mode == normal || vim_mode == visual) && !menu",
+        "bindings": {
+            "space k": "editor::Hover",
+
+            // --- space a: agent panel and threads ---
+            "space a a": "agent::ToggleFocus",
+            "space a n": "agent::NewThread",
+            "space a h": "agents_sidebar::ToggleThreadHistory",
+            "space a t": "agents_sidebar::ToggleThreadSwitcher",
+            "space a d": "agent::OpenAgentDiff",
+            "space a i": "assistant::InlineAssist",
+
+            // --- space c: coding actions ---
+            "space c a": "editor::ToggleCodeActions",
+            "space c r": "editor::Rename",
+            "space c shift-f": "editor::Format",
+            "space c shift-k": "editor::ShowSignatureHelp",
+            "space c i": "editor::ToggleInlayHints",
+            "space c o": "editor::OrganizeImports",
+            "space c t": "task::Spawn",
+
+            // --- space f: pickers ---
+            "space f f": "file_finder::Toggle",
+            "space f b": "tab_switcher::ToggleAll",
+            "space f c": "command_palette::Toggle",
+            "space f g": "pane::DeploySearch", // project-wide search
+            "space f d": "diagnostics::Deploy",
+            "space f s": "outline::Toggle", // document symbols
+            "space f shift-s": "project_symbols::Toggle",
+            "space f /": "buffer_search::Deploy",
+            "space f m": "zed::OpenKeymap",
+            "space f p": "projects::OpenRecent",
+            "space f r": "git::Branch", // branch selector
+            "space f t": "git::Worktree", // worktree selector
+
+            // --- space l: folding ---
+            // Zed has no equivalent of zm/zr/zi/zv/zx, so those nixvim
+            // bindings have no counterpart here.
+            "space l o": "editor::UnfoldLines",
+            "space l shift-o": "editor::UnfoldRecursive",
+            "space l c": "editor::Fold",
+            "space l shift-c": "editor::FoldRecursive",
+            "space l f": "editor::ToggleFold",
+            "space l shift-f": "editor::ToggleFoldRecursive",
+            "space l shift-m": "editor::FoldAll",
+            "space l shift-l": "editor::UnfoldAll",
+
+            // --- space m: comments ---
+            // Act on the current line in normal mode, on the selection in
+            // visual mode.
+            "space m l": "editor::ToggleComments",
+            "space m b": "editor::ToggleBlockComments"
+        }
+    },
+
+    // ------------------------------------------------------------------
+    // Panels.
+    //
+    // Each of these panels binds bare "space" by default, which would make
+    // every "space X ..." sequence wait 1s for disambiguation. Those actions
+    // move to plain letters instead — panels have no bare-letter bindings.
+    // ------------------------------------------------------------------
+    {
+        "context": "ProjectPanel && not_editing",
+        "bindings": {
+            "space": null,
+            "o": "project_panel::Open"
+        }
+    },
+    {
+        "context": "OutlinePanel && not_editing",
+        "bindings": {
+            "space": null,
+            "o": "outline_panel::OpenSelectedEntry"
+        }
+    },
+    {
+        "context": "GitPanel && ChangesList && !GitBranchSelector && !GitRepositorySelector",
+        "bindings": {
+            "space": null,
+            "shift-space": null,
+            "s": "git::ToggleStaged",
+            "shift-s": "git::StageRange"
+        }
+    },
+
+    // ------------------------------------------------------------------
+    // alt-w / alt-b: panes/panels/docks and tabs.
+    //
+    // These two groups need to work in Terminal too, where "space" can't be
+    // a leader — it has to reach the shell as a literal space. "alt" isn't
+    // claimed by anything here: this shell runs zsh in vi mode, so none of
+    // readline's emacs-mode alt-bindings (alt-b/alt-f word motion, etc.) are
+    // active. One chord, identical everywhere: vim normal/visual, panels,
+    // and Terminal.
+    // ------------------------------------------------------------------
+    {
+        "context": "(vim_mode == normal) || (vim_mode == visual) || Terminal || (ProjectPanel && not_editing) || (OutlinePanel && not_editing) || (GitPanel && !CommitEditor)",
+        "bindings": {
+            // --- alt-w: panes (nixvim's window group) ---
+            "alt-w s": "pane::SplitDown", // :split
+            "alt-w v": "pane::SplitRight", // :vsplit
+            "alt-w h": "workspace::ActivatePaneLeft",
+            "alt-w j": "workspace::ActivatePaneDown",
+            "alt-w k": "workspace::ActivatePaneUp",
+            "alt-w l": "workspace::ActivatePaneRight",
+            "alt-w shift-h": "workspace::MovePaneLeft",
+            "alt-w shift-j": "workspace::MovePaneDown",
+            "alt-w shift-k": "workspace::MovePaneUp",
+            "alt-w shift-l": "workspace::MovePaneRight",
+            "alt-w p": "workspace::ActivatePreviousPane",
+            "alt-w q": "pane::CloseAllItems", // closes the pane
+            "alt-w =": "vim::ResetPaneSizes",
+            "alt-w -": "vim::ResizePaneDown",
+            "alt-w +": "vim::ResizePaneUp",
+            "alt-w <": "vim::ResizePaneLeft",
+            "alt-w >": "vim::ResizePaneRight",
+            "alt-w _": "vim::MaximizePane",
+
+            // --- alt-w: panels ---
+            // The left dock holds one panel at a time, so wt/wg/wo swap it.
+            "alt-w t": "project_panel::ToggleFocus",
+            "alt-w g": "git_panel::ToggleFocus",
+            "alt-w o": "outline_panel::ToggleFocus",
+            "alt-w shift-t": "terminal_panel::Toggle",
+
+            // --- alt-w: docks (show/hide, keeping the current panel) ---
+            "alt-w [": "workspace::ToggleLeftDock",
+            "alt-w ]": "workspace::ToggleRightDock",
+            "alt-w \\": "workspace::ToggleBottomDock",
+
+            // --- alt-b: tabs (the buffer analogue) ---
+            "alt-b h": "pane::ActivatePreviousItem",
+            "alt-b l": "pane::ActivateNextItem",
+            "alt-b q": "pane::CloseActiveItem",
+            "alt-b o": "pane::CloseOtherItems",
+            "alt-b a": "pane::AlternateFile", // last used tab (:b#)
+            "alt-b c": "workspace::CopyRelativePath",
+            "alt-b shift-c": "workspace::CopyPath"
         }
     }
 ]

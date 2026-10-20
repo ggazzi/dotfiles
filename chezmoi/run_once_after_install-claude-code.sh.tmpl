@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Installs the Claude Code CLI, replacing the nix-built pkgs/common/claude-code derivation.
+# run_once_after_: its download is slow, so it runs after all other scripts.
 {{ if not .devcontainer -}}
 # Uses `mise exec` rather than a bare `npm` call: run_once_ scripts run
 # non-interactively and never source .zshrc's `mise activate` line, so npm

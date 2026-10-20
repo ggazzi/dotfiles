@@ -12,6 +12,9 @@
     // has no bundled equivalent and is unused while the mode is pinned to dark.
     "window.autoDetectColorScheme": false,
     "workbench.colorTheme": "Catppuccin Mocha",
+    // Linux also covers Devcontainers; Windows has no native zsh.
+    "terminal.integrated.defaultProfile.linux": "zsh",
+    "terminal.integrated.defaultProfile.osx": "zsh",
     // No Zed equivalent: VS Code-only features.
     "terminal.integrated.initialHint": false,
     "claudeCode.preferredLocation": "panel",

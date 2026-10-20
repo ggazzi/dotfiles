@@ -11,6 +11,7 @@
     "ui_font_size": 14,
     "buffer_font_size": 12,
     "soft_wrap": "editor_width",
+    "terminal": { "shell": { "program": "zsh" } },
     "theme": {
         "mode": "dark",
         "light": "One Light",

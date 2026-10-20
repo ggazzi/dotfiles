@@ -1,3 +1,4 @@
+// Zed keymap -- kept equivalent to ~/.config/Code/User/keybindings.json.
 [
     {
         "context": "Pane",

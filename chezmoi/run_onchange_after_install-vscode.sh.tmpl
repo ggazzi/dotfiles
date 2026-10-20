@@ -1,0 +1,33 @@
+{{ if not .devcontainer -}}
+{{- $wsl := and (eq .chezmoi.os "linux") (contains "microsoft" (lower .chezmoi.kernel.osrelease)) -}}
+#!/usr/bin/env bash
+# Installs VS Code extensions; on Windows + WSL also copies the settings into
+# the Windows profile (Windows can't follow symlinks into the WSL filesystem).
+# run_onchange_: chezmoi re-runs when this hash changes.
+# settings hash: {{ include "dot_config/Code/User/settings.json" | sha256sum }}
+# keybindings hash: {{ include "dot_config/Code/User/keybindings.json" | sha256sum }}
+set -euo pipefail
+
+EXTENSIONS=(vscodevim.vim Catppuccin.catppuccin-vsc)
+
+{{ if $wsl -}}
+# Run Windows binaries from a Windows dir, else cmd.exe warns about UNC paths.
+cd /mnt/c
+dest="$(wslpath "$(cmd.exe /c 'echo %APPDATA%' 2>/dev/null | tr -d '\r')")/Code/User"
+echo "==> dotfiles: copying VS Code settings to $dest"
+mkdir -p "$dest"
+cp ~/.config/Code/User/settings.json ~/.config/Code/User/keybindings.json "$dest/"
+# `code` inside WSL targets the WSL remote server; use the Windows CLI.
+code() { cmd.exe /c code "$@"; }
+{{ else -}}
+if ! command -v code >/dev/null; then
+    echo "==> dotfiles: VS Code CLI not found, skipping extensions"
+    exit 0
+fi
+{{ end -}}
+
+echo "==> dotfiles: installing VS Code extensions"
+for ext in "${EXTENSIONS[@]}"; do
+    code --install-extension "$ext"
+done
+{{ end -}}

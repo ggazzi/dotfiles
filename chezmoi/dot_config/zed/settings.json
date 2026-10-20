@@ -1,4 +1,4 @@
-// Zed settings
+// Zed settings -- kept equivalent to ~/.config/Code/User/settings.json.
 //
 // For information on how to configure Zed, see the Zed
 // documentation: https://zed.dev/docs/configuring-zed
@@ -11,6 +11,7 @@
     "ui_font_size": 14,
     "buffer_font_size": 12,
     "soft_wrap": "editor_width",
+    "terminal": { "shell": { "program": "zsh" } },
     "theme": {
         "mode": "dark",
         "light": "One Light",

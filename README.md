@@ -51,7 +51,7 @@ Devcontainer Profile change, so their config gains `devcontainer = false`
 `install.sh` is the Devcontainer bootstrap and is never used on Workstations.
 It installs chezmoi into `~/.local/bin` and applies this repo with the
 Devcontainer Profile (`DOTFILES_PROFILE=devcontainer` sets chezmoi's
-`.devcontainer` data). That Profile skips zed/mise/zellij configs, proto, the
+`.devcontainer` data). That Profile skips zed/VS Code/mise/zellij configs, proto, the
 Nerd Font and mise's apt repo, and installs `apt-packages.txt` +
 `apt-packages-devcontainer.txt` instead of `apt-packages-workstation.txt`.
 starship and Claude Code come from their official installers. It assumes an

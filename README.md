@@ -65,6 +65,9 @@ Ubuntu-based image with root or passwordless sudo.
   git clone https://github.com/ggazzi/dotfiles ~/dotfiles && ~/dotfiles/install.sh
   ```
 
+Devcontainer Hosts only show `install.sh` output once it finishes; follow it
+live from a container terminal with `tail -f ~/.dotfiles-install.log`.
+
 `install.sh` is safe to re-run. `sub` (and so `dev`) is skipped on aarch64
 containers: there's no prebuilt binary.
 

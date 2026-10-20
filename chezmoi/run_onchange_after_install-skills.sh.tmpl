@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 # Restores global agent skills (~/.agents/skills) from the lockfile.
+# run_onchange_after_: the step most likely to fail (network, node), so a
+# failure here no longer skips the other install scripts.
 # `skills experimental_install` only restores project-scoped lockfiles, so
 # for the global scope this re-adds every skill from each source repo the
 # lockfile references (coarser than the lockfile's per-skill pins, but the
@@ -15,8 +17,10 @@ set -euo pipefail
 
 npx="{{ if .devcontainer }}npx{{ else }}mise exec -- npx{{ end }}"
 
+echo "==> dotfiles: restoring agent skills"
 $npx --yes skills --help >/dev/null
 
 jq -r '.skills[].source' ~/.agents/.skill-lock.json | sort -u | while read -r source; do
+    echo "  -> $source"
     $npx --yes skills add "$source" -g --all -y
 done

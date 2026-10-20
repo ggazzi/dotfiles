@@ -12,6 +12,7 @@ if command -v claude &>/dev/null; then
     exit 0
 fi
 
+echo "==> dotfiles: installing Claude Code (slow download)"
 {{ if .devcontainer -}}
 # Devcontainers have no mise; the native installer needs no node.
 curl -fsSL https://claude.ai/install.sh | bash

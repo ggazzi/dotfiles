@@ -22,6 +22,7 @@ target="x86_64-unknown-linux-gnu"
 {{ end -}}
 url="https://github.com/juanibiapina/sub/releases/download/${version}/sub-${version}-${target}.tar.gz"
 
+echo "==> dotfiles: installing sub"
 tmpdir="$(mktemp -d)"
 trap 'rm -rf "$tmpdir"' EXIT
 

@@ -1,3 +1,4 @@
+{{ if not .devcontainer -}}
 #!/usr/bin/env bash
 # Installs the FiraCode Nerd Font (patched, icon glyphs).
 # run_once_ + this pinned VERSION: chezmoi re-runs only when VERSION changes.
@@ -30,3 +31,4 @@ fc-cache -f "$DEST"
 {{ end -}}
 
 echo "$VERSION" > "$MARKER"
+{{ end -}}

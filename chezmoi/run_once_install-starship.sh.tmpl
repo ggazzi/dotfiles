@@ -1,0 +1,13 @@
+{{ if .devcontainer -}}
+#!/usr/bin/env bash
+# Installs starship in Devcontainers via its official installer: Ubuntu 24.04
+# has no apt package. Workstations get it from apt-packages-workstation.txt.
+set -euo pipefail
+
+if command -v starship &>/dev/null; then
+    exit 0
+fi
+
+mkdir -p "$HOME/.local/bin"
+curl -fsSL https://starship.rs/install.sh | sh -s -- --yes --bin-dir "$HOME/.local/bin"
+{{ end -}}

@@ -9,7 +9,17 @@ if command -v sub &>/dev/null; then
 fi
 
 version="v2.3.1"
-target="{{ if eq .chezmoi.os "darwin" }}aarch64-apple-darwin{{ else }}x86_64-unknown-linux-gnu{{ end }}"
+{{ if eq .chezmoi.os "darwin" -}}
+target="aarch64-apple-darwin"
+{{ else -}}
+# ponytail: sub publishes no aarch64-linux binary (e.g. Devcontainers on Apple
+# Silicon); skip rather than fail the whole apply. Build from source if needed.
+if [[ "$(uname -m)" != "x86_64" ]]; then
+    echo "sub: no prebuilt binary for $(uname -m) linux, skipping (dev won't work)" >&2
+    exit 0
+fi
+target="x86_64-unknown-linux-gnu"
+{{ end -}}
 url="https://github.com/juanibiapina/sub/releases/download/${version}/sub-${version}-${target}.tar.gz"
 
 tmpdir="$(mktemp -d)"

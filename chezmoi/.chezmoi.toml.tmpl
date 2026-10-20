@@ -1,4 +1,6 @@
 {{/* .chezmoi.os is chezmoi's built-in darwin/linux branch var; used directly in templates. */}}
+{{/* DOTFILES_PROFILE is set only by install.sh, so a plain `chezmoi init` is a Workstation. */}}
 [data]
     email = "gui.g.azzi@gmail.com"
     userFullName = "Guilherme Grochau Azzi"
+    devcontainer = {{ eq (env "DOTFILES_PROFILE") "devcontainer" }}

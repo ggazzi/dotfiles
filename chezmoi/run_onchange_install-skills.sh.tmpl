@@ -13,8 +13,10 @@
 # {{ $sources | uniq | sortAlpha | join "," | sha256sum }}
 set -euo pipefail
 
-mise exec -- npx --yes skills --help >/dev/null
+npx="{{ if .devcontainer }}npx{{ else }}mise exec -- npx{{ end }}"
+
+$npx --yes skills --help >/dev/null
 
 jq -r '.skills[].source' ~/.agents/.skill-lock.json | sort -u | while read -r source; do
-    mise exec -- npx --yes skills add "$source" -g --all -y
+    $npx --yes skills add "$source" -g --all -y
 done

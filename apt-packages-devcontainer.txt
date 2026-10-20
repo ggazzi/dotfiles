@@ -1,0 +1,7 @@
+# Devcontainer-only, installed on top of apt-packages.txt.
+# A package must appear in exactly one of apt-packages.txt,
+# apt-packages-workstation.txt and apt-packages-devcontainer.txt.
+# starship isn't here: Ubuntu 24.04 lacks it, so run_once_install-starship.sh
+# installs it instead.
+nodejs
+npm

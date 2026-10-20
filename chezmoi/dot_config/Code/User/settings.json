@@ -6,6 +6,7 @@
     // Let Zed-style ctrl-t chords (keybindings.json) reach VS Code.
     "vim.handleKeys": { "<C-t>": false },
     // Zed "ui_font_size": no equivalent (VS Code only has window.zoomLevel).
+    "editor.fontFamily": "FiraCode Nerd Font Mono",
     "editor.fontSize": 12,
     "editor.wordWrap": "on",
     // Zed "theme": dark mode, Catppuccin Mocha. Zed's light theme (One Light)

@@ -1,4 +1,5 @@
 {{ if not .devcontainer -}}
+{{- $wsl := and (eq .chezmoi.os "linux") (contains "microsoft" (lower .chezmoi.kernel.osrelease)) -}}
 #!/usr/bin/env bash
 # Installs the FiraCode Nerd Font (patched, icon glyphs).
 # run_once_ + this pinned VERSION: chezmoi re-runs only when VERSION changes.
@@ -15,20 +16,32 @@ MARKER="$DEST/.firacode-nerd-font-version"
 
 mkdir -p "$DEST"
 
-if [[ -f "$MARKER" && "$(cat "$MARKER")" == "$VERSION" ]]; then
-    exit 0
+if [[ ! -f "$MARKER" || "$(cat "$MARKER")" != "$VERSION" ]]; then
+    TMP="$(mktemp -d)"
+    trap 'rm -rf "$TMP"' EXIT
+
+    curl -fsSL -o "$TMP/FiraCode.zip" \
+        "https://github.com/ryanoasis/nerd-fonts/releases/download/${VERSION}/FiraCode.zip"
+    unzip -oq "$TMP/FiraCode.zip" -d "$DEST" -x "*.txt" "*.md" "LICENSE*"
+
+    {{ if ne .chezmoi.os "darwin" -}}
+    fc-cache -f "$DEST"
+    {{ end -}}
+
+    echo "$VERSION" > "$MARKER"
 fi
+{{- if $wsl }}
 
-TMP="$(mktemp -d)"
-trap 'rm -rf "$TMP"' EXIT
-
-curl -fsSL -o "$TMP/FiraCode.zip" \
-    "https://github.com/ryanoasis/nerd-fonts/releases/download/${VERSION}/FiraCode.zip"
-unzip -oq "$TMP/FiraCode.zip" -d "$DEST" -x "*.txt" "*.md" "LICENSE*"
-
-{{ if ne .chezmoi.os "darwin" -}}
-fc-cache -f "$DEST"
-{{ end -}}
-
-echo "$VERSION" > "$MARKER"
+# Windows-native apps (VS Code) can't see WSL fonts: install the Mono variant
+# per-user into the Windows profile (no admin needed).
+cd /mnt/c  # avoids cmd.exe's UNC-path warning
+WINFONTS="$(wslpath "$(cmd.exe /c 'echo %LOCALAPPDATA%' 2>/dev/null | tr -d '\r')")/Microsoft/Windows/Fonts"
+mkdir -p "$WINFONTS"
+for f in "$DEST"/FiraCodeNerdFontMono-*.ttf; do
+    name="$(basename "$f")"
+    cp "$f" "$WINFONTS/$name"
+    reg.exe add 'HKCU\Software\Microsoft\Windows NT\CurrentVersion\Fonts' \
+        /v "${name%.ttf} (TrueType)" /t REG_SZ /d "$(wslpath -w "$WINFONTS/$name")" /f >/dev/null
+done
+{{- end }}
 {{ end -}}

@@ -1,0 +1,6 @@
+// VS Code keybindings -- kept equivalent to ~/.config/zed/keymap.json.
+[
+    { "key": "ctrl+t h", "command": "workbench.action.navigateBack" },
+    { "key": "ctrl+t l", "command": "workbench.action.navigateForward" },
+    { "key": "ctrl+t shift+q", "command": "workbench.action.closeOtherEditors" }
+]

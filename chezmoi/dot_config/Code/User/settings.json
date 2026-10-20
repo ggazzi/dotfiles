@@ -1,0 +1,21 @@
+// VS Code settings -- kept equivalent to ~/.config/zed/settings.json.
+// Canonical copy (Linux path); macOS symlinks to it, Windows + WSL gets a copy
+// pushed by run_onchange_after_install-vscode.sh.tmpl.
+{
+    // Zed "vim_mode": the vscodevim.vim extension (installed by chezmoi).
+    // Let Zed-style ctrl-t chords (keybindings.json) reach VS Code.
+    "vim.handleKeys": { "<C-t>": false },
+    // Zed "ui_font_size": no equivalent (VS Code only has window.zoomLevel).
+    "editor.fontSize": 12,
+    "editor.wordWrap": "on",
+    // Zed "theme": dark mode, Catppuccin Mocha. Zed's light theme (One Light)
+    // has no bundled equivalent and is unused while the mode is pinned to dark.
+    "window.autoDetectColorScheme": false,
+    "workbench.colorTheme": "Catppuccin Mocha",
+    // No Zed equivalent: VS Code-only features.
+    "terminal.integrated.initialHint": false,
+    "claudeCode.preferredLocation": "panel",
+    // Devcontainer integration; finds and runs install.sh by default.
+    "dotfiles.repository": "ggazzi/dotfiles",
+    "dev.containers.defaultExtensions": ["vscodevim.vim"]
+}

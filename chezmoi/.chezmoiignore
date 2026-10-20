@@ -1,8 +1,10 @@
 {{ if ne .chezmoi.os "darwin" -}}
 .config/alacritty
+Library
 {{ end -}}
 {{ if .devcontainer -}}
 .config/zed
+.config/Code
 .config/mise
 .config/zellij
 {{ end -}}

@@ -1,0 +1,12 @@
+# Workstation-only, installed on top of apt-packages.txt.
+# A package must appear in exactly one of apt-packages.txt,
+# apt-packages-workstation.txt and apt-packages-devcontainer.txt.
+git-lfs
+htop
+openssh-client
+wget
+unzip
+starship
+direnv
+lazygit
+mise

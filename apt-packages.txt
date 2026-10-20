@@ -1,19 +1,13 @@
+# Generic: installed in every Profile (Workstation and Devcontainer).
+# A package must appear in exactly one of apt-packages.txt,
+# apt-packages-workstation.txt and apt-packages-devcontainer.txt.
 curl
 git
-git-lfs
-htop
-openssh-client
-ripgrep
 vim
-wget
-gh
+ripgrep
 fzf
 jq
 ruby
-unzip
+gh
 git-delta
-starship
-direnv
-lazygit
-mise
 zsh

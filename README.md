@@ -4,7 +4,7 @@ Dotfiles for two machines: a macOS laptop and an Ubuntu host. Managed with:
 
 - **[chezmoi](https://www.chezmoi.io/)** — dotfiles, templated per-OS via `.chezmoi.os`. The chezmoi source root is the `chezmoi/` subdirectory (see `.chezmoiroot`), keeping dotfiles/templates/scripts separate from this repo's own config (`flake.nix`, `lib/`, `home/`, docs, package manifests).
 - **Homebrew (`Brewfile`)** — macOS packages
-- **apt (`apt-packages.txt`)** — Ubuntu packages. Includes `mise`, whose official apt repo is registered by the install script itself (see below), since Ubuntu's default repos don't have it.
+- **apt (`apt-packages.txt` + `apt-packages-workstation.txt` or `apt-packages-devcontainer.txt`)** — Ubuntu packages; each package lives in exactly one list. Includes `mise`, whose official apt repo is registered by the install script itself (see below), since Ubuntu's default repos don't have it.
 - **[mise](https://mise.jdx.dev/)** — global toolchain versions (Node, etc.). Installed via its official apt repo (registered by `run_onchange_00-install-apt-packages.sh.tmpl` before running `apt-get`), not the Brewfile-only curl installer.
 - **[proto](https://moonrepo.dev/proto)** — per-project toolchain versions inside moonrepo projects only, via their own `.prototools`. Not globally shell-activated (deliberate — no `proto activate` line). `moon` invokes proto internally per-project; the `proto` binary just needs to be on `$PATH`. On macOS it comes from the Brewfile; on Linux (no apt package) it's installed by `run_once_install-proto.sh.tmpl` (moonrepo's official installer script, run with `--yes --no-modify-profile` so it stays non-interactive and doesn't touch shell profiles itself), and `~/.proto/bin` is added to `$PATH` directly by `dot_zshrc.tmpl` instead.
 - **zellij** — not in Ubuntu's apt repos either; not currently installed by any script. Install manually (`cargo install zellij`, or a release binary from GitHub) if you want it on the Ubuntu machine.
@@ -29,7 +29,7 @@ brew bundle --file=Brewfile
 - On Ubuntu/Debian:
 ```sh
 sudo snap install chezmoi --classic
-xargs -a apt-packages.txt -n1 sudo apt-get install -y
+sed 's/#.*//' apt-packages.txt apt-packages-workstation.txt | xargs sudo apt-get install -y
 ```
 `chezmoi` isn't in Ubuntu's apt repos, so it's installed via snap instead.
 
@@ -41,6 +41,53 @@ ln -s "$(pwd)" ~/.local/share/chezmoi
 chezmoi init
 chezmoi apply
 ```
+
+Existing Workstations must re-run `chezmoi init` once after pulling the
+Devcontainer Profile change, so their config gains `devcontainer = false`
+(templates reference it).
+
+## Devcontainers
+
+`install.sh` is the Devcontainer bootstrap and is never used on Workstations.
+It installs chezmoi into `~/.local/bin` and applies this repo with the
+Devcontainer Profile (`DOTFILES_PROFILE=devcontainer` sets chezmoi's
+`.devcontainer` data). That Profile skips zed/mise/zellij configs, proto, the
+Nerd Font and mise's apt repo, and installs `apt-packages.txt` +
+`apt-packages-devcontainer.txt` instead of `apt-packages-workstation.txt`.
+starship and Claude Code come from their official installers. It assumes an
+Ubuntu-based image with root or passwordless sudo.
+
+- **VS Code / devcontainer CLI / Codespaces**: set this repo as the dotfiles
+  repository (VS Code: `dotfiles.repository = ggazzi/dotfiles`); they run
+  `install.sh` automatically.
+- **Zed**: has no dotfiles setting; run once in the container's terminal:
+  ```sh
+  git clone https://github.com/ggazzi/dotfiles ~/dotfiles && ~/dotfiles/install.sh
+  ```
+
+### Monitoring the install
+
+Devcontainer Hosts only show `install.sh` output once it finishes (VS Code:
+the "Dev Containers" output channel). It also tees everything to
+`~/.dotfiles-install.log`, with a `==> dotfiles: …` header per step. Follow it
+live while the container is still configuring:
+
+- From a terminal inside the container (VS Code allows opening one during
+  "Configuring Dev Container"):
+  ```sh
+  tail -F ~/.dotfiles-install.log
+  ```
+- From the Docker host, even before any terminal is available (`docker ps -lq`
+  is the most recently created container; check `docker ps` if several are
+  starting; `-u` must be the container user, so `~` is their home):
+  ```sh
+  docker exec -it -u <user> $(docker ps -lq) sh -c 'tail -F ~/.dotfiles-install.log'
+  ```
+
+`-F` waits for the file to appear if `install.sh` hasn't started yet.
+
+`install.sh` is safe to re-run. `sub` (and so `dev`) is skipped on aarch64
+containers: there's no prebuilt binary.
 
 ## Verification before a real apply
 

@@ -65,8 +65,26 @@ Ubuntu-based image with root or passwordless sudo.
   git clone https://github.com/ggazzi/dotfiles ~/dotfiles && ~/dotfiles/install.sh
   ```
 
-Devcontainer Hosts only show `install.sh` output once it finishes; follow it
-live from a container terminal with `tail -f ~/.dotfiles-install.log`.
+### Monitoring the install
+
+Devcontainer Hosts only show `install.sh` output once it finishes (VS Code:
+the "Dev Containers" output channel). It also tees everything to
+`~/.dotfiles-install.log`, with a `==> dotfiles: …` header per step. Follow it
+live while the container is still configuring:
+
+- From a terminal inside the container (VS Code allows opening one during
+  "Configuring Dev Container"):
+  ```sh
+  tail -F ~/.dotfiles-install.log
+  ```
+- From the Docker host, even before any terminal is available (`docker ps -lq`
+  is the most recently created container; check `docker ps` if several are
+  starting; `-u` must be the container user, so `~` is their home):
+  ```sh
+  docker exec -it -u <user> $(docker ps -lq) sh -c 'tail -F ~/.dotfiles-install.log'
+  ```
+
+`-F` waits for the file to appear if `install.sh` hasn't started yet.
 
 `install.sh` is safe to re-run. `sub` (and so `dev`) is skipped on aarch64
 containers: there's no prebuilt binary.

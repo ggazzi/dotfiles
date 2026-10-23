@@ -1,0 +1,15 @@
+---
+name: log-work
+description: Record a Work log entry for this Claude Code session in today's Obsidian Daily note. Use only when the user runs /log-work.
+disable-model-invocation: true
+---
+
+1. Write one sentence (English, no wikilinks) on what this session accomplished since the previous `/log-work` call, or since the session started. Focus on the outcome, not the steps.
+2. Run, substituting the sentence:
+
+   ```bash
+   bash "${CLAUDE_SKILL_DIR}/log-work.sh" "${CLAUDE_SESSION_ID}" "{{ .obsidianVault }}" "<sentence>"
+   ```
+
+   The script works out the time span from the transcript and writes the entry. Never edit the Daily note yourself, and don't commit in the vault.
+3. Report the line it printed. If the vault wasn't reachable, it prints a block for the user to paste; show it verbatim.

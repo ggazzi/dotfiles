@@ -4,3 +4,6 @@
     email = "gui.g.azzi@gmail.com"
     userFullName = "Guilherme Grochau Azzi"
     devcontainer = {{ eq (env "DOTFILES_PROFILE") "devcontainer" }}
+{{- /* Obsidian vault for the log-work skill: lives on the Windows side, so only WSL Workstations reach it; elsewhere the skill prints a paste block. */}}
+{{- $wsl := and (eq .chezmoi.os "linux") (contains "microsoft" (lower .chezmoi.kernel.osrelease)) }}
+    obsidianVault = {{ if and $wsl (ne (env "DOTFILES_PROFILE") "devcontainer") }}"/mnt/c/Users/Gui/Documents/Obsidian Vault"{{ else }}""{{ end }}

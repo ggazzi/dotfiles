@@ -1,0 +1,3 @@
+#!/bin/sh
+# Exposes only moon from proto shims (not the whole shims dir, to avoid shadowing mise tools).
+exec "$HOME/.proto/shims/moon" "$@"

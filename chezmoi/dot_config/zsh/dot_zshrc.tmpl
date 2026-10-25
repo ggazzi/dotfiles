@@ -1,5 +1,5 @@
 export WORKSPACE="$HOME/workspace"
-export PATH="$HOME/.local/libexec/dev-utils:$HOME/.local/bin:$PATH"
+export PATH="$HOME/.local/libexec/dev-utils:$PATH"
 {{ if and (eq .chezmoi.os "linux") (not .devcontainer) -}}
 export PATH="$HOME/.proto/bin:$PATH"
 export PATH="$PATH:/snap/bin"

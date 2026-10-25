@@ -11,6 +11,12 @@ fi
 
 echo "$current" | jq '
   .hooks.PreToolUse = (.hooks.PreToolUse // []) |
+  .hooks.SessionEnd = [{
+    "hooks": [{
+      "type": "command",
+      "command": "bash ~/.claude/skills/log-work/log-work-auto.sh"
+    }]
+  }] |
   .statusLine = {
     "type": "command",
     "command": "sh ~/.claude/statusline-command.sh"

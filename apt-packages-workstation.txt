@@ -7,6 +7,5 @@ openssh-client
 wget
 unzip
 starship
-direnv
 lazygit
 mise

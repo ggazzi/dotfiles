@@ -19,7 +19,6 @@ brew "ruby"
 brew "git-delta"
 brew "zellij"
 brew "starship"
-brew "direnv"
 brew "lazygit"
 
 # terminal emulator + font

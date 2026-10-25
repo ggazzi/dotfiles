@@ -10,14 +10,12 @@ layout {
 	}
     tab name="git" {
         pane {
-            command "direnv"
-            args "exec" "." "lazygit"
+            command "lazygit"
         }
     }
 	tab name="editor" {
 		pane {
-			command "direnv"
-			args "exec" "." "nvim"
+			command "nvim"
 		}
 	}
 	tab name="shell" {

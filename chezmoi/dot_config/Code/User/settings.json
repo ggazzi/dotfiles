@@ -21,5 +21,6 @@
     "claudeCode.preferredLocation": "panel",
     // Devcontainer integration; finds and runs install.sh by default.
     "dotfiles.repository": "ggazzi/dotfiles",
-    "dev.containers.defaultExtensions": ["vscodevim.vim"]
+    "dev.containers.defaultExtensions": ["vscodevim.vim"],
+    "workbench.sideBar.location": "right"
 }

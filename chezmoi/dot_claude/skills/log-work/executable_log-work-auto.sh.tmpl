@@ -15,12 +15,12 @@ fi
 sid=$2
 trap 'echo "$(date +%FT%T) $sid: failed (line $LINENO)" >>"$errlog"' ERR
 
-# What a new entry would cover (since this session's previous log line): "<prompt count> <seconds>",
+# What a new entry would cover (since this session's previous entry): "<prompt count> <seconds>",
 # then a plain-text digest.
 digest=$(bash "$here/log-work.sh" --digest "$sid" "{{ .obsidianVault }}")
 
 read -r prompts seconds <<<"$(head -1 <<<"$digest")"
-# Skip trivia: under 3 prompts or under 2 min (also covers "nothing since the previous log line").
+# Skip trivia: under 3 prompts or under 2 min (also covers "nothing since the previous entry").
 [ "$prompts" -ge 3 ] && [ "$seconds" -ge 120 ] || exit 0
 
 sentence=$(tail -n +2 <<<"$digest" | tail -c 12000 | LOG_WORK_AUTO=1 claude -p --model haiku --no-session-persistence \

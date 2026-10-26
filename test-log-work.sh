@@ -32,14 +32,14 @@ $e1" ] || fail "missing note" "$note"
 
 # resumed session: logs only what came after its previous line, even once the vault's
 # review has inserted an effort link into that line
-sed -i.bak 's/10:46 · owner/10:46 · [[Textum]] · owner/' "$note"
+sed -i.bak 's/10:46 · owner/10:46 · [[Textum]] · owner/; s/sess1234$/sess1234 /' "$note" # trailing space: hand-edited
 { u 10:46:40 "/log-work"; u 11:30:00 "do C"; a 11:40:00; a 11:50:00; } >>"$transcript"
 [ "$(bash "$script" --digest sess1234-abcd "$tmp/vault")" = "1 1200
 USER: do C
 ASSISTANT: ok
 ASSISTANT: ok" ] || { echo "FAIL: digest"; bash "$script" --digest sess1234-abcd "$tmp/vault"; exit 1; }
 run "$tmp/vault" "Did C." >/dev/null
-e1='- 08:00–08:05, 09:25–10:02, 10:20–10:46 · [[Textum]] · owner/name · Did A and B. · sess1234'
+e1='- 08:00–08:05, 09:25–10:02, 10:20–10:46 · [[Textum]] · owner/name · Did A and B. · sess1234 '
 e2='- 11:30–11:50 · owner/name · Did C. · sess1234'
 [ "$(tail -3 "$note")" = "## Claude log
 $e1
@@ -64,9 +64,18 @@ text" ] || fail "ordering" "$note"
 note="$tmp/vault/Daily/2026-10-24.md"
 [ "$(tail -1 "$note")" = "- 23:40–24:00, 00:00–00:20 · owner/name · Did E. · night000" ] || fail "midnight" "$note"
 
-# nothing since the previous line: no entry
+# note without section (older notes): heading appended
+printf 'notes' >"$note"
+{ day=2026-10-24 u 09:00:00 "do F"; day=2026-10-24 a 09:05:00; } >"$HOME/.claude/projects/x/fresh000.jsonl"
+(cd "$tmp/repo" && bash "$script" fresh000 "$tmp/vault" "Did F.") >/dev/null
+[ "$(cat "$note")" = "notes
+
+## Claude log
+- 09:00–09:05 · owner/name · Did F. · fresh000" ] || fail "missing section" "$note"
+
+# nothing since the previous entry: no entry
 before=$(cat "$note")
-(cd "$tmp/repo" && bash "$script" night000 "$tmp/vault" "Nothing.") >/dev/null
+(cd "$tmp/repo" && bash "$script" fresh000 "$tmp/vault" "Nothing.") >/dev/null
 [ "$(cat "$note")" = "$before" ] || fail "nothing new" "$note"
 
 # no remote, no vault: directory with ~, paste block with the timezone

@@ -8,27 +8,28 @@ set -euo pipefail
 mode=log
 [ "$1" != --digest ] || { mode=digest; shift; }
 sid=$1 vault=$2 sentence=${3:-}
+tag=${sid:0:8} # ends every entry; finds the session's previous one
 
 transcript=$(find "$HOME/.claude/projects" -name "$sid.jsonl" -print -quit)
 [ -n "$transcript" ] || { echo "log-work: no transcript for session $sid" >&2; exit 1; }
 
-# The session's previous log line, if any: its Daily's date and last window end ("YYYY-MM-DD HH:MM").
-# Lines are sorted within a Daily and a session's lines never overlap, so the last match is the latest.
+# The session's previous entry, if any: its Daily's date and last window end ("YYYY-MM-DD HH:MM").
+# Entries are sorted within a Daily and a session's entries never overlap, so the last match is the latest.
 since=""
 if [ -n "$vault" ] && [ -d "$vault/Daily" ]; then
-    prev=$(grep -l " · ${sid:0:8}\$" "$vault"/Daily/*.md 2>/dev/null | tail -1) || true
+    prev=$(grep -l " · $tag[[:space:]]*\$" "$vault"/Daily/*.md 2>/dev/null | tail -1) || true
     if [ -n "$prev" ]; then
-        windows=$(grep " · ${sid:0:8}\$" "$prev" | tail -1)
-        windows=${windows%% · *}
-        since="$(basename "$prev" .md) ${windows##*–}"
+        last=$(grep " · $tag[[:space:]]*\$" "$prev" | tail -1)
+        last=${last%% · *}
+        since="$(basename "$prev" .md) ${last##*–}"
     fi
 fi
 
-# The entry covers the first prompt after the previous log line (or session start) to the last
+# The entry covers the first prompt after the previous entry (or session start) to the last
 # message. Active windows split it at gaps over 15 min and at midnight. Output: the day of the
 # last message, then one "from–to" per window, as local HH:MM (jq's strflocaltime, since
 # `date -d @N` is GNU-only).
-mapfile -t times < <(jq -rs --arg since "$since" --arg mode "$mode" '
+mapfile -t out < <(jq -rs --arg since "$since" --arg mode "$mode" '
     def text: if (.message.content | type) == "string" then .message.content
               else ([.message.content[]? | select(.type == "text") | .text] | join(" ")) end;
     def prompt: .type == "user" and (.isMeta | not) and (text | length > 0)
@@ -53,11 +54,11 @@ mapfile -t times < <(jq -rs --arg since "$since" --arg mode "$mode" '
              else "\(.[0] | hm)–24:00", "00:00–\(.[1] | hm)" end)
       end
 ' "$transcript")
-[ $mode = log ] || { printf '%s\n' "${times[@]}"; exit 0; }
+[ "$mode" = log ] || { printf '%s\n' "${out[@]}"; exit 0; }
 
-[ ${#times[@]} -gt 0 ] || { echo "log-work: nothing to log since the previous line"; exit 0; }
-day=${times[0]}
-windows=$(printf '%s, ' "${times[@]:1}" | sed 's/, $//')
+[ ${#out[@]} -gt 0 ] || { echo "log-work: nothing to log since the previous entry"; exit 0; }
+day=${out[0]}
+windows=$(printf '%s, ' "${out[@]:1}" | sed 's/, $//')
 
 # Repository: owner/name from the origin remote; else the directory, with ~ for home.
 if url=$(git remote get-url origin 2>/dev/null); then
@@ -66,7 +67,7 @@ else
     repo=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
     case $repo in "$HOME" | "$HOME"/*) repo="~${repo#"$HOME"}" ;; esac
 fi
-suffix=" · $repo · $sentence · ${sid:0:8}"
+suffix=" · $repo · $sentence · $tag"
 
 if [ -z "$vault" ] || [ ! -d "$vault" ]; then
     printf 'Vault not reachable. Paste into Daily/%s.md (add the heading if missing):\n\n## Claude log\n- %s %s%s\n' \

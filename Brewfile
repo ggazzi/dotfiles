@@ -27,8 +27,7 @@ cask "alacritty"
 # editor
 cask "zed"
 
-# toolchain managers (R6, R7)
-brew "mise"
+# toolchain manager (ADR 0002)
 brew "proto"
 
 # GUI apps previously installed via `homebrew.enable = true` cask management —

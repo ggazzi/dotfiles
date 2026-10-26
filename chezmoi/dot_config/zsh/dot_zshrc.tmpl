@@ -1,7 +1,6 @@
 export WORKSPACE="$HOME/workspace"
-export PATH="$HOME/.local/libexec/dev-utils:$HOME/.local/bin:$PATH"
+export PATH="$HOME/.local/libexec/dev-utils:$PATH"
 {{ if and (eq .chezmoi.os "linux") (not .devcontainer) -}}
-export PATH="$HOME/.proto/bin:$PATH"
 export PATH="$PATH:/snap/bin"
 {{ end -}}
 
@@ -38,6 +37,3 @@ _dev_utils_complete() {
 compdef _dev_utils_complete dev
 
 eval "$(starship init zsh)"
-{{ if not .devcontainer -}}
-eval "$(mise activate zsh)"
-{{ end -}}

@@ -15,3 +15,7 @@ Single-context: `CONTEXT.md` + `docs/adr/` at repo root. See `docs/agents/domain
 ### Documented solutions
 
 `docs/solutions/` — documented solutions to past problems (bugs, best practices, workflow patterns), organized by category with YAML frontmatter (`module`, `tags`, `problem_type`). Relevant when implementing or debugging in documented areas.
+
+### Verifying chezmoi changes
+
+`chezmoi diff --source .` previews what `chezmoi apply` would change. `--source` must be the repo root (it holds `.chezmoiroot`), not `chezmoi/`.

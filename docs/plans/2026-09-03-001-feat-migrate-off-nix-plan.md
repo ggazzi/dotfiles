@@ -6,6 +6,8 @@ origin: https://github.com/ggazzi/dotfiles/issues/11
 depth: deep
 ---
 
+> **Superseded in part:** R6, R7, R8 and units U7/U8 (mise as global manager, proto per-project only) were reversed; proto is now the only toolchain manager. See [ADR 0002](../adr/0002-proto-only-toolchain-manager.md). The rest of this plan is unchanged.
+
 # feat: Migrate dotfiles off nix to chezmoi + Brewfile/apt + mise
 
 ## Summary

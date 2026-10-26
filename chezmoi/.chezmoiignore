@@ -5,6 +5,6 @@ Library
 {{ if .devcontainer -}}
 .config/zed
 .config/Code
-.config/mise
+.proto
 .config/zellij
 {{ end -}}

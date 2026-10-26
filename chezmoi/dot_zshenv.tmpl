@@ -1,0 +1,11 @@
+export ZDOTDIR="$HOME/.config/zsh"
+export EDITOR="vim"
+export VISUAL="vim"
+typeset -U path  # dedupe PATH, keeping the first (frontmost) occurrence
+{{ if .devcontainer -}}
+export PATH="$HOME/.local/bin:$PATH"
+{{ else -}}
+# proto is the only toolchain manager (see docs/adr/0002). The path is static, so
+# it also survives Claude Code's shell snapshot, which overwrites PATH.
+export PATH="$HOME/.proto/shims:$HOME/.proto/bin:$HOME/.local/bin:$PATH"
+{{ end -}}

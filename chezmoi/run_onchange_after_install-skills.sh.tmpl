@@ -20,7 +20,7 @@ set -euo pipefail
 # node earlier on PATH whose npx (npm <7) misparses `--yes skills add`.
 npx="env PATH=/usr/bin:$PATH npx"
 {{ else -}}
-npx="mise exec -- npx"
+npx="$HOME/.proto/shims/npx"
 {{ end -}}
 
 echo "==> dotfiles: restoring agent skills"

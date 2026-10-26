@@ -30,5 +30,8 @@ cask "zed"
 # toolchain manager (ADR 0002)
 brew "proto"
 
+# agentic tools
+brew "rtk"
+
 # GUI apps previously installed via `homebrew.enable = true` cask management —
 # populate the rest of this list from `brew bundle dump` at implementation time.

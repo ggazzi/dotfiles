@@ -8,4 +8,6 @@ export PATH="$HOME/.local/bin:$PATH"
 # proto is the only toolchain manager (see docs/adr/0002). The path is static, so
 # it also survives Claude Code's shell snapshot, which overwrites PATH.
 export PATH="$HOME/.proto/shims:$HOME/.proto/bin:$HOME/.local/bin:$PATH"
+# rustup (installed by proto's rust pin) puts cargo in ~/.cargo/bin; proto does not shim it.
+[ -r "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 {{ end -}}

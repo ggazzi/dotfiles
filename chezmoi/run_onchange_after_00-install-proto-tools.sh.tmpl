@@ -1,0 +1,14 @@
+{{ if not .devcontainer -}}
+#!/usr/bin/env bash
+# Installs the global tools pinned in ~/.proto/.prototools (node, pnpm, moon, bun, ...).
+# 00- sorts before the other after_ scripts, which need node (see ADR 0002).
+# run_onchange_: chezmoi re-runs when the pin file changes.
+# .prototools hash: {{ include "dot_proto/dot_prototools" | sha256sum }}
+set -euo pipefail
+
+export PATH="$HOME/.proto/bin:$PATH"
+
+echo "==> dotfiles: installing proto global tools"
+# global mode: the default (upwards) skips ~/.proto/.prototools outside $HOME.
+proto install --config-mode global
+{{ end -}}

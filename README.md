@@ -4,9 +4,8 @@ Dotfiles for two machines: a macOS laptop and an Ubuntu host. Managed with:
 
 - **[chezmoi](https://www.chezmoi.io/)** — dotfiles, templated per-OS via `.chezmoi.os`. The chezmoi source root is the `chezmoi/` subdirectory (see `.chezmoiroot`), keeping dotfiles/templates/scripts separate from this repo's own config (`flake.nix`, `lib/`, `home/`, docs, package manifests).
 - **Homebrew (`Brewfile`)** — macOS packages
-- **apt (`apt-packages.txt` + `apt-packages-workstation.txt` or `apt-packages-devcontainer.txt`)** — Ubuntu packages; each package lives in exactly one list. Includes `mise`, whose official apt repo is registered by the install script itself (see below), since Ubuntu's default repos don't have it.
-- **[mise](https://mise.jdx.dev/)** — global toolchain versions (Node, etc.). Installed via its official apt repo (registered by `run_onchange_00-install-apt-packages.sh.tmpl` before running `apt-get`), not the Brewfile-only curl installer.
-- **[proto](https://moonrepo.dev/proto)** — per-project toolchain versions inside moonrepo projects only, via their own `.prototools`. Not globally shell-activated (deliberate — no `proto activate` line). `moon` is itself proto-managed, so `~/.local/bin/{moon,moonx}` are wrapper scripts exec'ing the proto shims (the rest of `~/.proto/shims` stays off `$PATH` to avoid shadowing mise tools); `~/.local/bin` is on `$PATH` via `.zshenv`, so non-interactive shells see it too. `moon` invokes proto internally per-project, so the `proto` binary also needs to be on `$PATH`. On macOS it comes from the Brewfile; on Linux (no apt package) it's installed by `run_once_install-proto.sh.tmpl` (moonrepo's official installer script, run with `--yes --no-modify-profile` so it stays non-interactive and doesn't touch shell profiles itself), and `~/.proto/bin` is added to `$PATH` directly by `dot_zshrc.tmpl` instead.
+- **apt (`apt-packages.txt` + `apt-packages-workstation.txt` or `apt-packages-devcontainer.txt`)** — Ubuntu packages; each package lives in exactly one list.
+- **[proto](https://moonrepo.dev/proto)** — the only toolchain manager: global tools (pinned in `~/.proto/.prototools`, installed by `run_onchange_after_00-install-proto-tools.sh.tmpl`) and per-project versions via each project's `.prototools`. `dot_zshenv.tmpl` puts `~/.proto/shims` and `~/.proto/bin` on `$PATH` for every zsh (static, so it also survives Claude Code's shell snapshot; `dot_zprofile.tmpl` re-prepends them after `brew shellenv` on macOS). Shimmed tools (`node`, `npm`, `pnpm`, `bun`, `moon`, …) are proto-only: proto has no "use system version" pin, so a tool it doesn't have installed errors instead of falling back to Homebrew. See `docs/adr/0002-proto-only-toolchain-manager.md`. On macOS it comes from the Brewfile; on Linux (no apt package) it's installed by `run_once_install-proto.sh.tmpl` (moonrepo's official installer script, run with `--yes --no-modify-profile` so it stays non-interactive and doesn't touch shell profiles itself).
 - **zellij** — not in Ubuntu's apt repos either; not currently installed by any script. Install manually (`cargo install zellij`, or a release binary from GitHub) if you want it on the Ubuntu machine.
 - **nixvim** (temporary) — `flake.nix` still builds neovim via a minimal standalone home-manager flake, since `home/gazzi/common/core/nixvim/` hasn't been ported to plain Lua yet. Everything else nix-related has been removed.
 
@@ -51,8 +50,8 @@ Devcontainer Profile change, so their config gains `devcontainer = false`
 `install.sh` is the Devcontainer bootstrap and is never used on Workstations.
 It installs chezmoi into `~/.local/bin` and applies this repo with the
 Devcontainer Profile (`DOTFILES_PROFILE=devcontainer` sets chezmoi's
-`.devcontainer` data). That Profile skips zed/VS Code/mise/zellij configs, proto, the
-Nerd Font and mise's apt repo, and installs `apt-packages.txt` +
+`.devcontainer` data). That Profile skips zed/VS Code/zellij configs, proto, the
+Nerd Font, and installs `apt-packages.txt` +
 `apt-packages-devcontainer.txt` instead of `apt-packages-workstation.txt`.
 starship and Claude Code come from their official installers. It assumes an
 Ubuntu-based image with root or passwordless sudo.

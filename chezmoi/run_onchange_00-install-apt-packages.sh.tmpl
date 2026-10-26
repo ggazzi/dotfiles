@@ -2,8 +2,7 @@
 {{ $profile := ternary "devcontainer" "workstation" .devcontainer -}}
 #!/usr/bin/env bash
 # Installs Ubuntu packages: apt-packages.txt in every Profile, plus
-# apt-packages-{{ $profile }}.txt. On Workstations also registers mise's
-# official apt repo (not in Ubuntu's default repos). chezmoi is also missing
+# apt-packages-{{ $profile }}.txt. chezmoi is missing
 # from apt, but installed separately (snap on Workstations, install.sh in
 # Devcontainers). zellij is missing too and deliberately unmanaged -- see README.
 # run_onchange_: chezmoi re-runs when these hashes change.
@@ -14,12 +13,6 @@ set -euo pipefail
 sudo=""
 [[ "$(id -u)" -eq 0 ]] || sudo="sudo"
 
-{{ if not .devcontainer -}}
-$sudo install -dm 755 /etc/apt/keyrings
-wget -qO - https://mise.jdx.dev/gpg-key.pub | gpg --dearmor | $sudo tee /etc/apt/keyrings/mise-archive-keyring.gpg >/dev/null
-echo "deb [signed-by=/etc/apt/keyrings/mise-archive-keyring.gpg arch=$(dpkg --print-architecture)] https://mise.jdx.dev/deb stable main" | $sudo tee /etc/apt/sources.list.d/mise.list >/dev/null
-
-{{ end -}}
 echo "==> dotfiles: installing apt packages"
 $sudo apt-get update
 # Every package here must be genuinely installable -- one apt-get call, so a

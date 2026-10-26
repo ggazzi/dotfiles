@@ -15,37 +15,19 @@ fi
 sid=$2
 trap 'echo "$(date +%FT%T) $sid: failed (line $LINENO)" >>"$errlog"' ERR
 
-transcript=$(find "$HOME/.claude/projects" -name "$sid.jsonl" -print -quit)
-[ -n "$transcript" ] || exit 0
-
-# Messages since the last manual /log-work call, as "<prompt count> <seconds>" then a plain-text digest.
-digest=$(jq -rs '
-    def inv: (.type == "user" and (.message.content | type) == "string"
-              and (.message.content | contains("<command-name>/log-work</command-name>")))
-          or (.type == "assistant" and any(.message.content[]?; .type == "tool_use" and .name == "Skill" and .input.skill == "log-work"));
-    def text: if (.message.content | type) == "string" then .message.content
-              else ([.message.content[]? | select(.type == "text") | .text] | join(" ")) end;
-    def prompt: .type == "user" and (.isMeta | not) and (text | length > 0)
-          and (text | contains("<command-name>/clear<") | not);
-    map(select((.type == "user" or .type == "assistant") and .timestamp)) | sort_by(.timestamp)
-    | (map(inv) | indices(true)) as $inv
-    | .[(if ($inv | length) > 0 then $inv[-1] + 1 else 0 end):]
-    | (map(prompt)) as $p
-    | map(.timestamp | sub("\\.[0-9]+Z$"; "Z") | fromdateiso8601) as $t
-    | "\($p | map(select(.)) | length) \(if ($t | length) > 0 then $t[-1] - $t[0] else 0 end)",
-      (.[] | select(prompt or .type == "assistant") | select(text | length > 0)
-       | "\(if .type == "user" then "USER" else "ASSISTANT" end): \(text | .[0:400])")
-' "$transcript")
+# What a new entry would cover (since this session's previous log line): "<prompt count> <seconds>",
+# then a plain-text digest.
+digest=$(bash "$here/log-work.sh" --digest "$sid" "{{ .obsidianVault }}")
 
 read -r prompts seconds <<<"$(head -1 <<<"$digest")"
-# Skip trivia: under 3 prompts or under 2 min (also covers "nothing since the last /log-work").
+# Skip trivia: under 3 prompts or under 2 min (also covers "nothing since the previous log line").
 [ "$prompts" -ge 3 ] && [ "$seconds" -ge 120 ] || exit 0
 
 sentence=$(tail -n +2 <<<"$digest" | tail -c 12000 | LOG_WORK_AUTO=1 claude -p --model haiku --no-session-persistence \
-    "Above is a digest of a Claude Code session. Write ONE English sentence, no wikilinks, no quotes, on what the session accomplished (the outcome, not the steps). Output only the sentence.")
+    "Above is a digest of a Claude Code session. Write ONE English sentence on what it accomplished: the outcome, not the steps. Start with a past-tense verb (e.g. Fixed, Added, Reviewed); never start with \"The user\" or \"The session\". At most 25 words. Mention PR and issue numbers (e.g. PR #105) when the digest has them. No wikilinks, no quotes. Output only the sentence.")
 sentence=$(tr '\n' ' ' <<<"$sentence" | sed 's/^ *//; s/ *$//')
 [ -n "$sentence" ] || { echo "$(date +%FT%T) $sid: empty sentence" >>"$errlog"; exit 1; }
 
-# log-work.sh finds the project from cwd; the hook runs in the session's cwd.
+# log-work.sh finds the repository from cwd; the hook runs in the session's cwd.
 out=$(bash "$here/log-work.sh" "$sid" "{{ .obsidianVault }}" "$sentence")
 case $out in "Logged to "*) ;; *) echo "$(date +%FT%T) $sid: $out" >>"$errlog" ;; esac

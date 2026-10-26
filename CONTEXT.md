@@ -26,4 +26,9 @@ _Avoid_: journal, daily page
 
 **Work log entry**:
 One line, written by Claude, recording what was done in a Claude Code session and when. Work log entries go in the Claude log section at the bottom of the Daily note. They are one of three independent time sources, alongside manual time tracking and git history, which are cross-referenced during reviews.
-_Avoid_: activity (the vault's name for a reusable workflow step), session log
+Format: `- <active windows> · [[effort]] · <repository> · <sentence> · <session id, 8 chars>`. Claude writes every field but the effort link, which the vault's daily review inserts later. The repository is `owner/name` from the `origin` remote, else the directory path (`~` for home). Each entry covers only what happened since the session's previous entry, which is found by its session id; entries are kept sorted by first window start. Entries from before this format (span plus pauses, no session id) are left as written.
+_Avoid_: activity (the vault's name for a reusable workflow step), session log, log line
+
+**Active window**:
+A stretch of a session with no gap over 15 minutes between messages, written `HH:MM–HH:MM`. A window crossing midnight is split (`23:40–24:00`, `00:00–00:20`), and the entry goes in the Daily note of its last message.
+_Avoid_: span, pause (the old format's terms)

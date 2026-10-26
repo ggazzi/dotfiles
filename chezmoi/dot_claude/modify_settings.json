@@ -23,5 +23,12 @@ echo "$current" | jq '
   } |
   .effortLevel = "medium" |
   .tui = "fullscreen" |
-  .agentPushNotifEnabled = true
+  .agentPushNotifEnabled = true |
+  # Calendar writes reach other people; always ask. The connector is account-wide, so every repo needs this.
+  .permissions.ask = ((.permissions.ask // []) + [
+    "mcp__claude_ai_Google_Calendar__create_event",
+    "mcp__claude_ai_Google_Calendar__update_event",
+    "mcp__claude_ai_Google_Calendar__delete_event",
+    "mcp__claude_ai_Google_Calendar__respond_to_event"
+  ] | unique)
 '

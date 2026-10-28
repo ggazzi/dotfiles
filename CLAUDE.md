@@ -2,7 +2,7 @@
 
 ### Issue tracker
 
-Issues live as GitHub issues on `ggazzi/dotfiles`, via the `gh` CLI. External PRs are not a triage surface. See `docs/agents/issue-tracker.md`.
+Issues live as GitHub issues on `ggazzi/dotfiles`, via the `gh` CLI. Read one with `gh issue view <n> --json title,body,labels,comments`: plain `view` comes back empty under RTK. External PRs are not a triage surface. Other `gh` conventions: `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 

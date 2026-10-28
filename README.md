@@ -5,7 +5,7 @@ Dotfiles for two machines: a macOS laptop and an Ubuntu host. Managed with:
 - **[chezmoi](https://www.chezmoi.io/)** — dotfiles, templated per-OS via `.chezmoi.os`. The chezmoi source root is the `chezmoi/` subdirectory (see `.chezmoiroot`), keeping dotfiles/templates/scripts separate from this repo's own config (`flake.nix`, `lib/`, `home/`, docs, package manifests).
 - **Homebrew (`Brewfile`)** — macOS packages
 - **apt (`apt-packages.txt` + `apt-packages-workstation.txt` or `apt-packages-devcontainer.txt`)** — Ubuntu packages; each package lives in exactly one list.
-- **[proto](https://moonrepo.dev/proto)** — the only toolchain manager: global tools (pinned in `~/.proto/.prototools`, installed by `run_onchange_after_00-install-proto-tools.sh.tmpl`) and per-project versions via each project's `.prototools`. `dot_zshenv.tmpl` puts `~/.proto/shims` and `~/.proto/bin` on `$PATH` for every zsh (static, so it also survives Claude Code's shell snapshot; `dot_zprofile.tmpl` re-prepends them after `brew shellenv` on macOS). Shimmed tools (`node`, `npm`, `pnpm`, `bun`, `moon`, …) are proto-only: proto has no "use system version" pin, so a tool it doesn't have installed errors instead of falling back to Homebrew. See `docs/adr/0002-proto-only-toolchain-manager.md`. On macOS it comes from the Brewfile; on Linux (no apt package) it's installed by `run_once_install-proto.sh.tmpl` (moonrepo's official installer script, run with `--yes --no-modify-profile` so it stays non-interactive and doesn't touch shell profiles itself).
+- **[proto](https://moonrepo.dev/proto)** — the only toolchain manager: global tools (pinned in `~/.proto/.prototools`, installed by `run_onchange_after_00-install-proto-tools.sh.tmpl`) and per-project versions via each project's `.prototools`. `dot_zshenv.tmpl` puts `~/.proto/shims` and `~/.proto/bin` on `$PATH` for every zsh (static, so it also survives Claude Code's shell snapshot; `dot_zprofile.tmpl` re-prepends them after `brew shellenv` on macOS). Shimmed tools (`node`, `npm`, `pnpm`, `bun`, `moon`, `uv`, `python`, …) are proto-only: proto has no "use system version" pin, so a tool it doesn't have installed errors instead of falling back to Homebrew. proto's Python exposes only `python`, not `python3`: call `python` for the pinned version, while `python3` stays the system one (with apt's `python3-*` modules). See `docs/adr/0002-proto-only-toolchain-manager.md`. On macOS it comes from the Brewfile; on Linux (no apt package) it's installed by `run_once_install-proto.sh.tmpl` (moonrepo's official installer script, run with `--yes --no-modify-profile` so it stays non-interactive and doesn't touch shell profiles itself).
 - **zellij** — not in Ubuntu's apt repos either; not currently installed by any script. Install manually (`cargo install zellij`, or a release binary from GitHub) if you want it on the Ubuntu machine.
 - **nixvim** (temporary) — `flake.nix` still builds neovim via a minimal standalone home-manager flake, since `home/gazzi/common/core/nixvim/` hasn't been ported to plain Lua yet. Everything else nix-related has been removed.
 
@@ -40,6 +40,9 @@ ln -s "$(pwd)" ~/.local/share/chezmoi
 chezmoi init
 chezmoi apply
 ```
+
+Then run `gh auth login` once per Workstation: the Obsidian vault's GitHub
+issue sync (`uv run .claude/scripts/sync_issues.py`) reads its token from `gh`.
 
 Existing Workstations must re-run `chezmoi init` once after pulling the
 Devcontainer Profile change, so their config gains `devcontainer = false`

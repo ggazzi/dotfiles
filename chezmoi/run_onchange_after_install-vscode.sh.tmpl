@@ -4,7 +4,7 @@
 # Installs VS Code extensions; on Windows + WSL also copies the settings into
 # the Windows profile (Windows can't follow symlinks into the WSL filesystem).
 # run_onchange_: chezmoi re-runs when this hash changes.
-# settings hash: {{ include "dot_config/Code/User/settings.json" | sha256sum }}
+# settings hash: {{ include "dot_config/Code/User/settings.json.tmpl" | sha256sum }}
 # keybindings hash: {{ include "dot_config/Code/User/keybindings.json" | sha256sum }}
 set -euo pipefail
 

@@ -22,5 +22,12 @@
     // Devcontainer integration; finds and runs install.sh by default.
     "dotfiles.repository": "ggazzi/dotfiles",
     "dev.containers.defaultExtensions": ["vscodevim.vim"],
+{{- if .obsidianVault }}
+    // Makes the Obsidian vault reachable in every Devcontainer for the log-work skill
+    // (.chezmoi.toml.tmpl looks for /mnt/obsidian). No Zed equivalent: VS Code-only feature.
+    "dev.containers.mounts": [
+        { "source": {{ .obsidianVault | toJson }}, "target": "/mnt/obsidian", "type": "bind" }
+    ],
+{{- end }}
     "workbench.sideBar.location": "right"
 }

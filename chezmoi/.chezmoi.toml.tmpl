@@ -5,6 +5,6 @@
     userFullName = "Guilherme Grochau Azzi"
     devcontainer = {{ eq (env "DOTFILES_PROFILE") "devcontainer" }}
 {{- /* Obsidian vault for the log-work skill; empty means the skill prints a paste block instead. */}}
-{{- /* Asked once per Workstation and kept in the local chezmoi.toml (edit it there); Devcontainers can't prompt. */}}
+{{- /* Asked once per Workstation and kept in the local chezmoi.toml (edit it there); Devcontainers can't prompt and use the vault mounted at /mnt/obsidian (see Code/User/settings.json.tmpl), if any. */}}
 {{- $wsl := and (eq .chezmoi.os "linux") (contains "microsoft" (lower .chezmoi.kernel.osrelease)) }}
-    obsidianVault = {{ if eq (env "DOTFILES_PROFILE") "devcontainer" }}""{{ else }}{{ promptStringOnce . "obsidianVault" "Obsidian vault path (empty for none)" (ternary "/mnt/c/Users/Gui/Documents/Obsidian Vault" "" $wsl) | quote }}{{ end }}
+    obsidianVault = {{ if eq (env "DOTFILES_PROFILE") "devcontainer" }}{{ if stat "/mnt/obsidian" }}"/mnt/obsidian"{{ else }}""{{ end }}{{ else }}{{ promptStringOnce . "obsidianVault" "Obsidian vault path (empty for none)" (ternary "/mnt/c/Users/Gui/Documents/Obsidian Vault" "" $wsl) | quote }}{{ end }}
